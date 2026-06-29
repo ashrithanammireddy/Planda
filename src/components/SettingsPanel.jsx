@@ -1,0 +1,287 @@
+import { useState } from 'react'
+import { Sun, Moon, Monitor, Plus, Pencil, Trash2, Check, X, Palette } from 'lucide-react'
+import { useStore } from '../store/StoreContext'
+import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
+
+const fieldCls =
+  'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+const sectionLabel = 'mb-2 block text-sm font-bold text-slate-800'
+
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+        checked ? 'bg-blue-500' : 'bg-slate-300'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+          checked ? 'left-[22px]' : 'left-0.5'
+        }`}
+      />
+    </button>
+  )
+}
+
+const APPEARANCES = [
+  { id: 'Light', icon: Sun },
+  { id: 'Dark', icon: Moon },
+  { id: 'Auto', icon: Monitor },
+]
+
+export default function SettingsPanel({ open, onClose }) {
+  const {
+    settings,
+    updateSettings,
+    classes,
+    addClass,
+    updateClass,
+    deleteClass,
+  } = useStore()
+  const [newClass, setNewClass] = useState('')
+  const [newColor, setNewColor] = useState(CLASS_COLORS[2])
+  const [editingId, setEditingId] = useState(null)
+  const [editName, setEditName] = useState('')
+
+  if (!open) return null
+
+  const set = (changes) => updateSettings(changes)
+
+  const handleAddClass = () => {
+    if (!newClass.trim()) return
+    addClass(newClass.trim(), newColor)
+    setNewClass('')
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end planda-fade" onMouseDown={onClose}>
+      <div
+        className="planda-slide flex h-full w-full max-w-md flex-col overflow-y-auto bg-white p-6 shadow-2xl planda-scroll"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Palette size={22} className="text-slate-700" />
+            <h2 className="text-2xl font-bold text-slate-900">Settings &amp; Theme</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-blue-200 p-1 text-blue-500 transition hover:bg-blue-50"
+            aria-label="Close settings"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Appearance */}
+        <div className="mb-6">
+          <span className={sectionLabel}>Appearance</span>
+          <div className="grid grid-cols-3 gap-3">
+            {APPEARANCES.map(({ id, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => set({ appearance: id })}
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 py-4 text-sm font-medium transition ${
+                  settings.appearance === id
+                    ? 'border-blue-400 bg-blue-50 text-blue-700'
+                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                }`}
+              >
+                <Icon size={20} />
+                {id}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Background color */}
+        <div className="mb-6">
+          <span className={sectionLabel}>Background Color</span>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={settings.backgroundColor}
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+            />
+            <input
+              className={fieldCls}
+              value={settings.backgroundColor}
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Default view */}
+        <div className="mb-5">
+          <span className={sectionLabel}>Default View</span>
+          <select
+            className={fieldCls}
+            value={settings.defaultView}
+            onChange={(e) => set({ defaultView: e.target.value })}
+          >
+            {VIEWS.map((v) => (
+              <option key={v}>{v}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Time format */}
+        <div className="mb-5">
+          <span className={sectionLabel}>Time Format</span>
+          <select
+            className={fieldCls}
+            value={settings.timeFormat}
+            onChange={(e) => set({ timeFormat: e.target.value })}
+          >
+            <option value="12-hour">12-hour (AM/PM)</option>
+            <option value="24-hour">24-hour</option>
+          </select>
+        </div>
+
+        {/* Week starts on */}
+        <div className="mb-5">
+          <span className={sectionLabel}>Week Starts On</span>
+          <select
+            className={fieldCls}
+            value={settings.weekStartsOn}
+            onChange={(e) => set({ weekStartsOn: e.target.value })}
+          >
+            <option>Monday</option>
+            <option>Sunday</option>
+          </select>
+        </div>
+
+        {/* Show completed */}
+        <div className="mb-6 flex items-center justify-between">
+          <span className="text-sm font-bold text-slate-800">
+            Show Completed Tasks
+          </span>
+          <Toggle
+            checked={settings.showCompletedTasks}
+            onChange={(v) => set({ showCompletedTasks: v })}
+          />
+        </div>
+
+        {/* Manage classes */}
+        <div className="mb-6 rounded-2xl border border-slate-100 p-4">
+          <span className={sectionLabel}>Manage Classes</span>
+          <div className="mb-3 flex gap-2">
+            <input
+              className={fieldCls}
+              placeholder="Class name"
+              value={newClass}
+              onChange={(e) => setNewClass(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddClass()}
+            />
+            <input
+              type="color"
+              value={newColor}
+              onChange={(e) => setNewColor(e.target.value)}
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+            />
+            <button
+              type="button"
+              onClick={handleAddClass}
+              className="shrink-0 rounded-xl bg-blue-600 px-3 text-white transition hover:bg-blue-700"
+            >
+              <Plus size={18} />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {classes.map((c) => (
+              <div
+                key={c.id}
+                className="flex items-center gap-3 rounded-2xl border border-slate-100 px-3 py-2.5"
+              >
+                <span
+                  className="h-4 w-4 shrink-0 rounded"
+                  style={{ backgroundColor: c.color }}
+                />
+                {editingId === c.id ? (
+                  <input
+                    autoFocus
+                    className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        updateClass(c.id, { name: editName.trim() || c.name })
+                        setEditingId(null)
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="flex-1 truncate text-sm font-medium text-slate-800">
+                    {c.name}
+                  </span>
+                )}
+                {editingId === c.id ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateClass(c.id, { name: editName.trim() || c.name })
+                      setEditingId(null)
+                    }}
+                    className="text-emerald-500 hover:text-emerald-600"
+                  >
+                    <Check size={16} />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(c.id)
+                      setEditName(c.name)
+                    }}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => deleteClass(c.id)}
+                  className="text-slate-400 hover:text-red-500"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Assessment emojis */}
+        <div className="mb-2">
+          <span className={sectionLabel}>Assessment Emojis</span>
+          <div className="grid grid-cols-2 gap-3">
+            {ASSESSMENT_TYPES.map((type) => (
+              <div key={type}>
+                <label className="mb-1 block text-sm font-medium text-slate-600">
+                  {type}
+                </label>
+                <input
+                  className={`${fieldCls} text-center text-lg`}
+                  value={settings.assessmentEmojis?.[type] || ''}
+                  onChange={(e) =>
+                    set({
+                      assessmentEmojis: {
+                        ...settings.assessmentEmojis,
+                        [type]: e.target.value,
+                      },
+                    })
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
