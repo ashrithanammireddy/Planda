@@ -10,6 +10,7 @@ import {
   format,
 } from '../lib/dates'
 import EventPill from './EventPill'
+import { accentColor } from '../lib/colors'
 
 export default function WeekView({ date, onSelectItem, onSelectDay }) {
   const { assessments, sessions, classes, settings } = useStore()
@@ -17,6 +18,8 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
   const days = useMemo(() => weekDays(date, wso), [date, wso])
   const labels = weekdayLabels(wso)
   const today = new Date()
+  const accent = accentColor(settings.backgroundColor)
+  const accentBorder = accentColor(settings.backgroundColor, { alpha: 0.4 })
 
   return (
     <div className="grid h-full grid-cols-7 gap-3">
@@ -33,24 +36,28 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
         return (
           <div key={day.toISOString()} className="flex flex-col">
             <div className="mb-2 text-center">
-              <div className="text-xs font-semibold tracking-wide text-slate-500">
+              <div className="text-xs font-semibold tracking-wide pl-text-muted">
                 {labels[i]}
               </div>
-              <div
-                className={`text-xl font-bold ${
-                  isToday ? 'text-rose-500' : 'text-slate-800'
-                }`}
-              >
-                {format(day, 'd')}
+              <div className="flex justify-center">
+                <span
+                  style={isToday ? { backgroundColor: accent } : undefined}
+                  className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-full text-xl font-bold ${
+                    isToday ? 'text-white' : 'pl-text'
+                  }`}
+                >
+                  {format(day, 'd')}
+                </span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onSelectDay(day)}
+              style={isToday ? { borderColor: accentBorder } : undefined}
               className={`flex min-h-[280px] flex-1 flex-col gap-1.5 rounded-2xl border p-2 text-left transition ${
                 isToday
-                  ? 'border-rose-200 bg-white/70'
-                  : 'border-black/5 bg-white hover:border-black/10'
+                  ? 'bg-white'
+                  : 'pl-border pl-surface hover:border-black/10'
               }`}
             >
               {items.map((item) => (

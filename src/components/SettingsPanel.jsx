@@ -4,8 +4,8 @@ import { useStore } from '../store/StoreContext'
 import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
 
 const fieldCls =
-  'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-const sectionLabel = 'mb-2 block text-sm font-bold text-slate-800'
+  'w-full rounded-xl border pl-border pl-surface-2 px-3.5 py-2.5 text-sm pl-text outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+const sectionLabel = 'mb-2 block text-sm font-bold pl-text'
 
 function Toggle({ checked, onChange }) {
   return (
@@ -17,7 +17,7 @@ function Toggle({ checked, onChange }) {
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+        className={`absolute top-0.5 h-5 w-5 rounded-full pl-surface shadow transition ${
           checked ? 'left-[22px]' : 'left-0.5'
         }`}
       />
@@ -58,13 +58,13 @@ export default function SettingsPanel({ open, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end planda-fade" onMouseDown={onClose}>
       <div
-        className="planda-slide flex h-full w-full max-w-md flex-col overflow-y-auto bg-white p-6 shadow-2xl planda-scroll"
+        className="planda-slide flex h-full w-full max-w-md flex-col overflow-y-auto pl-surface p-6 shadow-2xl planda-scroll"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Palette size={22} className="text-slate-700" />
-            <h2 className="text-2xl font-bold text-slate-900">Settings &amp; Theme</h2>
+            <Palette size={22} className="pl-text" />
+            <h2 className="text-2xl font-bold pl-text">Settings &amp; Theme</h2>
           </div>
           <button
             type="button"
@@ -88,7 +88,7 @@ export default function SettingsPanel({ open, onClose }) {
                 className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 py-4 text-sm font-medium transition ${
                   settings.appearance === id
                     ? 'border-blue-400 bg-blue-50 text-blue-700'
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                    : 'pl-border pl-text-muted hover:border-slate-300'
                 }`}
               >
                 <Icon size={20} />
@@ -106,7 +106,7 @@ export default function SettingsPanel({ open, onClose }) {
               type="color"
               value={settings.backgroundColor}
               onChange={(e) => set({ backgroundColor: e.target.value })}
-              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
             />
             <input
               className={fieldCls}
@@ -158,7 +158,7 @@ export default function SettingsPanel({ open, onClose }) {
 
         {/* Show completed */}
         <div className="mb-6 flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-800">
+          <span className="text-sm font-bold pl-text">
             Show Completed Tasks
           </span>
           <Toggle
@@ -168,7 +168,7 @@ export default function SettingsPanel({ open, onClose }) {
         </div>
 
         {/* Manage classes */}
-        <div className="mb-6 rounded-2xl border border-slate-100 p-4">
+        <div className="mb-6 rounded-2xl border pl-border p-4">
           <span className={sectionLabel}>Manage Classes</span>
           <div className="mb-3 flex gap-2">
             <input
@@ -182,7 +182,7 @@ export default function SettingsPanel({ open, onClose }) {
               type="color"
               value={newColor}
               onChange={(e) => setNewColor(e.target.value)}
-              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
             />
             <button
               type="button"
@@ -197,7 +197,7 @@ export default function SettingsPanel({ open, onClose }) {
             {classes.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-3 rounded-2xl border border-slate-100 px-3 py-2.5"
+                className="flex items-center gap-3 rounded-2xl border pl-border px-3 py-2.5"
               >
                 <span
                   className="h-4 w-4 shrink-0 rounded"
@@ -206,7 +206,7 @@ export default function SettingsPanel({ open, onClose }) {
                 {editingId === c.id ? (
                   <input
                     autoFocus
-                    className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none"
+                    className="flex-1 rounded-lg border pl-border px-2 py-1 text-sm outline-none"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => {
@@ -217,7 +217,7 @@ export default function SettingsPanel({ open, onClose }) {
                     }}
                   />
                 ) : (
-                  <span className="flex-1 truncate text-sm font-medium text-slate-800">
+                  <span className="flex-1 truncate text-sm font-medium pl-text">
                     {c.name}
                   </span>
                 )}
@@ -239,7 +239,7 @@ export default function SettingsPanel({ open, onClose }) {
                       setEditingId(c.id)
                       setEditName(c.name)
                     }}
-                    className="text-slate-400 hover:text-slate-600"
+                    className="pl-text-muted hover:pl-text-muted"
                   >
                     <Pencil size={16} />
                   </button>
@@ -247,7 +247,7 @@ export default function SettingsPanel({ open, onClose }) {
                 <button
                   type="button"
                   onClick={() => deleteClass(c.id)}
-                  className="text-slate-400 hover:text-red-500"
+                  className="pl-text-muted hover:text-red-500"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -262,7 +262,7 @@ export default function SettingsPanel({ open, onClose }) {
           <div className="grid grid-cols-2 gap-3">
             {ASSESSMENT_TYPES.map((type) => (
               <div key={type}>
-                <label className="mb-1 block text-sm font-medium text-slate-600">
+                <label className="mb-1 block text-sm font-medium pl-text-muted">
                   {type}
                 </label>
                 <input

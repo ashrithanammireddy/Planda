@@ -46,24 +46,24 @@ export default function StudyAssistant({ open, onClose }) {
       onMouseDown={onClose}
     >
       <div
-        className="planda-pop flex h-[80vh] max-h-[700px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="planda-pop flex h-[80vh] max-h-[700px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl pl-surface shadow-2xl"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b pl-border px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 text-white">
               <Sparkles size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Study Assistant</h2>
-              <p className="text-sm text-slate-500">Ask me anything about your studies</p>
+              <h2 className="text-lg font-bold pl-text">Study Assistant</h2>
+              <p className="text-sm pl-text-muted">Ask me anything about your studies</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full p-1 pl-text-muted transition hover:pl-surface-2 hover:pl-text-muted"
             aria-label="Close"
           >
             <X size={20} />
@@ -82,7 +82,7 @@ export default function StudyAssistant({ open, onClose }) {
               <div
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                   m.role === 'user'
-                    ? 'bg-slate-200 text-slate-500'
+                    ? 'bg-slate-200 pl-text-muted'
                     : 'bg-gradient-to-br from-violet-500 to-indigo-500 text-white'
                 }`}
               >
@@ -92,7 +92,7 @@ export default function StudyAssistant({ open, onClose }) {
                 className={`max-w-[78%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   m.role === 'user'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-slate-100 text-slate-800'
+                    : 'pl-surface-2 pl-text'
                 }`}
               >
                 {m.text}
@@ -102,9 +102,9 @@ export default function StudyAssistant({ open, onClose }) {
         </div>
 
         {/* Input */}
-        <div className="flex items-center gap-2 border-t border-slate-100 px-4 py-3">
+        <div className="flex items-center gap-2 border-t pl-border px-4 py-3">
           <input
-            className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+            className="flex-1 rounded-full border pl-border pl-surface-2 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:pl-surface focus:ring-2 focus:ring-blue-100"
             placeholder="Ask about a topic, assessment, or study plan..."
             value={input}
             onChange={(e) => setInput(e.target.value)}

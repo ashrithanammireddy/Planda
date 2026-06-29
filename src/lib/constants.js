@@ -40,12 +40,12 @@ export const DEFAULT_STUDY_TIME = '09:00'
 
 export const STORAGE_KEY = 'planda.state.v1'
 
-// Seed data so a fresh install looks alive (mirrors the demo screenshots).
+// Generic example classes so a fresh install isn't empty. Users can rename,
+// recolor, or delete these in Settings → Manage Classes.
 export const SEED_CLASSES = [
-  { name: 'AWS Cloud Fundamentals', color: '#86efac' },
-  { name: 'English', color: '#fde68a' },
-  { name: 'AP Physics C: Mechanics', color: '#a5b4fc' },
-  { name: 'AP Computer Science A', color: '#6ee7b7' },
-  { name: 'Spanish 4 Honors', color: '#fdba74' },
-  { name: 'AP Calculus AB', color: '#fca5a5' },
+  { name: 'Mathematics', color: '#a5b4fc' },
+  { name: 'Science', color: '#6ee7b7' },
+  { name: 'History', color: '#fde68a' },
+  { name: 'Literature', color: '#fdba74' },
+  { name: 'Art', color: '#f0abfc' },
 ]

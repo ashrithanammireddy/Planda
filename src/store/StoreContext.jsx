@@ -20,7 +20,7 @@ const uid = () =>
     `id-${Math.random().toString(36).slice(2)}${Date.now()}`)
 
 const DEFAULT_SETTINGS = {
-  appearance: 'Light', // Light | Dark | Auto
+  appearance: 'Auto', // Light | Dark | Auto (Auto follows the theme color)
   backgroundColor: '#f0c7c7',
   defaultView: 'Month',
   timeFormat: '12-hour', // 12-hour | 24-hour

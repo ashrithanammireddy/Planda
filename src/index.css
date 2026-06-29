@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* Use the `.dark` class on <html> to drive `dark:` variants (instead of the
+   OS media query), so the Light/Dark/Auto setting controls the theme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --planda-bg: #f0c7c7;
 }
@@ -22,7 +26,33 @@ body {
 
 /* Dark appearance overrides */
 .dark body {
-  color: #e7e9f0;
+  color: #f1f3f9;
+}
+
+/* Theme tokens (set on <html> from the chosen background color) drive every
+   surface, border, and text color so the whole app shares one palette. */
+:root {
+  --planda-surface: #ffffff;
+  --planda-surface-2: #f1f5f9;
+  --planda-border: rgba(0, 0, 0, 0.06);
+  --planda-text: #1f2433;
+  --planda-text-muted: #64748b;
+}
+
+.pl-surface {
+  background-color: var(--planda-surface);
+}
+.pl-surface-2 {
+  background-color: var(--planda-surface-2);
+}
+.pl-border {
+  border-color: var(--planda-border);
+}
+.pl-text {
+  color: var(--planda-text);
+}
+.pl-text-muted {
+  color: var(--planda-text-muted);
 }
 
 /* Thin, subtle scrollbars inside panels */

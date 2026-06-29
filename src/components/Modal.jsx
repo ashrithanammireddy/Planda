@@ -18,7 +18,7 @@ export default function Modal({ open, onClose, children, maxWidth = 'max-w-lg' }
       onMouseDown={onClose}
     >
       <div
-        className={`planda-pop max-h-[90vh] w-full overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl planda-scroll ${maxWidth}`}
+        className={`planda-pop max-h-[90vh] w-full overflow-y-auto rounded-3xl pl-surface p-6 shadow-2xl planda-scroll ${maxWidth}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {children}
@@ -33,14 +33,14 @@ export function ModalHeader({ title, subtitle, icon, onClose }) {
       <div className="flex items-center gap-3">
         {icon}
         <div>
-          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-          {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+          <h2 className="text-xl font-bold pl-text">{title}</h2>
+          {subtitle && <p className="text-sm pl-text-muted">{subtitle}</p>}
         </div>
       </div>
       <button
         type="button"
         onClick={onClose}
-        className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+        className="rounded-full p-1 pl-text-muted transition hover:pl-surface-2 hover:pl-text-muted"
         aria-label="Close"
       >
         <X size={20} />

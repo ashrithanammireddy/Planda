@@ -12,6 +12,7 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import { parseKey } from './lib/dates'
+import { isColorDark, themeTokens, accentColor } from './lib/colors'
 
 function PlandaApp() {
   const { settings } = useStore()
@@ -27,23 +28,24 @@ function PlandaApp() {
   const [aiOpen, setAiOpen] = useState(false)
   const [detailDay, setDetailDay] = useState(null)
 
-  // Apply background color + light/dark appearance to the document.
+  // Theme the whole app from the chosen background color. The color is ALWAYS
+  // the real page background (never overridden); we only decide whether to use
+  // light or dark text/surfaces, and derive tinted surfaces from the color.
   useEffect(() => {
-    const mql = window.matchMedia('(prefers-color-scheme: dark)')
-    const apply = () => {
-      const dark =
-        settings.appearance === 'Dark' ||
-        (settings.appearance === 'Auto' && mql.matches)
-      const root = document.documentElement
-      root.classList.toggle('dark', dark)
-      root.style.setProperty(
-        '--planda-bg',
-        dark ? '#1b1f2a' : settings.backgroundColor
-      )
-    }
-    apply()
-    mql.addEventListener('change', apply)
-    return () => mql.removeEventListener('change', apply)
+    const bg = settings.backgroundColor
+    const dark =
+      settings.appearance === 'Dark' ||
+      (settings.appearance === 'Auto' && isColorDark(bg))
+    const t = themeTokens(bg, dark)
+    const root = document.documentElement
+    root.classList.toggle('dark', dark)
+    root.style.setProperty('--planda-bg', bg)
+    root.style.setProperty('--planda-surface', t.surface)
+    root.style.setProperty('--planda-surface-2', t.surface2)
+    root.style.setProperty('--planda-border', t.border)
+    root.style.setProperty('--planda-text', t.text)
+    root.style.setProperty('--planda-text-muted', t.textMuted)
+    root.style.setProperty('--planda-accent', accentColor(bg, { l: dark ? 62 : 52 }))
   }, [settings.appearance, settings.backgroundColor])
 
   const openNewAssessment = (forDay = null) => {

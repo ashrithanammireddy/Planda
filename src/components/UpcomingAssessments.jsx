@@ -9,23 +9,23 @@ export default function UpcomingAssessments({ onSelectAssessment }) {
   const list = upcomingAssessments(assessments, classes)
 
   return (
-    <div className="w-full rounded-3xl bg-white p-5 shadow-sm lg:w-80">
+    <div className="w-full rounded-3xl pl-surface p-5 shadow-sm lg:w-80">
       <div className="mb-4 flex items-center gap-2">
-        <BookOpen size={18} className="text-slate-700" />
-        <h2 className="text-base font-bold text-slate-800">
+        <BookOpen size={18} className="pl-text" />
+        <h2 className="text-base font-bold pl-text">
           Upcoming Assessments
         </h2>
       </div>
 
       {list.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full pl-surface-2 pl-text-muted">
             <BookOpen size={24} />
           </div>
-          <div className="text-base font-semibold text-slate-700">
+          <div className="text-base font-semibold pl-text">
             No Upcoming Assessments
           </div>
-          <div className="max-w-[200px] text-sm text-slate-400">
+          <div className="max-w-[200px] text-sm pl-text-muted">
             Add a test, quiz, or exam to get AI-powered study plans
           </div>
         </div>

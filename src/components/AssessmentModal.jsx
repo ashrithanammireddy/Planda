@@ -7,8 +7,8 @@ import { dateKey } from '../lib/dates'
 import { isValidColor } from '../lib/colors'
 
 const field =
-  'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-const label = 'mb-1.5 block text-sm font-semibold text-slate-700'
+  'w-full rounded-xl border pl-border pl-surface-2 px-3.5 py-2.5 text-sm pl-text outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+const label = 'mb-1.5 block text-sm font-semibold pl-text'
 
 function emptyForm(initialDate) {
   return {
@@ -176,7 +176,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
             <button
               type="button"
               onClick={addTopic}
-              className="shrink-0 rounded-xl border border-slate-200 px-3 text-slate-600 transition hover:bg-slate-50"
+              className="shrink-0 rounded-xl border pl-border px-3 pl-text-muted transition hover:pl-surface-2"
             >
               <Plus size={18} />
             </button>
@@ -186,7 +186,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
               {form.topics.map((t, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+                  className="inline-flex items-center gap-1 rounded-full pl-surface-2 px-3 py-1 text-sm pl-text"
                 >
                   {t}
                   <button
@@ -197,7 +197,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
                         form.topics.filter((_, idx) => idx !== i)
                       )
                     }
-                    className="text-slate-400 hover:text-slate-600"
+                    className="pl-text-muted hover:pl-text-muted"
                   >
                     ×
                   </button>
@@ -225,7 +225,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
               type="color"
               value={isValidColor(form.customColor) ? form.customColor : '#ef4444'}
               onChange={(e) => set('customColor', e.target.value)}
-              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
             />
             <input
               className={field}
@@ -234,7 +234,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
               placeholder="#ef4444 or color name"
             />
           </div>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs pl-text-muted">
             Override default assessment color
           </p>
         </div>
@@ -259,7 +259,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+              className="rounded-xl border pl-border px-4 py-2 text-sm font-medium pl-text-muted transition hover:pl-surface-2"
             >
               Cancel
             </button>

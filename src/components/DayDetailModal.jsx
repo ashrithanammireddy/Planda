@@ -24,7 +24,7 @@ export default function DayDetailModal({
       <ModalHeader title={format(day, 'EEEE, MMMM d')} onClose={onClose} />
 
       {items.length === 0 ? (
-        <p className="py-6 text-center text-sm text-slate-400">
+        <p className="py-6 text-center text-sm pl-text-muted">
           Nothing scheduled for this day.
         </p>
       ) : (
@@ -51,7 +51,7 @@ export default function DayDetailModal({
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-slate-100 p-3"
+                className="rounded-2xl border pl-border p-3"
               >
                 <div className="flex items-start gap-3">
                   <button
@@ -67,13 +67,13 @@ export default function DayDetailModal({
                   </button>
                   <div className="flex-1">
                     <div
-                      className={`font-medium text-slate-800 ${
+                      className={`font-medium pl-text ${
                         s.completed ? 'line-through opacity-60' : ''
                       }`}
                     >
                       {s.emoji} {s.title}
                     </div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs pl-text-muted">
                       {formatTime(s.time, settings.timeFormat)} · {s.durationMinutes} min
                       {s.className ? ` · ${s.className}` : ''}
                     </div>
@@ -84,7 +84,7 @@ export default function DayDetailModal({
                             key={t.id}
                             type="button"
                             onClick={() => toggleTask(s.id, t.id)}
-                            className="flex items-center gap-2 text-left text-sm text-slate-600"
+                            className="flex items-center gap-2 text-left text-sm pl-text-muted"
                           >
                             {t.done ? (
                               <CheckCircle2 size={15} className="text-emerald-500" />
@@ -109,7 +109,7 @@ export default function DayDetailModal({
       <button
         type="button"
         onClick={() => onAddForDay(day)}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium text-slate-500 transition hover:border-blue-400 hover:text-blue-600"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium pl-text-muted transition hover:border-blue-400 hover:text-blue-600"
       >
         <Plus size={16} />
         Add assessment for this day
