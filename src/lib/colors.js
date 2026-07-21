@@ -57,15 +57,13 @@ function rgbToHsl({ r, g, b }) {
 // `alpha` < 1 returns a translucent version (handy for soft rings).
 export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
   const rgb = hexToRgb(bg)
-  // No / invalid color -> neutral slate-grey accent.
-  if (!rgb) return alpha < 1 ? `hsla(220, 12%, ${l}%, ${alpha})` : `hsl(220, 12%, ${l}%)`
+  // No / invalid color -> near-neutral graphite (matches the B&W panda).
+  if (!rgb) return alpha < 1 ? `hsla(220, 5%, ${l}%, ${alpha})` : `hsl(220, 5%, ${l}%)`
   const { h, s } = rgbToHsl(rgb)
   // Near-grey themes have no real hue — forcing saturation would invent a
-  // random (often red) tint, so fall back to a neutral slate-blue accent.
+  // random (often red) tint, so keep the accent a clean neutral graphite.
   if (s < 12) {
-    return alpha < 1
-      ? `hsla(220, 14%, ${l}%, ${alpha})`
-      : `hsl(220, 14%, ${l}%)`
+    return alpha < 1 ? `hsla(220, 5%, ${l}%, ${alpha})` : `hsl(220, 5%, ${l}%)`
   }
   // Boost saturation a touch (and floor it) so pastels read as a clear accent.
   const sat = Math.min(70, Math.max(48, s * 1.15))

@@ -1,8 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
-import { Sparkles, Send, X, User } from 'lucide-react'
+import { Send, X, User } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { upcomingAssessments } from '../lib/events'
 import { buildContextMessage, assistantReply } from '../lib/aiStub'
+import pandaUrl from '../assets/planda-panda.png'
+
+function PandaAvatar({ size = 32 }) {
+  return (
+    <span
+      className="flex shrink-0 items-center justify-center rounded-full pl-surface-2"
+      style={{ width: size, height: size }}
+    >
+      <img
+        src={pandaUrl}
+        alt="Planda"
+        width={size - 6}
+        height={size - 6}
+        style={{ objectFit: 'contain' }}
+      />
+    </span>
+  )
+}
 
 export default function StudyAssistant({ open, onClose }) {
   const { assessments, classes } = useStore()
@@ -52,9 +70,7 @@ export default function StudyAssistant({ open, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between border-b pl-border px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full pl-accent text-white">
-              <Sparkles size={20} />
-            </div>
+            <PandaAvatar size={40} />
             <div>
               <h2 className="text-lg font-bold pl-text">Study Assistant</h2>
               <p className="text-sm pl-text-muted">Ask me anything about your studies</p>
@@ -79,15 +95,13 @@ export default function StudyAssistant({ open, onClose }) {
                 m.role === 'user' ? 'flex-row-reverse' : ''
               }`}
             >
-              <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                  m.role === 'user'
-                    ? 'bg-slate-200 pl-text-muted'
-                    : 'pl-accent text-white'
-                }`}
-              >
-                {m.role === 'user' ? <User size={16} /> : <Sparkles size={16} />}
-              </div>
+              {m.role === 'user' ? (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 pl-text-muted">
+                  <User size={16} />
+                </div>
+              ) : (
+                <PandaAvatar size={32} />
+              )}
               <div
                 className={`max-w-[78%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   m.role === 'user'
