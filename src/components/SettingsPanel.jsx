@@ -4,7 +4,7 @@ import { useStore } from '../store/StoreContext'
 import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
 
 const fieldCls =
-  'w-full rounded-xl border pl-border pl-surface-2 px-3.5 py-2.5 text-sm pl-text outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+  'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const sectionLabel = 'mb-2 block text-sm font-bold pl-text'
 
 function Toggle({ checked, onChange }) {
@@ -13,7 +13,7 @@ function Toggle({ checked, onChange }) {
       type="button"
       onClick={() => onChange(!checked)}
       className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-        checked ? 'bg-blue-500' : 'bg-slate-300'
+        checked ? 'pl-accent' : 'bg-slate-300'
       }`}
     >
       <span
@@ -69,7 +69,7 @@ export default function SettingsPanel({ open, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-blue-200 p-1 text-blue-500 transition hover:bg-blue-50"
+            className="rounded-full border pl-accent-border p-1 pl-accent-text transition hover:pl-accent-soft"
             aria-label="Close settings"
           >
             <X size={20} />
@@ -87,7 +87,7 @@ export default function SettingsPanel({ open, onClose }) {
                 onClick={() => set({ appearance: id })}
                 className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 py-4 text-sm font-medium transition ${
                   settings.appearance === id
-                    ? 'border-blue-400 bg-blue-50 text-blue-700'
+                    ? 'pl-accent-border pl-accent-soft pl-accent-text'
                     : 'pl-border pl-text-muted hover:border-slate-300'
                 }`}
               >
@@ -187,7 +187,7 @@ export default function SettingsPanel({ open, onClose }) {
             <button
               type="button"
               onClick={handleAddClass}
-              className="shrink-0 rounded-xl bg-blue-600 px-3 text-white transition hover:bg-blue-700"
+              className="shrink-0 rounded-xl pl-accent px-3 text-white transition hover:brightness-110"
             >
               <Plus size={18} />
             </button>

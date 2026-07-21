@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { VIEWS } from '../lib/constants'
 import { periodLabel, navigate, weekStartsOnIndex } from '../lib/dates'
+import PandaLogo from './PandaLogo'
 
 export default function Header({
   view,
@@ -21,8 +22,15 @@ export default function Header({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      {/* View switcher */}
-      <div className="inline-flex rounded-xl bg-black/5 p-1 backdrop-blur">
+      {/* Brand + View switcher */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <PandaLogo size={40} className="drop-shadow-sm" />
+          <span className="planda-wordmark pl-text text-3xl leading-none">
+            planda
+          </span>
+        </div>
+        <div className="inline-flex rounded-xl bg-black/5 p-1 backdrop-blur">
         {VIEWS.map((v) => (
           <button
             key={v}
@@ -37,6 +45,7 @@ export default function Header({
             {v}
           </button>
         ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -77,7 +86,7 @@ export default function Header({
         <button
           type="button"
           onClick={onOpenAI}
-          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-semibold text-blue-600 shadow-sm transition hover:bg-white/90"
+          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-semibold pl-accent-text shadow-sm transition hover:bg-white/90"
         >
           <Sparkles size={16} />
           AI Study Helper

@@ -109,7 +109,7 @@ export default function DayDetailModal({
       <button
         type="button"
         onClick={() => onAddForDay(day)}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium pl-text-muted transition hover:border-blue-400 hover:text-blue-600"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium pl-text-muted transition hover:pl-accent-border hover:pl-accent-text"
       >
         <Plus size={16} />
         Add assessment for this day

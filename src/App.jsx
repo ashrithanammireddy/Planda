@@ -12,7 +12,7 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import { parseKey } from './lib/dates'
-import { isColorDark, themeTokens, accentColor } from './lib/colors'
+import { isColorDark, themeTokens, accentColor, darkThemeBg } from './lib/colors'
 
 function PlandaApp() {
   const { settings } = useStore()
@@ -32,20 +32,27 @@ function PlandaApp() {
   // the real page background (never overridden); we only decide whether to use
   // light or dark text/surfaces, and derive tinted surfaces from the color.
   useEffect(() => {
-    const bg = settings.backgroundColor
+    const chosen = settings.backgroundColor
     const dark =
       settings.appearance === 'Dark' ||
-      (settings.appearance === 'Auto' && isColorDark(bg))
-    const t = themeTokens(bg, dark)
+      (settings.appearance === 'Auto' && isColorDark(chosen))
+    // In dark mode the page goes genuinely dark (theme-tinted near-black);
+    // otherwise the chosen color IS the page background.
+    const pageBg = dark ? darkThemeBg(chosen) : chosen
+    const t = themeTokens(pageBg, dark)
+    const accentL = dark ? 64 : 50
     const root = document.documentElement
     root.classList.toggle('dark', dark)
-    root.style.setProperty('--planda-bg', bg)
+    root.style.setProperty('--planda-bg', pageBg)
     root.style.setProperty('--planda-surface', t.surface)
     root.style.setProperty('--planda-surface-2', t.surface2)
     root.style.setProperty('--planda-border', t.border)
     root.style.setProperty('--planda-text', t.text)
     root.style.setProperty('--planda-text-muted', t.textMuted)
-    root.style.setProperty('--planda-accent', accentColor(bg, { l: dark ? 62 : 52 }))
+    // Accent keeps the CHOSEN color's hue (not the darkened page bg).
+    root.style.setProperty('--planda-accent', accentColor(chosen, { l: accentL }))
+    root.style.setProperty('--planda-accent-soft', accentColor(chosen, { l: accentL, alpha: 0.16 }))
+    root.style.setProperty('--planda-on-accent', '#ffffff')
   }, [settings.appearance, settings.backgroundColor])
 
   const openNewAssessment = (forDay = null) => {

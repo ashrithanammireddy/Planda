@@ -21,7 +21,7 @@ const uid = () =>
 
 const DEFAULT_SETTINGS = {
   appearance: 'Auto', // Light | Dark | Auto (Auto follows the theme color)
-  backgroundColor: '#f0c7c7',
+  backgroundColor: '#bcdcd3', // Planda mint (matches the brand)
   defaultView: 'Month',
   timeFormat: '12-hour', // 12-hour | 24-hour
   weekStartsOn: 'Monday', // Monday | Sunday

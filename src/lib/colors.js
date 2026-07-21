@@ -94,24 +94,31 @@ export function mix(a, b, t) {
   return `#${hx(ch(ra.r, rb.r))}${hx(ch(ra.g, rb.g))}${hx(ch(ra.b, rb.b))}`
 }
 
-// Builds the full set of surface/border/text tokens derived from one theme
-// color, adapting for light vs dark backgrounds.
-export function themeTokens(bg, isDark) {
+// A genuinely dark page background that still carries the theme's hue — a
+// near-black tinted with 12% of the chosen color. Used for Dark appearance.
+export function darkThemeBg(hex) {
+  return mix(hex, '#07080b', 0.88)
+}
+
+// Builds the full set of surface/border/text tokens derived from the page
+// background color, adapting for light vs dark backgrounds. In dark mode the
+// caller passes the already-darkened page background.
+export function themeTokens(pageBg, isDark) {
   if (isDark) {
     return {
-      surface: mix(bg, '#ffffff', 0.1),
-      surface2: mix(bg, '#ffffff', 0.17),
-      border: mix(bg, '#ffffff', 0.22),
+      surface: mix(pageBg, '#ffffff', 0.07),
+      surface2: mix(pageBg, '#ffffff', 0.13),
+      border: mix(pageBg, '#ffffff', 0.16),
       text: '#f1f3f9',
-      textMuted: mix(bg, '#ffffff', 0.62),
+      textMuted: mix(pageBg, '#ffffff', 0.58),
     }
   }
   return {
-    surface: mix(bg, '#ffffff', 0.82),
-    surface2: mix(bg, '#ffffff', 0.66),
-    border: mix(bg, '#000000', 0.09),
+    surface: mix(pageBg, '#ffffff', 0.82),
+    surface2: mix(pageBg, '#ffffff', 0.66),
+    border: mix(pageBg, '#000000', 0.09),
     text: '#1f2433',
-    textMuted: mix(bg, '#000000', 0.45),
+    textMuted: mix(pageBg, '#000000', 0.45),
   }
 }
 

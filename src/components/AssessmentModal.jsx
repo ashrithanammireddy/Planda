@@ -7,7 +7,7 @@ import { dateKey } from '../lib/dates'
 import { isValidColor } from '../lib/colors'
 
 const field =
-  'w-full rounded-xl border pl-border pl-surface-2 px-3.5 py-2.5 text-sm pl-text outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+  'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const label = 'mb-1.5 block text-sm font-semibold pl-text'
 
 function emptyForm(initialDate) {
@@ -265,7 +265,7 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="rounded-xl pl-accent px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110"
             >
               {editing ? 'Save' : 'Create'}
             </button>

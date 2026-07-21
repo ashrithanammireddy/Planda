@@ -55,6 +55,45 @@ body {
   color: var(--planda-text-muted);
 }
 
+/* Accent = derived from the theme color. Replaces all the old blue/violet. */
+:root {
+  --planda-accent: #10b981;
+  --planda-accent-soft: rgba(16, 185, 129, 0.16);
+  --planda-on-accent: #ffffff;
+}
+.pl-accent {
+  background-color: var(--planda-accent);
+  color: var(--planda-on-accent);
+}
+.pl-accent-soft {
+  background-color: var(--planda-accent-soft);
+}
+.pl-accent-text {
+  color: var(--planda-accent);
+}
+.pl-accent-border {
+  border-color: var(--planda-accent);
+}
+
+/* Form fields pick up the theme accent on focus. */
+.pl-field {
+  border-color: var(--planda-border);
+  background-color: var(--planda-surface-2);
+  color: var(--planda-text);
+}
+.pl-field:focus {
+  outline: none;
+  border-color: var(--planda-accent);
+  box-shadow: 0 0 0 3px var(--planda-accent-soft);
+}
+
+/* Brand wordmark */
+.planda-wordmark {
+  font-family: 'Grand Hotel', cursive;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
 /* Thin, subtle scrollbars inside panels */
 .planda-scroll {
   scrollbar-width: thin;
