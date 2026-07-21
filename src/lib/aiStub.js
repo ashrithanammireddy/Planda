@@ -1,6 +1,6 @@
 import { relativeDays } from './dates'
 
-// A fully local, rule-based "Study Assistant". No network, no API key — it
+// A fully local, rule-based "Study Assistant". No network, no API key, it
 // inspects the user's assessments and crafts helpful canned responses so the
 // chat feels alive while staying offline.
 
@@ -34,7 +34,7 @@ export function assistantReply(userText, { assessments = [], classes = [] }) {
     text.includes('help me prepare')
   ) {
     if (!next) {
-      return "You don't have any assessments on the calendar yet. Tap the + button to add a test, quiz, or exam — give it a due date and difficulty, and I'll automatically lay out daily study blocks leading up to it. Want a hand picking a study schedule?"
+      return "You don't have any assessments on the calendar yet. Tap the + button to add a test, quiz, or exam, give it a due date and difficulty, and I'll automatically lay out daily study blocks leading up to it. Want a hand picking a study schedule?"
     }
     return `I see you have a ${next.type.toLowerCase()} for ${clsName} coming up ${relativeDays(
       next.dueDate
@@ -44,7 +44,7 @@ export function assistantReply(userText, { assessments = [], classes = [] }) {
   // Practice questions
   if (text.includes('practice') || text.includes('question') || text.includes('quiz me')) {
     const topic = next?.topics?.[0] || clsName
-    return `Great — let's drill ${topic}. Try these:\n\n1. Explain ${topic} in your own words, as if teaching a friend.\n2. What's one common mistake people make with ${topic}?\n3. Give a real-world example where ${topic} applies.\n4. How does ${topic} connect to the other material in ${clsName}?\n\nAnswer out loud or jot them down, then tell me which felt shaky and we'll dig in.`
+    return `Great, let's drill ${topic}. Try these:\n\n1. Explain ${topic} in your own words, as if teaching a friend.\n2. What's one common mistake people make with ${topic}?\n3. Give a real-world example where ${topic} applies.\n4. How does ${topic} connect to the other material in ${clsName}?\n\nAnswer out loud or jot them down, then tell me which felt shaky and we'll dig in.`
   }
 
   // Study plan
@@ -59,7 +59,7 @@ export function assistantReply(userText, { assessments = [], classes = [] }) {
 
   // Stress / motivation
   if (text.includes('stress') || text.includes('overwhelm') || text.includes('anxious')) {
-    return "Totally normal — let's make it smaller. Pick just the next study block on your calendar and commit to those minutes only. Done is better than perfect. Want me to break your next assessment into bite-sized daily goals?"
+    return "Totally normal, let's make it smaller. Pick just the next study block on your calendar and commit to those minutes only. Done is better than perfect. Want me to break your next assessment into bite-sized daily goals?"
   }
 
   // Specific topic help
