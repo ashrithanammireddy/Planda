@@ -12,6 +12,11 @@ import SettingsPanel from './components/SettingsPanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
+import Sidebar from './components/Sidebar'
+import MobileNav from './components/MobileNav'
+import ProgressSection from './components/sections/ProgressSection'
+import FriendsSection from './components/sections/FriendsSection'
+import ProfileSection from './components/sections/ProfileSection'
 import { parseKey } from './lib/dates'
 import {
   isColorDark,
@@ -27,6 +32,7 @@ const NEUTRAL_BG = '#eceef1'
 function PlandaApp() {
   const { settings } = useStore()
 
+  const [section, setSection] = useState('calendar')
   const [view, setView] = useState(settings.defaultView)
   const [date, setDate] = useState(() => new Date())
 
@@ -102,59 +108,82 @@ function PlandaApp() {
     else setDetailDay(parseKey(item.ref.date))
   }
 
+  const openAI = () => setAiOpen(true)
+  const openSettings = () => setSettingsOpen(true)
+
   return (
-    <div className="min-h-screen w-full">
-      <div className="mx-auto flex max-w-[1500px] flex-col gap-5 p-4 sm:p-6">
-        <Header
-          view={view}
-          setView={setView}
-          date={date}
-          setDate={setDate}
-          weekStartsOn={settings.weekStartsOn}
-          onOpenAI={() => setAiOpen(true)}
-          onOpenSettings={() => setSettingsOpen(true)}
-        />
+    <div className="flex min-h-screen w-full">
+      <Sidebar
+        section={section}
+        setSection={setSection}
+        onOpenAI={openAI}
+        onOpenSettings={openSettings}
+      />
 
-        <div className="flex flex-col gap-5 lg:flex-row">
-          <div className="min-h-[70vh] flex-1">
-            {view === 'Month' && (
-              <MonthView
+      <main className="min-w-0 flex-1 pb-24 lg:pb-0">
+        <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
+          {section === 'calendar' && (
+            <div className="flex flex-col gap-5">
+              <Header
+                view={view}
+                setView={setView}
                 date={date}
-                onSelectItem={handleSelectItem}
-                onSelectDay={setDetailDay}
+                setDate={setDate}
+                weekStartsOn={settings.weekStartsOn}
               />
-            )}
-            {view === 'Week' && (
-              <WeekView
-                date={date}
-                onSelectItem={handleSelectItem}
-                onSelectDay={setDetailDay}
-              />
-            )}
-            {view === 'Day' && (
-              <DayView date={date} onSelectItem={handleSelectItem} />
-            )}
-            {view === 'Year' && (
-              <YearView
-                date={date}
-                onPickMonth={(m) => {
-                  setDate(m)
-                  setView('Month')
-                }}
-              />
-            )}
-          </div>
+              <div className="flex flex-col gap-5 lg:flex-row">
+                <div className="min-h-[70vh] flex-1">
+                  {view === 'Month' && (
+                    <MonthView
+                      date={date}
+                      onSelectItem={handleSelectItem}
+                      onSelectDay={setDetailDay}
+                    />
+                  )}
+                  {view === 'Week' && (
+                    <WeekView
+                      date={date}
+                      onSelectItem={handleSelectItem}
+                      onSelectDay={setDetailDay}
+                    />
+                  )}
+                  {view === 'Day' && (
+                    <DayView date={date} onSelectItem={handleSelectItem} />
+                  )}
+                  {view === 'Year' && (
+                    <YearView
+                      date={date}
+                      onPickMonth={(m) => {
+                        setDate(m)
+                        setView('Month')
+                      }}
+                    />
+                  )}
+                </div>
 
-          {view !== 'Year' && (
-            <UpcomingAssessments onSelectAssessment={openEditAssessment} />
+                {view !== 'Year' && (
+                  <UpcomingAssessments onSelectAssessment={openEditAssessment} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {section === 'progress' && <ProgressSection />}
+          {section === 'friends' && <FriendsSection />}
+          {section === 'profile' && (
+            <ProfileSection onOpenSettings={openSettings} />
           )}
         </div>
-      </div>
+      </main>
 
-      <Fab
-        onAddItem={() => openNewItem()}
-        onAddAssessment={() => openNewAssessment()}
-      />
+      <MobileNav section={section} setSection={setSection} onOpenAI={openAI} />
+
+      {section === 'calendar' && (
+        <Fab
+          onAddItem={() => openNewItem()}
+          onAddAssessment={() => openNewAssessment()}
+        />
+      )}
 
       <AssessmentModal
         open={assessmentOpen}

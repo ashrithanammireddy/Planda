@@ -41,7 +41,7 @@ export default function Fab({ onAddItem, onAddAssessment }) {
           className="fixed inset-0 z-30 cursor-default"
         />
       )}
-      <div className="fixed bottom-7 right-7 z-40 flex flex-col items-end gap-3">
+      <div className="fixed bottom-24 right-5 z-40 flex flex-col items-end gap-3 lg:bottom-7 lg:right-7">
         {open && (
           <>
             {action('Add Item', CheckSquare, onAddItem, '0ms')}

@@ -19,6 +19,8 @@ const uid = () =>
   (crypto?.randomUUID?.() ??
     `id-${Math.random().toString(36).slice(2)}${Date.now()}`)
 
+const DEFAULT_PROFILE = { name: '', school: '', avatar: '🐼' }
+
 const DEFAULT_SETTINGS = {
   appearance: 'Auto', // Light | Dark | Auto (Auto follows the theme color)
   backgroundColor: '#bcdcd3', // Planda mint (matches the brand)
@@ -40,6 +42,7 @@ function seedState() {
     assessments: [],
     sessions: [],
     items: [],
+    profile: { ...DEFAULT_PROFILE },
     settings: { ...DEFAULT_SETTINGS },
   }
 }
@@ -54,6 +57,7 @@ function loadState() {
       assessments: parsed.assessments ?? [],
       sessions: parsed.sessions ?? [],
       items: parsed.items ?? [],
+      profile: { ...DEFAULT_PROFILE, ...(parsed.profile ?? {}) },
       settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
     }
   } catch {
@@ -178,6 +182,8 @@ function reducer(state, action) {
       )
       return { ...state, sessions }
     }
+    case 'UPDATE_PROFILE':
+      return { ...state, profile: { ...state.profile, ...action.changes } }
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.changes } }
     case 'RESET':
@@ -218,6 +224,8 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'TOGGLE_TASK', sessionId, taskId }),
       updateSettings: (changes) =>
         dispatch({ type: 'UPDATE_SETTINGS', changes }),
+      updateProfile: (changes) =>
+        dispatch({ type: 'UPDATE_PROFILE', changes }),
       reset: () => dispatch({ type: 'RESET' }),
     }),
     []
