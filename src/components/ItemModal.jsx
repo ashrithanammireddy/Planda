@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal, { ModalHeader } from './Modal'
 import { useStore } from '../store/StoreContext'
-import { ITEM_CATEGORIES, ITEM_TYPES, PRIORITIES } from '../lib/constants'
+import { ITEM_CATEGORIES, ITEM_TYPES, PRIORITIES, categoryColor } from '../lib/constants'
 import { dateKey } from '../lib/dates'
 import { isValidColor } from '../lib/colors'
 
@@ -172,7 +172,7 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
           <div className="flex gap-2">
             <input
               type="color"
-              value={isValidColor(form.customColor) ? form.customColor : '#6366f1'}
+              value={isValidColor(form.customColor) ? form.customColor : categoryColor(form.category)}
               onChange={(e) => set('customColor', e.target.value)}
               className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
             />
@@ -180,10 +180,10 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
               className={field}
               value={form.customColor}
               onChange={(e) => set('customColor', e.target.value)}
-              placeholder="#6366f1 or color name"
+              placeholder="Uses category color"
             />
           </div>
-          <p className="mt-1 text-xs pl-text-muted">Override default category color</p>
+          <p className="mt-1 text-xs pl-text-muted">Leave blank to use the category color</p>
         </div>
 
         <div className="flex items-center justify-between border-t pl-border pt-4">

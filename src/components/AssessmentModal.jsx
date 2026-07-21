@@ -223,7 +223,11 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
           <div className="flex gap-2">
             <input
               type="color"
-              value={isValidColor(form.customColor) ? form.customColor : '#ef4444'}
+              value={
+                isValidColor(form.customColor)
+                  ? form.customColor
+                  : classes.find((c) => c.id === form.classId)?.color || '#9ca3af'
+              }
               onChange={(e) => set('customColor', e.target.value)}
               className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
             />
@@ -231,11 +235,11 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
               className={field}
               value={form.customColor}
               onChange={(e) => set('customColor', e.target.value)}
-              placeholder="#ef4444 or color name"
+              placeholder="Uses class color"
             />
           </div>
           <p className="mt-1 text-xs pl-text-muted">
-            Override default assessment color
+            Leave blank to use the class color
           </p>
         </div>
 
