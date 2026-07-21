@@ -13,7 +13,16 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import { parseKey } from './lib/dates'
-import { isColorDark, themeTokens, accentColor, darkThemeBg } from './lib/colors'
+import {
+  isColorDark,
+  themeTokens,
+  accentColor,
+  darkThemeBg,
+  isValidColor,
+} from './lib/colors'
+
+// Used when no background/accent color is selected: a clean neutral grey.
+const NEUTRAL_BG = '#eceef1'
 
 function PlandaApp() {
   const { settings } = useStore()
@@ -35,7 +44,10 @@ function PlandaApp() {
   // the real page background (never overridden); we only decide whether to use
   // light or dark text/surfaces, and derive tinted surfaces from the color.
   useEffect(() => {
-    const chosen = settings.backgroundColor
+    // Fall back to a neutral grey when no valid color is selected.
+    const chosen = isValidColor(settings.backgroundColor)
+      ? settings.backgroundColor
+      : NEUTRAL_BG
     const dark =
       settings.appearance === 'Dark' ||
       (settings.appearance === 'Auto' && isColorDark(chosen))

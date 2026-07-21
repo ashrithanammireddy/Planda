@@ -8,6 +8,7 @@ import {
 import { VIEWS } from '../lib/constants'
 import { periodLabel, navigate, weekStartsOnIndex } from '../lib/dates'
 import PandaLogo from './PandaLogo'
+import wordmarkUrl from '../assets/planda-wordmark.png'
 
 export default function Header({
   view,
@@ -25,10 +26,25 @@ export default function Header({
       {/* Brand + View switcher */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <PandaLogo size={40} className="drop-shadow-sm" />
-          <span className="planda-wordmark pl-text text-3xl leading-none">
-            planda
-          </span>
+          <PandaLogo size={40} />
+          <span
+            role="img"
+            aria-label="planda"
+            style={{
+              WebkitMaskImage: `url(${wordmarkUrl})`,
+              maskImage: `url(${wordmarkUrl})`,
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+              WebkitMaskSize: 'contain',
+              maskSize: 'contain',
+              WebkitMaskPosition: 'left center',
+              maskPosition: 'left center',
+              backgroundColor: 'var(--planda-text)',
+              width: '86px',
+              height: '34px',
+              display: 'inline-block',
+            }}
+          />
         </div>
         <div className="inline-flex rounded-xl bg-black/5 p-1 backdrop-blur">
         {VIEWS.map((v) => (
