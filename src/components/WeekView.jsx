@@ -57,7 +57,7 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
               style={isToday ? { borderColor: accentBorder } : undefined}
               className={`flex min-h-[280px] flex-1 flex-col gap-1.5 rounded-2xl border p-2 text-left transition ${
                 isToday
-                  ? 'bg-white'
+                  ? 'pl-surface'
                   : 'pl-border pl-surface hover:border-black/10'
               }`}
             >

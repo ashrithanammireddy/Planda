@@ -56,7 +56,7 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
               className={`flex min-h-[96px] flex-col gap-1 rounded-2xl border p-2 text-left transition ${
                 inMonth
                   ? 'pl-border pl-surface hover:border-black/10'
-                  : 'border-transparent bg-white/30 pl-text-muted'
+                  : 'border-transparent pl-surface opacity-50 pl-text-muted'
               }`}
             >
               <span

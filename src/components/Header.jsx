@@ -53,7 +53,7 @@ export default function Header({
         <button
           type="button"
           onClick={() => setDate(new Date())}
-          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-medium pl-text shadow-sm transition hover:bg-white/90"
+          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-medium pl-text shadow-sm transition hover:brightness-95"
         >
           <CalendarIcon size={16} />
           Today
@@ -86,7 +86,7 @@ export default function Header({
         <button
           type="button"
           onClick={onOpenAI}
-          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-semibold pl-accent-text shadow-sm transition hover:bg-white/90"
+          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-semibold pl-accent-text shadow-sm transition hover:brightness-95"
         >
           <Sparkles size={16} />
           AI Study Helper
