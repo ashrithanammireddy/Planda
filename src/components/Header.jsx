@@ -2,7 +2,6 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Settings,
 } from 'lucide-react'
 import { VIEWS } from '../lib/constants'
@@ -23,29 +22,26 @@ export default function Header({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      {/* Brand + View switcher */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <PandaLogo size={40} />
-          <span
-            role="img"
-            aria-label="planda"
-            style={{
-              WebkitMaskImage: `url(${wordmarkUrl})`,
-              maskImage: `url(${wordmarkUrl})`,
-              WebkitMaskRepeat: 'no-repeat',
-              maskRepeat: 'no-repeat',
-              WebkitMaskSize: 'contain',
-              maskSize: 'contain',
-              WebkitMaskPosition: 'left center',
-              maskPosition: 'left center',
-              backgroundColor: 'var(--planda-text)',
-              width: '86px',
-              height: '34px',
-              display: 'inline-block',
-            }}
-          />
-        </div>
+      {/* Brand (wordmark only) + View switcher */}
+      <div className="flex items-center gap-4">
+        <span
+          role="img"
+          aria-label="planda"
+          style={{
+            WebkitMaskImage: `url(${wordmarkUrl})`,
+            maskImage: `url(${wordmarkUrl})`,
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskSize: 'contain',
+            maskSize: 'contain',
+            WebkitMaskPosition: 'left center',
+            maskPosition: 'left center',
+            backgroundColor: 'var(--planda-text)',
+            width: '104px',
+            height: '40px',
+            display: 'inline-block',
+          }}
+        />
         <div className="inline-flex rounded-xl bg-black/5 p-1 backdrop-blur">
         {VIEWS.map((v) => (
           <button
@@ -98,14 +94,17 @@ export default function Header({
           </button>
         </div>
 
-        {/* AI Study Helper */}
+        {/* Panda = the AI study assistant. Tap the panda to chat. */}
         <button
           type="button"
           onClick={onOpenAI}
-          className="inline-flex items-center gap-2 rounded-xl pl-surface px-3.5 py-2 text-sm font-semibold pl-accent-text shadow-sm transition hover:brightness-95"
+          title="Ask Planda"
+          className="group inline-flex items-center gap-2 rounded-full pl-surface py-1 pl-1 pr-3.5 shadow-sm transition hover:brightness-95"
         >
-          <Sparkles size={16} />
-          AI Study Helper
+          <span className="flex h-9 w-9 items-center justify-center rounded-full pl-surface-2 transition group-hover:scale-105">
+            <PandaLogo size={30} />
+          </span>
+          <span className="text-sm font-semibold pl-accent-text">Ask Planda</span>
         </button>
 
         {/* Settings */}
