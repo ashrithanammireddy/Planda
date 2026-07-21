@@ -39,6 +39,7 @@ function seedState() {
     classes,
     assessments: [],
     sessions: [],
+    items: [],
     settings: { ...DEFAULT_SETTINGS },
   }
 }
@@ -52,6 +53,7 @@ function loadState() {
       classes: parsed.classes ?? [],
       assessments: parsed.assessments ?? [],
       sessions: parsed.sessions ?? [],
+      items: parsed.items ?? [],
       settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
     }
   } catch {
@@ -138,6 +140,25 @@ function reducer(state, action) {
         sessions: rebuildSessions(assessments, state.classes, state.sessions),
       }
     }
+    case 'ADD_ITEM': {
+      const item = { id: uid(), completed: false, ...action.item }
+      return { ...state, items: [...state.items, item] }
+    }
+    case 'UPDATE_ITEM': {
+      const items = state.items.map((i) =>
+        i.id === action.id ? { ...i, ...action.changes } : i
+      )
+      return { ...state, items }
+    }
+    case 'DELETE_ITEM': {
+      return { ...state, items: state.items.filter((i) => i.id !== action.id) }
+    }
+    case 'TOGGLE_ITEM': {
+      const items = state.items.map((i) =>
+        i.id === action.id ? { ...i, completed: !i.completed } : i
+      )
+      return { ...state, items }
+    }
     case 'TOGGLE_SESSION': {
       const sessions = state.sessions.map((s) =>
         s.id === action.id ? { ...s, completed: !s.completed } : s
@@ -188,6 +209,10 @@ export function StoreProvider({ children }) {
       updateAssessment: (id, changes) =>
         dispatch({ type: 'UPDATE_ASSESSMENT', id, changes }),
       deleteAssessment: (id) => dispatch({ type: 'DELETE_ASSESSMENT', id }),
+      addItem: (item) => dispatch({ type: 'ADD_ITEM', item }),
+      updateItem: (id, changes) => dispatch({ type: 'UPDATE_ITEM', id, changes }),
+      deleteItem: (id) => dispatch({ type: 'DELETE_ITEM', id }),
+      toggleItem: (id) => dispatch({ type: 'TOGGLE_ITEM', id }),
       toggleSession: (id) => dispatch({ type: 'TOGGLE_SESSION', id }),
       toggleTask: (sessionId, taskId) =>
         dispatch({ type: 'TOGGLE_TASK', sessionId, taskId }),

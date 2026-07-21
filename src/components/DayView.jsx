@@ -8,10 +8,10 @@ import { readableText, accentColor } from '../lib/colors'
 const HOURS = Array.from({ length: 24 }, (_, i) => i) // full day, scrollable
 
 export default function DayView({ date, onSelectItem }) {
-  const { assessments, sessions, classes, settings, toggleSession } = useStore()
+  const { assessments, sessions, classes, settings, items: userItems, toggleSession } = useStore()
   const items = useMemo(
-    () => itemsForDate(date, { assessments, sessions, classes, settings }),
-    [date, assessments, sessions, classes, settings]
+    () => itemsForDate(date, { assessments, sessions, classes, settings, items: userItems }),
+    [date, assessments, sessions, classes, settings, userItems]
   )
   const allDay = items.filter((it) => !it.time)
   const timed = items.filter((it) => it.time)

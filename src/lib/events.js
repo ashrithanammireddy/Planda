@@ -1,8 +1,12 @@
 import { dateKey, startOfDay, parseKey } from './dates'
+import { categoryColor } from './constants'
 
-// Normalizes assessments + generated study sessions into a single list of
-// calendar items for a given day, sorted by time (assessments first).
-export function itemsForDate(day, { assessments, sessions, classes, settings }) {
+// Normalizes assessments + generated study sessions + user items into a single
+// list of calendar entries for a given day, sorted by time (assessments first).
+export function itemsForDate(
+  day,
+  { assessments, sessions, classes, settings, items: userItems = [] }
+) {
   const key = typeof day === 'string' ? day : dateKey(day)
   const items = []
 
@@ -33,6 +37,22 @@ export function itemsForDate(day, { assessments, sessions, classes, settings }) 
       time: s.time,
       completed: s.completed,
       ref: s,
+    })
+  }
+
+  for (const it of userItems) {
+    if (it.date !== key) continue
+    if (!settings.showCompletedTasks && it.completed) continue
+    const timed = it.timeBlock?.enabled ? it.timeBlock.time : null
+    items.push({
+      id: it.id,
+      kind: 'item',
+      title: it.title,
+      emoji: it.type === 'Event' ? '📌' : '',
+      color: it.customColor || categoryColor(it.category),
+      time: timed,
+      completed: it.checkable ? it.completed : false,
+      ref: it,
     })
   }
 

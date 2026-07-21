@@ -15,7 +15,7 @@ import { accentColor } from '../lib/colors'
 const MAX_PILLS = 3
 
 export default function MonthView({ date, onSelectItem, onSelectDay }) {
-  const { assessments, sessions, classes, settings } = useStore()
+  const { assessments, sessions, classes, settings, items: userItems } = useStore()
   const wso = weekStartsOnIndex(settings.weekStartsOn)
   const days = useMemo(() => monthGrid(date, wso), [date, wso])
   const labels = weekdayLabels(wso)
@@ -45,6 +45,7 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
             sessions,
             classes,
             settings,
+            items: userItems,
           })
           return (
             <button

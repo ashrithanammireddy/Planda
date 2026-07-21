@@ -10,14 +10,29 @@ export default function DayDetailModal({
   day,
   onClose,
   onEditAssessment,
+  onEditItem,
   onAddForDay,
 }) {
-  const { assessments, sessions, classes, settings, toggleSession, toggleTask } =
-    useStore()
+  const {
+    assessments,
+    sessions,
+    classes,
+    settings,
+    items: userItems,
+    toggleSession,
+    toggleTask,
+    toggleItem,
+  } = useStore()
 
   if (!open || !day) return null
 
-  const items = itemsForDate(day, { assessments, sessions, classes, settings })
+  const items = itemsForDate(day, {
+    assessments,
+    sessions,
+    classes,
+    settings,
+    items: userItems,
+  })
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -45,6 +60,48 @@ export default function DayDetailModal({
                     {item.ref.type}
                   </span>
                 </button>
+              )
+            }
+            if (item.kind === 'item') {
+              const it = item.ref
+              return (
+                <div key={item.id} className="rounded-2xl border pl-border p-3">
+                  <div className="flex items-start gap-3">
+                    {it.checkable && (
+                      <button
+                        type="button"
+                        onClick={() => toggleItem(it.id)}
+                        className={it.completed ? 'text-emerald-500' : 'text-slate-300'}
+                        aria-label="Toggle complete"
+                      >
+                        {it.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onEditItem(it)}
+                      className="flex-1 text-left"
+                    >
+                      <div
+                        className={`font-medium pl-text ${
+                          it.completed ? 'line-through opacity-60' : ''
+                        }`}
+                      >
+                        {item.emoji} {it.title}
+                      </div>
+                      <div className="text-xs pl-text-muted">
+                        {it.category}
+                        {it.timeBlock?.enabled
+                          ? ` · ${formatTime(it.timeBlock.time, settings.timeFormat)}`
+                          : ''}
+                        {it.priority ? ` · ${it.priority} priority` : ''}
+                      </div>
+                      {it.description && (
+                        <div className="mt-1 text-sm pl-text-muted">{it.description}</div>
+                      )}
+                    </button>
+                  </div>
+                </div>
               )
             }
             const s = item.ref
@@ -112,7 +169,7 @@ export default function DayDetailModal({
         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium pl-text-muted transition hover:pl-accent-border hover:pl-accent-text"
       >
         <Plus size={16} />
-        Add assessment for this day
+        Add item for this day
       </button>
     </Modal>
   )

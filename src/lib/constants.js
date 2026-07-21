@@ -6,6 +6,21 @@ export const ASSESSMENT_TYPES = ['Test', 'Quiz', 'Exam', 'Project']
 
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
 
+// Generic calendar items (tasks / events) created via the FAB "Add Item" flow.
+export const ITEM_CATEGORIES = [
+  { name: 'Personal', color: '#a5b4fc' },
+  { name: 'School', color: '#6ee7b7' },
+  { name: 'Work', color: '#fdba74' },
+  { name: 'Health', color: '#fca5a5' },
+  { name: 'Other', color: '#c4b5fd' },
+]
+export const ITEM_TYPES = ['Task', 'Event']
+export const PRIORITIES = ['Low', 'Medium', 'High']
+
+export function categoryColor(name) {
+  return ITEM_CATEGORIES.find((c) => c.name === name)?.color || '#c4b5fd'
+}
+
 // How aggressively to study based on difficulty — multiplies the daily minutes
 // and controls how many days before the due date the plan starts.
 export const DIFFICULTY_LEAD_DAYS = {

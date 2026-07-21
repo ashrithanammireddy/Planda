@@ -7,6 +7,7 @@ import DayView from './components/DayView'
 import YearView from './components/YearView'
 import UpcomingAssessments from './components/UpcomingAssessments'
 import AssessmentModal from './components/AssessmentModal'
+import ItemModal from './components/ItemModal'
 import SettingsPanel from './components/SettingsPanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
@@ -24,6 +25,8 @@ function PlandaApp() {
   const [assessmentOpen, setAssessmentOpen] = useState(false)
   const [editingAssessment, setEditingAssessment] = useState(null)
   const [initialDate, setInitialDate] = useState(null)
+  const [itemOpen, setItemOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   const [detailDay, setDetailDay] = useState(null)
@@ -68,8 +71,22 @@ function PlandaApp() {
     setAssessmentOpen(true)
   }
 
+  const openNewItem = (forDay = null) => {
+    setEditingItem(null)
+    setInitialDate(forDay)
+    setDetailDay(null)
+    setItemOpen(true)
+  }
+
+  const openEditItem = (item) => {
+    setEditingItem(item)
+    setDetailDay(null)
+    setItemOpen(true)
+  }
+
   const handleSelectItem = (item) => {
     if (item.kind === 'assessment') openEditAssessment(item.ref)
+    else if (item.kind === 'item') openEditItem(item.ref)
     else setDetailDay(parseKey(item.ref.date))
   }
 
@@ -122,12 +139,21 @@ function PlandaApp() {
         </div>
       </div>
 
-      <Fab onClick={() => openNewAssessment()} />
+      <Fab
+        onAddItem={() => openNewItem()}
+        onAddAssessment={() => openNewAssessment()}
+      />
 
       <AssessmentModal
         open={assessmentOpen}
         onClose={() => setAssessmentOpen(false)}
         editing={editingAssessment}
+        initialDate={initialDate}
+      />
+      <ItemModal
+        open={itemOpen}
+        onClose={() => setItemOpen(false)}
+        editing={editingItem}
         initialDate={initialDate}
       />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
@@ -137,7 +163,8 @@ function PlandaApp() {
         day={detailDay}
         onClose={() => setDetailDay(null)}
         onEditAssessment={openEditAssessment}
-        onAddForDay={openNewAssessment}
+        onEditItem={openEditItem}
+        onAddForDay={openNewItem}
       />
     </div>
   )

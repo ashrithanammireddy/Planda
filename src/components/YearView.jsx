@@ -59,7 +59,7 @@ function MiniMonth({ monthDate, wso, hasItems, onPick, accent }) {
 }
 
 export default function YearView({ date, onPickMonth }) {
-  const { assessments, sessions, classes, settings } = useStore()
+  const { assessments, sessions, classes, settings, items } = useStore()
   const wso = weekStartsOnIndex(settings.weekStartsOn)
   const accent = accentColor(settings.backgroundColor)
 
@@ -73,7 +73,7 @@ export default function YearView({ date, onPickMonth }) {
   )
 
   const hasItems = (day) =>
-    itemsForDate(day, { assessments, sessions, classes, settings }).length > 0
+    itemsForDate(day, { assessments, sessions, classes, settings, items }).length > 0
 
   return (
     <div className="grid grid-cols-2 gap-3 overflow-y-auto planda-scroll md:grid-cols-3 lg:grid-cols-4">

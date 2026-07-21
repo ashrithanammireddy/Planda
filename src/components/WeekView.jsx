@@ -13,7 +13,7 @@ import EventPill from './EventPill'
 import { accentColor } from '../lib/colors'
 
 export default function WeekView({ date, onSelectItem, onSelectDay }) {
-  const { assessments, sessions, classes, settings } = useStore()
+  const { assessments, sessions, classes, settings, items: userItems } = useStore()
   const wso = weekStartsOnIndex(settings.weekStartsOn)
   const days = useMemo(() => weekDays(date, wso), [date, wso])
   const labels = weekdayLabels(wso)
@@ -30,6 +30,7 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
           sessions,
           classes,
           settings,
+          items: userItems,
         })
         const studies = items.filter((it) => it.kind === 'study')
         const doneCount = studies.filter((s) => s.completed).length
