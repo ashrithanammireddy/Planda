@@ -1,12 +1,19 @@
 import { useState } from 'react'
-import { UserCircle, Settings, ChevronDown } from 'lucide-react'
+import { UserCircle, Palette, LogOut, PanelLeft } from 'lucide-react'
 import PandaLogo from './PandaLogo'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
-// Slim top bar: brand on mobile, "Ask Planda" + account avatar on the right.
-export default function TopBar({ avatar, onOpenAI, onOpenSettings, setSection }) {
+// Full-width top bar: hamburger + planda wordmark on the left; Ask Planda and
+// the account avatar (with Profile / Account / Colors / Log out) on the right.
+export default function TopBar({
+  avatar,
+  onToggleSidebar,
+  onOpenAI,
+  onOpenColors,
+  onLogout,
+  setSection,
+}) {
   const [menuOpen, setMenuOpen] = useState(false)
-
   const go = (fn) => {
     setMenuOpen(false)
     fn()
@@ -14,29 +21,36 @@ export default function TopBar({ avatar, onOpenAI, onOpenSettings, setSection })
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b pl-border pl-surface px-4 py-2.5">
-      {/* Brand on mobile (sidebar is hidden there) */}
-      <span
-        role="img"
-        aria-label="planda"
-        className="inline-block lg:hidden"
-        style={{
-          WebkitMaskImage: `url(${wordmarkUrl})`,
-          maskImage: `url(${wordmarkUrl})`,
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskSize: 'contain',
-          maskSize: 'contain',
-          WebkitMaskPosition: 'left center',
-          maskPosition: 'left center',
-          backgroundColor: 'var(--planda-text)',
-          width: '88px',
-          height: '32px',
-        }}
-      />
-      <div className="hidden lg:block" />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          aria-label="Toggle menu"
+          className="hidden rounded-lg p-1.5 pl-text-muted transition hover:pl-surface-2 hover:pl-text lg:inline-flex"
+        >
+          <PanelLeft size={19} />
+        </button>
+        <span
+          role="img"
+          aria-label="planda"
+          className="inline-block"
+          style={{
+            WebkitMaskImage: `url(${wordmarkUrl})`,
+            maskImage: `url(${wordmarkUrl})`,
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskSize: 'contain',
+            maskSize: 'contain',
+            WebkitMaskPosition: 'left center',
+            maskPosition: 'left center',
+            backgroundColor: 'var(--planda-text)',
+            width: '96px',
+            height: '36px',
+          }}
+        />
+      </div>
 
       <div className="flex items-center gap-2">
-        {/* Ask Planda lives up here now (desktop; mobile uses the bottom panda) */}
         <button
           type="button"
           onClick={onOpenAI}
@@ -49,19 +63,16 @@ export default function TopBar({ avatar, onOpenAI, onOpenSettings, setSection })
           <span className="text-sm font-semibold pl-accent-text">Ask Planda</span>
         </button>
 
-        {/* Account avatar + menu */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="flex items-center gap-1 rounded-full pl-surface-2 p-1 pr-1.5 transition hover:brightness-95"
+            aria-label="Account"
+            className="flex h-10 w-10 items-center justify-center rounded-full pl-surface-2 text-xl leading-none transition hover:brightness-95"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full pl-surface text-xl leading-none">
-              {avatar || '🐼'}
-            </span>
-            <ChevronDown size={15} className="pl-text-muted" />
+            {avatar || '🐼'}
           </button>
 
           {menuOpen && (
@@ -97,11 +108,21 @@ export default function TopBar({ avatar, onOpenAI, onOpenSettings, setSection })
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => go(onOpenSettings)}
+                  onClick={() => go(onOpenColors)}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium pl-text transition hover:pl-surface-2"
                 >
-                  <Settings size={18} className="pl-text-muted" />
-                  Settings
+                  <Palette size={18} className="pl-text-muted" />
+                  Colors
+                </button>
+                <div className="my-1 h-px pl-surface-2" />
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => go(onLogout)}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
+                >
+                  <LogOut size={18} />
+                  Log out
                 </button>
               </div>
             </>

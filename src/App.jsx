@@ -32,7 +32,7 @@ import {
 const NEUTRAL_BG = '#eceef1'
 
 function PlandaApp() {
-  const { settings, profile } = useStore()
+  const { settings, profile, updateProfile } = useStore()
 
   const [section, setSection] = useState('calendar')
   const [collapsed, setCollapsed] = useState(false)
@@ -113,25 +113,37 @@ function PlandaApp() {
 
   const openAI = () => setAiOpen(true)
   const openSettings = () => setSettingsOpen(true)
+  const logout = () => {
+    if (
+      window.confirm(
+        'Log out of this local profile? Your planner data stays on this device.'
+      )
+    ) {
+      updateProfile({ name: '', school: '', avatar: '🐼' })
+      setSection('calendar')
+    }
+  }
 
   return (
-    <div className="flex min-h-screen w-full">
-      <Sidebar
-        section={section}
+    <div className="flex h-screen flex-col">
+      <TopBar
+        avatar={profile.avatar}
+        onToggleSidebar={() => setCollapsed((c) => !c)}
+        onOpenAI={openAI}
+        onOpenColors={openSettings}
+        onLogout={logout}
         setSection={setSection}
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((c) => !c)}
-        onOpenSettings={openSettings}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          avatar={profile.avatar}
-          onOpenAI={openAI}
-          onOpenSettings={openSettings}
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <Sidebar
+          section={section}
           setSection={setSection}
+          collapsed={collapsed}
+          onOpenSettings={openSettings}
         />
-        <main className="min-w-0 flex-1 pb-24 lg:pb-0">
+
+        <main className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0">
           <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
           {section === 'calendar' && (
             <div className="flex flex-col gap-5">
