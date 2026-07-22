@@ -39,13 +39,14 @@ export default function TopBar({
             maskImage: `url(${wordmarkUrl})`,
             WebkitMaskRepeat: 'no-repeat',
             maskRepeat: 'no-repeat',
-            WebkitMaskSize: 'contain',
-            maskSize: 'contain',
+            // fill the box so we can stretch it a touch wider than natural
+            WebkitMaskSize: '100% 100%',
+            maskSize: '100% 100%',
             WebkitMaskPosition: 'left center',
             maskPosition: 'left center',
             backgroundColor: 'var(--planda-text)',
-            width: '96px',
-            height: '36px',
+            width: '100px',
+            height: '42px',
           }}
         />
       </div>
