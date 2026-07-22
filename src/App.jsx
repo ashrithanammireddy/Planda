@@ -13,10 +13,12 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import Sidebar from './components/Sidebar'
+import TopBar from './components/TopBar'
 import MobileNav from './components/MobileNav'
 import ProgressSection from './components/sections/ProgressSection'
 import FriendsSection from './components/sections/FriendsSection'
 import ProfileSection from './components/sections/ProfileSection'
+import AccountSection from './components/sections/AccountSection'
 import { parseKey } from './lib/dates'
 import {
   isColorDark,
@@ -30,9 +32,10 @@ import {
 const NEUTRAL_BG = '#eceef1'
 
 function PlandaApp() {
-  const { settings } = useStore()
+  const { settings, profile } = useStore()
 
   const [section, setSection] = useState('calendar')
+  const [collapsed, setCollapsed] = useState(false)
   const [view, setView] = useState(settings.defaultView)
   const [date, setDate] = useState(() => new Date())
 
@@ -116,12 +119,20 @@ function PlandaApp() {
       <Sidebar
         section={section}
         setSection={setSection}
-        onOpenAI={openAI}
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((c) => !c)}
         onOpenSettings={openSettings}
       />
 
-      <main className="min-w-0 flex-1 pb-24 lg:pb-0">
-        <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar
+          avatar={profile.avatar}
+          onOpenAI={openAI}
+          onOpenSettings={openSettings}
+          setSection={setSection}
+        />
+        <main className="min-w-0 flex-1 pb-24 lg:pb-0">
+          <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
           {section === 'calendar' && (
             <div className="flex flex-col gap-5">
               <Header
@@ -173,10 +184,19 @@ function PlandaApp() {
           {section === 'profile' && (
             <ProfileSection onOpenSettings={openSettings} />
           )}
+          {section === 'account' && (
+            <AccountSection onOpenSettings={openSettings} />
+          )}
         </div>
       </main>
+      </div>
 
-      <MobileNav section={section} setSection={setSection} onOpenAI={openAI} />
+      <MobileNav
+        section={section}
+        setSection={setSection}
+        onOpenAI={openAI}
+        avatar={profile.avatar}
+      />
 
       {section === 'calendar' && (
         <Fab
