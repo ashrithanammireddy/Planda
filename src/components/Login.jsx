@@ -3,10 +3,24 @@ import { Mail, CheckCircle2 } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
-// Login gate. Clean light-mint background with a mint spotlight that follows
-// the cursor + faint rings. Sign-in is front-end only for now.
+// Soft mint fog blobs that slowly drift on their own. `home` is the resting
+// position (fraction of the viewport); each blob also gets nudged away from the
+// cursor, so moving the mouse pushes the fog around and it settles back after.
+const BLOBS = [
+  { home: [0.28, 0.32], size: 520, color: 'rgba(45,168,136,0.62)', sx: 0.13, sy: 0.17, ph: 0.0, amp: 26 },
+  { home: [0.72, 0.28], size: 460, color: 'rgba(108,201,170,0.58)', sx: 0.11, sy: 0.15, ph: 1.7, amp: 30 },
+  { home: [0.5, 0.62], size: 600, color: 'rgba(45,168,136,0.55)', sx: 0.09, sy: 0.12, ph: 3.1, amp: 34 },
+  { home: [0.24, 0.72], size: 420, color: 'rgba(150,222,198,0.60)', sx: 0.14, sy: 0.1, ph: 4.4, amp: 28 },
+  { home: [0.8, 0.74], size: 440, color: 'rgba(45,168,136,0.50)', sx: 0.1, sy: 0.16, ph: 5.6, amp: 32 },
+  { home: [0.55, 0.2], size: 360, color: 'rgba(120,205,175,0.55)', sx: 0.12, sy: 0.13, ph: 2.4, amp: 24 },
+]
+
+// Login gate. Clean light-mint background with drifting mint fog the cursor
+// pushes around. Sign-in is front-end only for now.
 export default function Login({ onDone, notice = '' }) {
-  const glowRef = useRef(null)
+  const layerRef = useRef(null)
+  const blobRefs = useRef([])
+  const mouse = useRef({ x: -9999, y: -9999 })
   const [email, setEmail] = useState('')
   const [toast, setToast] = useState(notice)
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
@@ -19,19 +33,59 @@ export default function Login({ onDone, notice = '' }) {
     return () => clearTimeout(t)
   }, [notice])
 
+  // Drift + cursor-repulsion loop. Each blob eases toward (idle drift + push),
+  // so the fog looks alive and gets shoved around by the mouse, then relaxes.
   useEffect(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const move = (e) => {
-      const g = glowRef.current
-      if (!g) return
-      g.style.setProperty('--sx', `${(e.clientX / window.innerWidth) * 100}%`)
-      g.style.setProperty('--sy', `${(e.clientY / window.innerHeight) * 100}%`)
+      mouse.current = { x: e.clientX, y: e.clientY }
     }
     window.addEventListener('mousemove', move)
-    return () => window.removeEventListener('mousemove', move)
+
+    const offsets = BLOBS.map(() => ({ x: 0, y: 0 }))
+    const start = performance.now()
+    const PUSH_RADIUS = 420
+    const PUSH_STRENGTH = 300
+    let raf = 0
+
+    const tick = (now) => {
+      const t = (now - start) / 1000
+      const W = window.innerWidth
+      const H = window.innerHeight
+      BLOBS.forEach((b, i) => {
+        const driftX = Math.sin(t * b.sx * 6.28 + b.ph) * b.amp
+        const driftY = Math.cos(t * b.sy * 6.28 + b.ph) * b.amp
+        const cx = b.home[0] * W + driftX
+        const cy = b.home[1] * H + driftY
+        const dx = cx - mouse.current.x
+        const dy = cy - mouse.current.y
+        const dist = Math.hypot(dx, dy)
+        let px = 0
+        let py = 0
+        if (!reduce && dist < PUSH_RADIUS && dist > 0.01) {
+          const f = (PUSH_RADIUS - dist) / PUSH_RADIUS
+          px = (dx / dist) * f * PUSH_STRENGTH
+          py = (dy / dist) * f * PUSH_STRENGTH
+        }
+        const o = offsets[i]
+        // Snappy on the push (shovel), slow on the settle (fog relaxing back).
+        const ease = Math.hypot(px, py) > Math.hypot(o.x, o.y) ? 0.16 : 0.04
+        o.x += (px - o.x) * ease
+        o.y += (py - o.y) * ease
+        const el = blobRefs.current[i]
+        if (el) el.style.transform = `translate3d(${driftX + o.x}px, ${driftY + o.y}px, 0)`
+      })
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      cancelAnimationFrame(raf)
+    }
   }, [])
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: '#eef5f1' }}>
+    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: '#ffffff' }}>
       {/* log-out confirmation toast */}
       <div
         className={`pointer-events-none absolute left-1/2 top-6 z-30 -translate-x-1/2 transition-all duration-300 ${
@@ -44,25 +98,29 @@ export default function Login({ onDone, notice = '' }) {
         </div>
       </div>
 
-      {/* faint concentric rings */}
+      {/* drifting mint fog the cursor pushes around */}
       <div
+        ref={layerRef}
         className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(circle at 50% 42%, transparent 0 120px, rgba(52,169,138,.09) 121px 123px, transparent 124px),' +
-            'radial-gradient(circle at 50% 42%, transparent 0 210px, rgba(52,169,138,.07) 211px 213px, transparent 214px),' +
-            'radial-gradient(circle at 50% 42%, transparent 0 320px, rgba(52,169,138,.05) 321px 323px, transparent 324px)',
-        }}
-      />
-      {/* cursor spotlight */}
-      <div
-        ref={glowRef}
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(420px 420px at var(--sx,50%) var(--sy,42%), rgba(52,169,138,.30), transparent 70%)',
-        }}
-      />
+        style={{ filter: 'blur(44px)' }}
+      >
+        {BLOBS.map((b, i) => (
+          <div
+            key={i}
+            ref={(el) => (blobRefs.current[i] = el)}
+            className="absolute rounded-full will-change-transform"
+            style={{
+              left: `${b.home[0] * 100}%`,
+              top: `${b.home[1] * 100}%`,
+              width: b.size,
+              height: b.size,
+              marginLeft: -b.size / 2,
+              marginTop: -b.size / 2,
+              background: `radial-gradient(circle at 50% 50%, ${b.color}, transparent 70%)`,
+            }}
+          />
+        ))}
+      </div>
 
       {/* card */}
       <div className="relative z-20 w-[360px] max-w-[88%] rounded-[26px] border border-white/60 bg-white/85 p-8 shadow-[0_30px_70px_rgba(20,40,34,0.18)] backdrop-blur-md">
