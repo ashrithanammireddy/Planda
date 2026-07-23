@@ -119,7 +119,7 @@ export default function ImportModal({ open, onClose }) {
       title: h.title,
       description: '',
       date: h.date,
-      category: 'Other',
+      category: 'Holidays',
       priority: 'Low',
       type: 'Event',
       customColor: '',

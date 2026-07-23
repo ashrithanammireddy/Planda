@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = {
   weekStartsOn: 'Monday', // Monday | Sunday
   showCompletedTasks: true,
   assessmentEmojis: { ...DEFAULT_ASSESSMENT_EMOJIS },
+  hiddenCalendars: [], // calendar ids toggled off (e.g. "class:<id>", "cat:Holidays")
 }
 
 function seedState() {
@@ -281,6 +282,13 @@ function reducer(state, action) {
     }
     case 'UPDATE_PROFILE':
       return { ...state, profile: { ...state.profile, ...action.changes } }
+    case 'TOGGLE_CALENDAR': {
+      const hidden = state.settings.hiddenCalendars || []
+      const next = hidden.includes(action.id)
+        ? hidden.filter((c) => c !== action.id)
+        : [...hidden, action.id]
+      return { ...state, settings: { ...state.settings, hiddenCalendars: next } }
+    }
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.changes } }
     case 'RESET':
@@ -322,6 +330,7 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'TOGGLE_TASK', sessionId, taskId }),
       updateSettings: (changes) =>
         dispatch({ type: 'UPDATE_SETTINGS', changes }),
+      toggleCalendar: (id) => dispatch({ type: 'TOGGLE_CALENDAR', id }),
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
       logFocus: (minutes) => dispatch({ type: 'LOG_FOCUS', minutes }),

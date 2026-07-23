@@ -14,6 +14,18 @@ body,
   height: 100%;
 }
 
+/* Clickable things get the pointer cursor. */
+button,
+[role='button'],
+select,
+summary,
+a {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+
 body {
   margin: 0;
   /* Poppins: clean, geometric, friendly, with the system stack as fallback. */

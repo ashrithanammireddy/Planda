@@ -9,9 +9,12 @@ export function itemsForDate(
 ) {
   const key = typeof day === 'string' ? day : dateKey(day)
   const items = []
+  const hidden = settings.hiddenCalendars || []
+  const classHidden = (classId) => hidden.includes(`class:${classId || 'none'}`)
 
   for (const a of assessments) {
     if (a.dueDate !== key) continue
+    if (classHidden(a.classId)) continue
     const cls = classes.find((c) => c.id === a.classId)
     items.push({
       id: `assess-${a.id}`,
@@ -27,6 +30,7 @@ export function itemsForDate(
 
   for (const s of sessions) {
     if (s.date !== key) continue
+    if (classHidden(s.classId)) continue
     if (!settings.showCompletedTasks && s.completed) continue
     items.push({
       id: s.id,
@@ -42,6 +46,7 @@ export function itemsForDate(
 
   for (const it of userItems) {
     if (it.date !== key) continue
+    if (hidden.includes(`cat:${it.category}`)) continue
     if (!settings.showCompletedTasks && it.completed) continue
     const timed = it.timeBlock?.enabled ? it.timeBlock.time : null
     items.push({
