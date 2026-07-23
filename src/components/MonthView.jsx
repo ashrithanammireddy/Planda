@@ -36,7 +36,7 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
         ))}
       </div>
 
-      <div className="grid flex-1 auto-rows-fr grid-cols-7 gap-2">
+      <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-7 gap-2">
         {days.map((day) => {
           const inMonth = isSameMonth(day, date)
           const isToday = isSameDay(day, today)
@@ -53,7 +53,7 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
               type="button"
               onClick={() => onSelectDay(day)}
               style={isToday ? { boxShadow: `0 0 0 2px ${accentRing}` } : undefined}
-              className={`flex min-h-[96px] flex-col gap-1 rounded-2xl border p-2 text-left transition ${
+              className={`flex min-h-0 flex-col gap-1 overflow-hidden rounded-2xl border p-2 text-left transition ${
                 inMonth
                   ? 'pl-border pl-surface hover:border-black/10'
                   : 'border-transparent pl-surface opacity-50 pl-text-muted'

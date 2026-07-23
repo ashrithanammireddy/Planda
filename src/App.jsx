@@ -145,7 +145,7 @@ function PlandaApp() {
         <main className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0">
           <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
           {section === 'calendar' && (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
               <Header
                 view={view}
                 setView={setView}
@@ -153,8 +153,8 @@ function PlandaApp() {
                 setDate={setDate}
                 weekStartsOn={settings.weekStartsOn}
               />
-              <div className="flex flex-col gap-5 lg:flex-row">
-                <div className="min-h-[70vh] flex-1">
+              <div className="flex flex-col gap-5 lg:h-[calc(100vh-176px)] lg:flex-row">
+                <div className="min-h-0 flex-1">
                   {view === 'Month' && (
                     <MonthView
                       date={date}

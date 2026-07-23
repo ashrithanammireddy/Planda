@@ -9,7 +9,7 @@ export default function UpcomingAssessments({ onSelectAssessment }) {
   const list = upcomingAssessments(assessments, classes)
 
   return (
-    <div className="w-full rounded-3xl pl-surface p-5 shadow-sm lg:w-80">
+    <div className="w-full shrink-0 overflow-y-auto rounded-3xl pl-surface p-5 shadow-sm planda-scroll lg:h-full lg:w-80">
       <div className="mb-4 flex items-center gap-2">
         <BookOpen size={18} className="pl-text" />
         <h2 className="text-base font-bold pl-text">
