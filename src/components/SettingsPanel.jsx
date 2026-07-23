@@ -1,10 +1,20 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Check, X, Settings, DownloadCloud } from 'lucide-react'
+import {
+  Plus, Pencil, Trash2, Check, X, Settings, DownloadCloud,
+  Sun, Moon, Monitor,
+} from 'lucide-react'
 import { useStore } from '../store/StoreContext'
-import { ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
+import { ASSESSMENT_TYPES, CLASS_COLORS, VIEWS, THEME_PRESETS } from '../lib/constants'
 
 const fieldCls = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const sectionLabel = 'mb-2 block text-sm font-bold pl-text'
+const groupLabel =
+  'mb-3 mt-2 block text-xs font-bold uppercase tracking-wider pl-text-muted'
+const APPEARANCES = [
+  { id: 'Light', icon: Sun },
+  { id: 'Dark', icon: Moon },
+  { id: 'Auto', icon: Monitor },
+]
 
 function Toggle({ checked, onChange }) {
   return (
@@ -63,24 +73,84 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
           </button>
         </div>
 
-        {/* Import */}
-        {onOpenImport && (
-          <button
-            type="button"
-            onClick={onOpenImport}
-            className="mb-6 flex w-full items-center gap-3 rounded-2xl border pl-border p-4 text-left transition hover:pl-surface-2"
+        {/* Appearance */}
+        <span className={groupLabel}>Appearance</span>
+        <div className="mb-5">
+          <span className={sectionLabel}>Theme</span>
+          <div className="grid grid-cols-3 gap-3">
+            {APPEARANCES.map(({ id, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => set({ appearance: id })}
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 py-4 text-sm font-medium transition ${
+                  settings.appearance === id
+                    ? 'pl-accent-border pl-accent-soft pl-accent-text'
+                    : 'pl-border pl-text-muted hover:border-slate-300'
+                }`}
+              >
+                <Icon size={20} />
+                {id}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <span className={sectionLabel}>Theme Color</span>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {THEME_PRESETS.map((p) => {
+              const active =
+                settings.backgroundColor.toLowerCase() === p.value.toLowerCase()
+              return (
+                <button
+                  key={p.name}
+                  type="button"
+                  onClick={() => set({ backgroundColor: p.value })}
+                  title={p.name}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border-2 transition"
+                  style={{
+                    backgroundColor: p.value,
+                    borderColor: active ? 'var(--planda-accent)' : 'var(--planda-border)',
+                  }}
+                >
+                  {active && (
+                    <Check size={18} className={p.name === 'Dark' ? 'text-white' : 'text-slate-700'} />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={settings.backgroundColor}
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
+            />
+            <input
+              className={fieldCls}
+              value={settings.backgroundColor}
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+              placeholder="Custom hex or color"
+            />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <span className={sectionLabel}>Default View</span>
+          <select
+            className={fieldCls}
+            value={settings.defaultView}
+            onChange={(e) => set({ defaultView: e.target.value })}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl pl-accent-soft pl-accent-text">
-              <DownloadCloud size={18} />
-            </span>
-            <span>
-              <span className="block font-semibold pl-text">Import &amp; export</span>
-              <span className="block text-sm pl-text-muted">
-                Canvas / Google Classroom assignments, holidays, calendar export
-              </span>
-            </span>
-          </button>
-        )}
+            {VIEWS.map((v) => (
+              <option key={v}>{v}</option>
+            ))}
+          </select>
+        </div>
+
+        <span className={groupLabel}>General</span>
 
         {/* Time format */}
         <div className="mb-5">
@@ -238,6 +308,28 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
             ))}
           </div>
         </div>
+
+        {/* Import & Export (bottom) */}
+        {onOpenImport && (
+          <>
+            <span className={groupLabel}>Data</span>
+            <button
+              type="button"
+              onClick={onOpenImport}
+              className="mb-2 flex w-full items-center gap-3 rounded-2xl border pl-border p-4 text-left transition hover:pl-surface-2"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl pl-accent-soft pl-accent-text">
+                <DownloadCloud size={18} />
+              </span>
+              <span>
+                <span className="block font-semibold pl-text">Import &amp; export</span>
+                <span className="block text-sm pl-text-muted">
+                  Google Calendar, Canvas, Google Classroom, holidays, calendar export
+                </span>
+              </span>
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

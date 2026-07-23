@@ -9,7 +9,6 @@ import UpcomingAssessments from './components/UpcomingAssessments'
 import AssessmentModal from './components/AssessmentModal'
 import ItemModal from './components/ItemModal'
 import SettingsPanel from './components/SettingsPanel'
-import ThemePanel from './components/ThemePanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
@@ -75,7 +74,6 @@ function PlandaApp() {
   const [itemOpen, setItemOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [themeOpen, setThemeOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   // Brief skeleton while webfonts settle, so first paint is smooth (no spinner).
@@ -164,7 +162,6 @@ function PlandaApp() {
 
   const openAI = () => setAiOpen(true)
   const openSettings = () => setSettingsOpen(true)
-  const openTheme = () => setThemeOpen(true)
   const logout = () => {
     if (
       window.confirm(
@@ -190,7 +187,6 @@ function PlandaApp() {
       <TopBar
         onToggleSidebar={() => setCollapsed((c) => !c)}
         onOpenAI={openAI}
-        onOpenTheme={openTheme}
         onOpenSettings={openSettings}
       />
 
@@ -309,7 +305,6 @@ function PlandaApp() {
           setImportOpen(true)
         }}
       />
-      <ThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <StudyAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
       <DayDetailModal

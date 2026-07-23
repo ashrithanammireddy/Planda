@@ -142,12 +142,13 @@ export default function ImportModal({ open, onClose }) {
         {/* Assignments from a calendar feed */}
         <section>
           <h3 className="mb-1 text-sm font-bold pl-text">
-            Assignments from Canvas / Google Classroom
+            Import from Google Calendar, Canvas, or Google Classroom
           </h3>
           <p className="mb-3 text-xs pl-text-muted">
-            In Canvas or Google Classroom, find your <b>calendar feed</b> and
-            export/download the <b>.ics</b> file, then upload it here. Your
-            assignments and due dates come in automatically, no typing.
+            In Google Calendar (Settings → Import &amp; export), Canvas, or Google
+            Classroom, download your <b>calendar (.ics)</b> file and upload it
+            here. Your events, assignments, and due dates come in automatically,
+            no typing.
           </p>
 
           <div className="flex flex-wrap gap-2">
