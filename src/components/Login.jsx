@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Mail, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, CheckCircle2 } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
-import { firebaseEnabled, signInWithGoogle, signInWithApple } from '../lib/firebase'
+import {
+  firebaseEnabled,
+  signInWithGoogle,
+  signInWithApple,
+  signUpWithEmail,
+  signInWithEmail,
+  authMessage,
+} from '../lib/firebase'
 
 // Soft mint fog blobs that slowly drift on their own. `home` is the resting
 // position (fraction of the viewport); each blob also gets nudged away from the
@@ -44,6 +51,8 @@ export default function Login({ onDone, notice = '' }) {
   const blobRefs = useRef([])
   const mouse = useRef({ x: -9999, y: -9999 })
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailMode, setEmailMode] = useState('signin') // 'signin' | 'signup'
   const [toast, setToast] = useState(notice)
   const [provider, setProvider] = useState(null) // 'google' | 'apple' | null
   const [pStep, setPStep] = useState(1) // 1 = email, 2 = password
@@ -70,6 +79,27 @@ export default function Login({ onDone, notice = '' }) {
       if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
         setAuthError('Could not sign in. Please try again.')
       }
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Real email + password via Firebase (create account or sign in). Falls back
+  // to the demo pass-through when Firebase isn't configured.
+  const submitEmail = async () => {
+    if (!firebaseEnabled) {
+      if (validEmail) onDone('account')
+      return
+    }
+    if (!validEmail || password.length < 6) return
+    setAuthError('')
+    setBusy(true)
+    try {
+      if (emailMode === 'signup') await signUpWithEmail(email, password)
+      else await signInWithEmail(email, password)
+      // onAuthStateChanged in App flips us into the app.
+    } catch (err) {
+      setAuthError(authMessage(err?.code))
     } finally {
       setBusy(false)
     }
@@ -244,10 +274,6 @@ export default function Login({ onDone, notice = '' }) {
             Continue with Apple
           </button>
 
-          {authError && (
-            <p className="text-center text-xs font-semibold text-red-500">{authError}</p>
-          )}
-
           <div className="my-1 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
             <span className="h-px flex-1 bg-black/10" />
             or
@@ -260,20 +286,54 @@ export default function Login({ onDone, notice = '' }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && validEmail && onDone('account')}
+              onKeyDown={(e) => e.key === 'Enter' && submitEmail()}
               placeholder="Enter your email"
               className="w-full rounded-xl border border-black/10 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#34a98a] focus:ring-2 focus:ring-[#34a98a]/25"
             />
           </div>
+
+          {firebaseEnabled && (
+            <div className="relative">
+              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitEmail()}
+                placeholder={emailMode === 'signup' ? 'Create a password (6+ characters)' : 'Password'}
+                className="w-full rounded-xl border border-black/10 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#34a98a] focus:ring-2 focus:ring-[#34a98a]/25"
+              />
+            </div>
+          )}
+
           <button
             type="button"
-            disabled={!validEmail}
-            onClick={() => onDone('account')}
+            disabled={busy || !validEmail || (firebaseEnabled && password.length < 6)}
+            onClick={submitEmail}
             className="w-full rounded-full py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
             style={{ background: '#34a98a' }}
           >
-            Continue
+            {!firebaseEnabled ? 'Continue' : emailMode === 'signup' ? 'Create account' : 'Sign in'}
           </button>
+
+          {firebaseEnabled && (
+            <button
+              type="button"
+              onClick={() => {
+                setAuthError('')
+                setEmailMode((m) => (m === 'signup' ? 'signin' : 'signup'))
+              }}
+              className="text-center text-xs font-semibold text-slate-500 transition hover:text-slate-700"
+            >
+              {emailMode === 'signup'
+                ? 'Already have an account? Sign in'
+                : 'New to Planda? Create an account'}
+            </button>
+          )}
+
+          {authError && (
+            <p className="text-center text-xs font-semibold text-red-500">{authError}</p>
+          )}
         </div>
 
         {/* Local-only shortcut so you can run it without signing in. This is

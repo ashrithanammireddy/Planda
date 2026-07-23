@@ -4,6 +4,8 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut as fbSignOut,
 } from 'firebase/auth'
 
@@ -40,6 +42,36 @@ export async function signInWithApple() {
   return res.user
 }
 
+export async function signUpWithEmail(email, password) {
+  const res = await createUserWithEmailAndPassword(auth, email.trim(), password)
+  return res.user
+}
+
+export async function signInWithEmail(email, password) {
+  const res = await signInWithEmailAndPassword(auth, email.trim(), password)
+  return res.user
+}
+
 export async function signOutFirebase() {
   if (auth) await fbSignOut(auth)
+}
+
+// Turn Firebase's error codes into friendly, human messages.
+export function authMessage(code) {
+  switch (code) {
+    case 'auth/invalid-email':
+      return 'That email address looks off.'
+    case 'auth/email-already-in-use':
+      return 'An account already exists for that email. Try signing in.'
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters.'
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Email or password is incorrect.'
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please wait a moment and try again.'
+    default:
+      return 'Something went wrong. Please try again.'
+  }
 }
