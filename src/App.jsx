@@ -13,6 +13,7 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import Splash from './components/Splash'
+import Login from './components/Login'
 import ImportModal from './components/ImportModal'
 import AppSkeleton from './components/Skeleton'
 import Sidebar from './components/Sidebar'
@@ -40,6 +41,9 @@ function PlandaApp() {
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const [showSplash, setShowSplash] = useState(
     () => !prefersReduced && !sessionStorage.getItem('planda-splash-seen')
+  )
+  const [authed, setAuthed] = useState(
+    () => !!localStorage.getItem('planda.authed')
   )
   const [section, setSection] = useState(
     () => localStorage.getItem('planda.section') || 'calendar'
@@ -173,16 +177,30 @@ function PlandaApp() {
     }
   }
 
+  if (showSplash) {
+    return (
+      <Splash
+        onDone={() => {
+          sessionStorage.setItem('planda-splash-seen', '1')
+          setShowSplash(false)
+        }}
+      />
+    )
+  }
+
+  if (!authed) {
+    return (
+      <Login
+        onDone={() => {
+          localStorage.setItem('planda.authed', '1')
+          setAuthed(true)
+        }}
+      />
+    )
+  }
+
   return (
     <>
-      {showSplash && (
-        <Splash
-          onDone={() => {
-            sessionStorage.setItem('planda-splash-seen', '1')
-            setShowSplash(false)
-          }}
-        />
-      )}
       <div className="flex h-screen flex-col">
       <TopBar
         onToggleSidebar={() => setCollapsed((c) => !c)}
