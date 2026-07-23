@@ -16,11 +16,10 @@ body,
 
 body {
   margin: 0;
-  /* Inter: familiar, neutral-modern, with the system/Arial stack as fallback. */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  /* Montserrat: clean, geometric, with the system stack as fallback. */
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
   color: #1f2433;
   background: var(--planda-bg);
   transition: background-color 0.3s ease;
