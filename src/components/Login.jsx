@@ -106,17 +106,19 @@ export default function Login({ onDone, notice = '' }) {
     } catch (err) {
       const code = err?.code
       const key = email.trim().toLowerCase()
-      const looksMissing =
-        code === 'auth/invalid-credential' ||
-        code === 'auth/user-not-found' ||
-        code === 'auth/wrong-password'
-      if (emailMode === 'signin' && looksMissing) {
+      if (emailMode === 'signin' && code === 'auth/wrong-password') {
+        // Enumeration protection OFF: Firebase tells us the account exists and
+        // only the password is wrong — show a clean error, never flip.
+        setAuthError('Incorrect password. Please try again.')
+      } else if (emailMode === 'signin' && code === 'auth/user-not-found') {
+        // Enumeration protection OFF: definitely a new person.
+        setEmailMode('signup')
+        setInfo("Looks like you're new here — finish creating your account.")
+      } else if (emailMode === 'signin' && code === 'auth/invalid-credential') {
+        // Enumeration protection ON: ambiguous. Use what we've learned.
         if (knownExisting.current.has(key)) {
-          // We know this account exists, so this is just a wrong password.
           setAuthError('Incorrect password. Please try again.')
         } else {
-          // Likely a new person. Take them to create-account with the email +
-          // password they already typed still filled in.
           setEmailMode('signup')
           setInfo("Looks like you're new here — finish creating your account.")
         }
