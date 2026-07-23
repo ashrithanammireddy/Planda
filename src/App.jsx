@@ -15,6 +15,7 @@ import Fab from './components/Fab'
 import Splash from './components/Splash'
 import Login from './components/Login'
 import Onboarding from './components/Onboarding'
+import PostLoginLoader from './components/PostLoginLoader'
 import ImportModal from './components/ImportModal'
 import AppSkeleton from './components/Skeleton'
 import Sidebar from './components/Sidebar'
@@ -55,6 +56,8 @@ function PlandaApp() {
     () => localStorage.getItem('planda.section') || 'calendar'
   )
   const [collapsed, setCollapsed] = useState(false)
+  const [entering, setEntering] = useState(false)
+  const enteredRef = useRef(false)
   const [view, setView] = useState(settings.defaultView)
   const [date, setDate] = useState(() => new Date())
   const mainRef = useRef(null)
@@ -63,6 +66,17 @@ function PlandaApp() {
   useEffect(() => {
     localStorage.setItem('planda.section', section)
   }, [section])
+
+  // Show the branded loading screen the first time we enter the app this
+  // session (covers Google/Apple/email sign-in, guest, and reloads).
+  useEffect(() => {
+    if (authed && onboarded && !enteredRef.current) {
+      enteredRef.current = true
+      setEntering(true)
+      const t = setTimeout(() => setEntering(false), 1600)
+      return () => clearTimeout(t)
+    }
+  }, [authed, onboarded])
 
   // With real Firebase auth on, the signed-in user drives whether we're authed;
   // a Google/Apple account also pre-fills the profile name on first sign-in.
@@ -243,6 +257,10 @@ function PlandaApp() {
         }}
       />
     )
+  }
+
+  if (entering) {
+    return <PostLoginLoader name={profile.name} />
   }
 
   return (

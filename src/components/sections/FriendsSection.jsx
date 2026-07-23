@@ -60,8 +60,8 @@ export default function FriendsSection() {
         real pods sync when you sign in.
       </p>
 
-      {/* Focus Room hero (uses the soft sidebar-highlight tint) */}
-      <div className="mb-4 overflow-hidden rounded-3xl pl-accent-soft p-6 shadow-sm">
+      {/* Focus Room hero — a light surface (lifted above the page background). */}
+      <div className="mb-4 overflow-hidden rounded-3xl border pl-border pl-surface p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="text-lg font-bold pl-text">Focus Room</div>

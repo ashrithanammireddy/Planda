@@ -42,7 +42,8 @@ export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings }) {
           type="button"
           onClick={onOpenAI}
           title="Ask Planda"
-          className="group hidden items-center gap-2 rounded-full pl-surface-2 py-1 pl-1 pr-3.5 shadow-sm transition hover:brightness-95 lg:inline-flex"
+          className="group hidden items-center gap-2 rounded-full border pl-border py-1 pl-1 pr-3.5 shadow-sm transition hover:brightness-95 lg:inline-flex"
+          style={{ background: 'color-mix(in oklab, var(--planda-surface-2), var(--planda-text) 10%)' }}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-full pl-surface transition group-hover:scale-105">
             <PandaLogo size={26} />
