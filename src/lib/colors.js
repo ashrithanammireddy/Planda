@@ -93,10 +93,27 @@ export function mix(a, b, t) {
   return `#${hx(ch(ra.r, rb.r))}${hx(ch(ra.g, rb.g))}${hx(ch(ra.b, rb.b))}`
 }
 
-// A genuinely dark page background that still carries the theme's hue — a
-// near-black tinted with 12% of the chosen color. Used for Dark appearance.
+function hslToHex(h, s, l) {
+  s /= 100
+  l /= 100
+  const k = (n) => (n + h / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n) =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  const to = (x) =>
+    Math.round(255 * x)
+      .toString(16)
+      .padStart(2, '0')
+  return `#${to(f(0))}${to(f(8))}${to(f(4))}`
+}
+
+// A dark page background that still carries a hint of the chosen hue. Uses a
+// fixed dark lightness (not near-black) so the picked color isn't crushed.
 export function darkThemeBg(hex) {
-  return mix(hex, '#07080b', 0.88)
+  const rgb = hexToRgb(hex)
+  if (!rgb) return '#14161c'
+  const { h, s } = rgbToHsl(rgb)
+  return hslToHex(h, Math.min(20, s * 0.5), 15)
 }
 
 // Builds the full set of surface/border/text tokens derived from the page
