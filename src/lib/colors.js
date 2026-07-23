@@ -65,8 +65,10 @@ export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
   // Near-grey themes have no real hue — forcing saturation would invent a
   // random tint, so keep the accent a clean neutral graphite.
   if (s < 18) return neutral(alpha)
-  // Boost saturation a touch (and floor it) so pastels read as a clear accent.
-  const sat = Math.min(68, Math.max(42, s * 1.15))
+  // Keep the accent a softer, on-tone version of the chosen color: pull the
+  // saturation DOWN so a pastel (e.g. pink) reads as a gentle rose, not a harsh
+  // vivid hue (red).
+  const sat = Math.min(50, Math.max(26, s * 0.7))
   return alpha < 1
     ? `hsla(${Math.round(h)}, ${Math.round(sat)}%, ${l}%, ${alpha})`
     : `hsl(${Math.round(h)}, ${Math.round(sat)}%, ${l}%)`

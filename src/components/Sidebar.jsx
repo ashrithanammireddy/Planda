@@ -39,10 +39,43 @@ export default function Sidebar({
   const { classes, items, settings, toggleCalendar } = useStore()
   const hidden = settings.hiddenCalendars || []
   const usedCats = [...new Set(items.map((i) => i.category))].filter(Boolean)
-  const calendars = [
-    ...classes.map((c) => ({ id: `class:${c.id}`, name: c.name, color: c.color })),
-    ...usedCats.map((cat) => ({ id: `cat:${cat}`, name: cat, color: categoryColor(cat) })),
-  ]
+  const classCals = classes.map((c) => ({
+    id: `class:${c.id}`,
+    name: c.name,
+    color: c.color,
+  }))
+  const otherCals = usedCats.map((cat) => ({
+    id: `cat:${cat}`,
+    name: cat,
+    color: categoryColor(cat),
+  }))
+  const hasCalendars = classCals.length + otherCals.length > 0
+
+  const calRow = (cal) => {
+    const off = hidden.includes(cal.id)
+    return (
+      <button
+        key={cal.id}
+        type="button"
+        onClick={() => toggleCalendar(cal.id)}
+        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-left text-sm transition hover:pl-surface-2"
+      >
+        <span
+          className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2"
+          style={{
+            backgroundColor: off ? 'transparent' : cal.color,
+            borderColor: cal.color,
+          }}
+        >
+          {!off && <Check size={11} className="text-white" />}
+        </span>
+        <span className={`truncate ${off ? 'pl-text-muted' : 'pl-text'}`}>
+          {cal.name}
+        </span>
+      </button>
+    )
+  }
+  const groupHead = 'px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider pl-text-muted'
 
   return (
     <aside
@@ -71,36 +104,21 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Calendars: toggle what shows on the calendar (Google-Calendar style) */}
-      {!collapsed && calendars.length > 0 && (
-        <div className="mt-4 max-h-[40vh] overflow-y-auto planda-scroll">
-          <div className="px-3 pb-1.5 text-xs font-bold uppercase tracking-wider pl-text-muted">
-            Calendars
-          </div>
-          {calendars.map((cal) => {
-            const off = hidden.includes(cal.id)
-            return (
-              <button
-                key={cal.id}
-                type="button"
-                onClick={() => toggleCalendar(cal.id)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-left text-sm transition hover:pl-surface-2"
-              >
-                <span
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2"
-                  style={{
-                    backgroundColor: off ? 'transparent' : cal.color,
-                    borderColor: cal.color,
-                  }}
-                >
-                  {!off && <Check size={11} className="text-white" />}
-                </span>
-                <span className={`truncate ${off ? 'pl-text-muted line-through' : 'pl-text'}`}>
-                  {cal.name}
-                </span>
-              </button>
-            )
-          })}
+      {/* Calendars: toggle what shows (grouped, Google-Calendar style) */}
+      {!collapsed && hasCalendars && (
+        <div className="mt-3 max-h-[42vh] overflow-y-auto planda-scroll">
+          {classCals.length > 0 && (
+            <>
+              <div className={groupHead}>Classes</div>
+              {classCals.map(calRow)}
+            </>
+          )}
+          {otherCals.length > 0 && (
+            <>
+              <div className={groupHead}>My calendars</div>
+              {otherCals.map(calRow)}
+            </>
+          )}
         </div>
       )}
 

@@ -99,7 +99,7 @@ function PlandaApp() {
     // drives the accent. In light mode the chosen color IS the page background.
     const pageBg = dark ? DARK_BG : chosen
     const t = themeTokens(pageBg, dark)
-    const accentL = dark ? 68 : 55
+    const accentL = dark ? 70 : 57
     const root = document.documentElement
     root.classList.toggle('dark', dark)
     root.style.setProperty('--planda-bg', pageBg)
