@@ -259,12 +259,9 @@ function PlandaApp() {
     )
   }
 
-  if (entering) {
-    return <PostLoginLoader name={profile.name} />
-  }
-
   return (
     <>
+      {entering && <PostLoginLoader />}
       <div className="flex h-screen flex-col">
       <TopBar
         onToggleSidebar={() => setCollapsed((c) => !c)}

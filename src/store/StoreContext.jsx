@@ -17,23 +17,35 @@ import { DEFAULT_CATEGORIES } from '../lib/gradeEngine'
 import { HOLIDAY_SETS } from '../lib/holidays'
 
 // One-time migration: earlier versions filed holidays under different
-// categories, so a holiday could end up duplicated across calendars. Map any
-// item that matches a known holiday (by date + title) back to its correct set,
-// then drop exact duplicates so each holiday appears exactly once.
+// categories/titles, so a holiday could end up duplicated on the same day. Any
+// holiday-type item on a known holiday date is collapsed to a single canonical
+// entry (right title + set), so each holiday shows exactly once. Non-holiday
+// items (e.g. a personal event that happens to fall on a holiday) are untouched.
 function normalizeHolidays(items) {
-  const setByKey = {}
+  const setKeys = new Set(Object.keys(HOLIDAY_SETS))
+  const byTitleDate = {}
+  const canonByDate = {}
   for (const [setName, list] of Object.entries(HOLIDAY_SETS)) {
-    for (const h of list) setByKey[`${h.title}|${h.date}`] = setName
+    for (const h of list) {
+      byTitleDate[`${h.title}|${h.date}`] = setName
+      canonByDate[h.date] = { title: h.title, category: setName }
+    }
   }
   const seen = new Set()
   const out = []
   for (const it of items) {
-    const holidaySet = setByKey[`${it.title}|${it.date}`]
-    const normalized = holidaySet ? { ...it, category: holidaySet } : it
-    const key = `${normalized.title}|${normalized.date}|${normalized.category || ''}`
-    if (seen.has(key)) continue
-    seen.add(key)
-    out.push(normalized)
+    const isHoliday = byTitleDate[`${it.title}|${it.date}`] || setKeys.has(it.category)
+    if (isHoliday && canonByDate[it.date]) {
+      const key = `holiday|${it.date}`
+      if (seen.has(key)) continue // already have this day's holiday
+      seen.add(key)
+      out.push({ ...it, ...canonByDate[it.date] })
+    } else {
+      const key = `${it.title}|${it.date}|${it.category || ''}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(it)
+    }
   }
   return out
 }
