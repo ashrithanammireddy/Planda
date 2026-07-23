@@ -84,29 +84,24 @@ export default function ImportModal({ open, onClose }) {
   const [done, setDone] = useState('')
   const [openSet, setOpenSet] = useState({ [Object.keys(HOLIDAY_SETS)[0]]: true })
 
-  // Presence lookup so each holiday renders as a checkbox (on = it's on your
-  // calendar). Toggling adds or removes just that date.
-  const keyOf = (i) => `${i.title}|${i.date}|${i.category || ''}`
-  const present = new Set(items.map(keyOf))
-  const isOn = (h, cat) => present.has(`${h.title}|${h.date}|${cat}`)
+  // A holiday is "on" if any item matches its date + title (regardless of which
+  // category version it was added under). Unchecking removes every copy, which
+  // also cleans up duplicates from earlier imports.
+  const matches = (i, h) => i.title === h.title && i.date === h.date
+  const isOn = (h) => items.some((i) => matches(i, h))
+  const removeHoliday = (h) =>
+    items.filter((i) => matches(i, h)).forEach((i) => deleteItem(i.id))
 
   const toggleHoliday = (h, cat) => {
-    const existing = items.find((i) => keyOf(i) === `${h.title}|${h.date}|${cat}`)
-    if (existing) deleteItem(existing.id)
+    if (isOn(h)) removeHoliday(h)
     else importItems([holidayItem(h, cat)])
   }
 
   const toggleSet = (cat) => {
     const list = HOLIDAY_SETS[cat] || []
-    const allOn = list.every((h) => isOn(h, cat))
-    if (allOn) {
-      list.forEach((h) => {
-        const existing = items.find((i) => keyOf(i) === `${h.title}|${h.date}|${cat}`)
-        if (existing) deleteItem(existing.id)
-      })
-    } else {
-      importItems(list.filter((h) => !isOn(h, cat)).map((h) => holidayItem(h, cat)))
-    }
+    const allOn = list.every((h) => isOn(h))
+    if (allOn) list.forEach(removeHoliday)
+    else importItems(list.filter((h) => !isOn(h)).map((h) => holidayItem(h, cat)))
   }
 
   const reset = () => {
@@ -267,7 +262,7 @@ export default function ImportModal({ open, onClose }) {
           <div className="flex flex-col gap-2">
             {Object.keys(HOLIDAY_SETS).map((cat) => {
               const list = HOLIDAY_SETS[cat]
-              const onCount = list.filter((h) => isOn(h, cat)).length
+              const onCount = list.filter((h) => isOn(h)).length
               const allOn = onCount === list.length
               const open = openSet[cat]
               return (
@@ -310,7 +305,7 @@ export default function ImportModal({ open, onClose }) {
                         >
                           <input
                             type="checkbox"
-                            checked={isOn(h, cat)}
+                            checked={isOn(h)}
                             onChange={() => toggleHoliday(h, cat)}
                             className="h-4 w-4 shrink-0 cursor-pointer"
                             style={{ accentColor: 'var(--planda-accent)' }}

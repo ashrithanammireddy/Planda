@@ -133,9 +133,10 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Calendars: toggle what shows (grouped, Google-Calendar style) */}
+      {/* Calendars: toggle what shows (grouped, Google-Calendar style). Fills
+          the space between the nav and the account, scrolling only if needed. */}
       {!collapsed && hasCalendars && (
-        <div className="mt-3 max-h-[42vh] overflow-y-auto planda-scroll">
+        <div className="mt-3 min-h-0 flex-1 overflow-y-auto planda-scroll">
           {calGroup('Classes', classCals)}
           {calGroup('My calendars', myCals)}
           {calGroup('Other', otherCals)}
