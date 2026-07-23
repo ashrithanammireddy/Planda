@@ -7,11 +7,11 @@ import wordmarkUrl from '../assets/planda-wordmark.png'
 // position (fraction of the viewport); each blob also gets nudged away from the
 // cursor, so moving the mouse pushes the fog around and it settles back after.
 const BLOBS = [
-  { home: [0.15, 0.2], size: 680, color: 'rgba(45,168,136,0.30)', sx: 0.045, sy: 0.055, ph: 0.0, amp: 46 },
-  { home: [0.85, 0.16], size: 640, color: 'rgba(108,201,170,0.27)', sx: 0.04, sy: 0.05, ph: 1.6, amp: 52 },
-  { home: [0.8, 0.82], size: 720, color: 'rgba(45,168,136,0.25)', sx: 0.05, sy: 0.045, ph: 3.0, amp: 50 },
-  { home: [0.17, 0.84], size: 660, color: 'rgba(150,222,198,0.30)', sx: 0.05, sy: 0.04, ph: 4.3, amp: 48 },
-  { home: [0.5, 0.5], size: 780, color: 'rgba(120,205,175,0.20)', sx: 0.035, sy: 0.04, ph: 2.2, amp: 58 },
+  { home: [0.16, 0.22], size: 700, color: 'rgba(45,168,136,0.40)', sx: 0.02, sy: 0.026, ph: 0.0, amp: 34 },
+  { home: [0.84, 0.18], size: 660, color: 'rgba(108,201,170,0.36)', sx: 0.018, sy: 0.024, ph: 1.6, amp: 38 },
+  { home: [0.8, 0.8], size: 740, color: 'rgba(45,168,136,0.34)', sx: 0.022, sy: 0.02, ph: 3.0, amp: 36 },
+  { home: [0.18, 0.82], size: 680, color: 'rgba(150,222,198,0.40)', sx: 0.024, sy: 0.019, ph: 4.3, amp: 34 },
+  { home: [0.5, 0.48], size: 800, color: 'rgba(120,205,175,0.30)', sx: 0.016, sy: 0.02, ph: 2.2, amp: 42 },
 ]
 
 // Official multicolor Google "G".
@@ -45,18 +45,27 @@ export default function Login({ onDone, notice = '' }) {
   const [email, setEmail] = useState('')
   const [toast, setToast] = useState(notice)
   const [provider, setProvider] = useState(null) // 'google' | 'apple' | null
+  const [pStep, setPStep] = useState(1) // 1 = email, 2 = password
   const [providerEmail, setProviderEmail] = useState('')
+  const [providerPass, setProviderPass] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const validProviderEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(providerEmail.trim())
 
   const openProvider = (p) => {
     setProviderEmail('')
+    setProviderPass('')
+    setPStep(1)
     setProvider(p)
   }
-  const confirmProvider = () => {
-    if (!validProviderEmail) return
-    setProvider(null)
-    onDone('account')
+  const providerNext = () => {
+    if (pStep === 1) {
+      if (validProviderEmail) setPStep(2)
+      return
+    }
+    if (providerPass.length >= 4) {
+      setProvider(null)
+      onDone('account')
+    }
   }
 
   // Show the log-out confirmation toast briefly, then let it fade away.
@@ -78,34 +87,44 @@ export default function Login({ onDone, notice = '' }) {
 
     const offsets = BLOBS.map(() => ({ x: 0, y: 0 }))
     const start = performance.now()
-    const PUSH_RADIUS = 420
-    const PUSH_STRENGTH = 300
+    const REACH = 380 // how close the cursor must be to catch a blob
+    const CARRY = 0.85 // how strongly a sweep drags the fog along
+    const MAX = 240 // cap so fog never flies off screen
+    const last = { x: mouse.current.x, y: mouse.current.y }
+    const vel = { x: 0, y: 0 }
     let raf = 0
 
     const tick = (now) => {
       const t = (now - start) / 1000
       const W = window.innerWidth
       const H = window.innerHeight
+      // Smoothed cursor velocity: the direction/speed the mouse is sweeping.
+      vel.x = vel.x * 0.82 + (mouse.current.x - last.x) * 0.18
+      vel.y = vel.y * 0.82 + (mouse.current.y - last.y) * 0.18
+      last.x = mouse.current.x
+      last.y = mouse.current.y
+
       BLOBS.forEach((b, i) => {
         const driftX = Math.sin(t * b.sx * 6.28 + b.ph) * b.amp
         const driftY = Math.cos(t * b.sy * 6.28 + b.ph) * b.amp
-        const cx = b.home[0] * W + driftX
-        const cy = b.home[1] * H + driftY
-        const dx = cx - mouse.current.x
-        const dy = cy - mouse.current.y
-        const dist = Math.hypot(dx, dy)
-        let px = 0
-        let py = 0
-        if (!reduce && dist < PUSH_RADIUS && dist > 0.01) {
-          const f = (PUSH_RADIUS - dist) / PUSH_RADIUS
-          px = (dx / dist) * f * PUSH_STRENGTH
-          py = (dy / dist) * f * PUSH_STRENGTH
-        }
         const o = offsets[i]
-        // Snappy on the push (shovel), slow on the settle (fog relaxing back).
-        const ease = Math.hypot(px, py) > Math.hypot(o.x, o.y) ? 0.16 : 0.04
-        o.x += (px - o.x) * ease
-        o.y += (py - o.y) * ease
+        const cx = b.home[0] * W + driftX + o.x
+        const cy = b.home[1] * H + driftY + o.y
+        const dist = Math.hypot(cx - mouse.current.x, cy - mouse.current.y)
+        if (!reduce && dist < REACH) {
+          // Carry the blob ALONG the sweep direction (not away from the cursor),
+          // strongest right under the cursor. Feels like pushing fog with a hand.
+          const infl = (REACH - dist) / REACH
+          o.x += vel.x * infl * CARRY
+          o.y += vel.y * infl * CARRY
+        }
+        // Fog slowly relaxes back toward home once you stop pushing.
+        o.x *= 0.95
+        o.y *= 0.95
+        if (o.x > MAX) o.x = MAX
+        else if (o.x < -MAX) o.x = -MAX
+        if (o.y > MAX) o.y = MAX
+        else if (o.y < -MAX) o.y = -MAX
         const el = blobRefs.current[i]
         if (el) el.style.transform = `translate3d(${driftX + o.x}px, ${driftY + o.y}px, 0)`
       })
@@ -249,46 +268,69 @@ export default function Login({ onDone, notice = '' }) {
             <div className="flex flex-col items-center gap-2 px-7 pt-7 text-center">
               {provider === 'google' ? <GoogleG size={26} /> : <AppleGlyph size={26} />}
               <h2 className="text-[17px] font-semibold text-slate-900">
-                Sign in {provider === 'google' ? 'with Google' : 'with Apple'}
+                {pStep === 1
+                  ? `Sign in ${provider === 'google' ? 'with Google' : 'with Apple'}`
+                  : 'Welcome'}
               </h2>
-              <p className="text-sm text-slate-500">to continue to Planda</p>
+              <p className="text-sm text-slate-500">
+                {pStep === 1 ? 'to continue to Planda' : providerEmail}
+              </p>
             </div>
 
             <div className="px-7 pb-3 pt-5">
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                {provider === 'google' ? 'Email or phone' : 'Apple Account'}
-              </label>
-              <input
-                type="email"
-                autoFocus
-                value={providerEmail}
-                onChange={(e) => setProviderEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && confirmProvider()}
-                placeholder="you@example.com"
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
-              />
+              {pStep === 1 ? (
+                <>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                    {provider === 'google' ? 'Email or phone' : 'Apple Account'}
+                  </label>
+                  <input
+                    type="email"
+                    autoFocus
+                    value={providerEmail}
+                    onChange={(e) => setProviderEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && providerNext()}
+                    placeholder="you@example.com"
+                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
+                  />
+                </>
+              ) : (
+                <>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                    Enter your password
+                  </label>
+                  <input
+                    type="password"
+                    autoFocus
+                    value={providerPass}
+                    onChange={(e) => setProviderPass(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && providerNext()}
+                    placeholder="Password"
+                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
+                  />
+                </>
+              )}
               <p className="mt-2 text-[11px] leading-snug text-slate-400">
-                Demo sign-in for the app challenge. No real account is used and
-                nothing is sent anywhere.
+                Demo sign-in for the app challenge. Nothing is sent anywhere and
+                no real account is used.
               </p>
             </div>
 
             <div className="flex items-center justify-between px-7 pb-6 pt-2">
               <button
                 type="button"
-                onClick={() => setProvider(null)}
+                onClick={() => (pStep === 2 ? setPStep(1) : setProvider(null))}
                 className="text-sm font-semibold text-slate-500 transition hover:text-slate-700"
               >
-                Cancel
+                {pStep === 2 ? 'Back' : 'Cancel'}
               </button>
               <button
                 type="button"
-                disabled={!validProviderEmail}
-                onClick={confirmProvider}
+                disabled={pStep === 1 ? !validProviderEmail : providerPass.length < 4}
+                onClick={providerNext}
                 className="rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
                 style={{ background: provider === 'google' ? '#4285F4' : '#111' }}
               >
-                Continue
+                {pStep === 1 ? 'Next' : 'Sign in'}
               </button>
             </div>
           </div>
