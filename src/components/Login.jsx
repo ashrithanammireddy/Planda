@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Mail, CheckCircle2 } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
+import { firebaseEnabled, signInWithGoogle, signInWithApple } from '../lib/firebase'
 
 // Soft mint fog blobs that slowly drift on their own. `home` is the resting
 // position (fraction of the viewport); each blob also gets nudged away from the
@@ -48,8 +49,31 @@ export default function Login({ onDone, notice = '' }) {
   const [pStep, setPStep] = useState(1) // 1 = email, 2 = password
   const [providerEmail, setProviderEmail] = useState('')
   const [providerPass, setProviderPass] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [authError, setAuthError] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const validProviderEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(providerEmail.trim())
+
+  // When Firebase is configured, use the provider's REAL popup. A cancelled or
+  // failed sign-in stays out. Without keys, fall back to the demo sheet.
+  const handleProvider = async (p) => {
+    if (!firebaseEnabled) {
+      openProvider(p)
+      return
+    }
+    setAuthError('')
+    setBusy(true)
+    try {
+      await (p === 'google' ? signInWithGoogle() : signInWithApple())
+      // onAuthStateChanged in App flips us into the app; no onDone needed.
+    } catch (err) {
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        setAuthError('Could not sign in. Please try again.')
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const openProvider = (p) => {
     setProviderEmail('')
@@ -201,22 +225,28 @@ export default function Login({ onDone, notice = '' }) {
         <div className="mt-6 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={() => openProvider('google')}
-            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5"
+            disabled={busy}
+            onClick={() => handleProvider('google')}
+            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 disabled:opacity-60"
           >
             <GoogleG size={18} />
             Continue with Google
           </button>
           <button
             type="button"
-            onClick={() => openProvider('apple')}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5"
+            disabled={busy}
+            onClick={() => handleProvider('apple')}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-60"
           >
             <span className="-mt-0.5">
               <AppleGlyph size={16} />
             </span>
             Continue with Apple
           </button>
+
+          {authError && (
+            <p className="text-center text-xs font-semibold text-red-500">{authError}</p>
+          )}
 
           <div className="my-1 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
             <span className="h-px flex-1 bg-black/10" />
@@ -246,13 +276,17 @@ export default function Login({ onDone, notice = '' }) {
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onDone('guest')}
-          className="mt-4 w-full text-center text-xs font-semibold text-slate-500 transition hover:text-slate-700"
-        >
-          or keep going without an account
-        </button>
+        {/* Local-only shortcut so you can run it without signing in. This is
+            hidden in production builds — the real app requires an account. */}
+        {import.meta.env.DEV && (
+          <button
+            type="button"
+            onClick={() => onDone('guest')}
+            className="mt-4 w-full text-center text-xs font-semibold text-slate-400 transition hover:text-slate-600"
+          >
+            skip sign-in (local dev only)
+          </button>
+        )}
       </div>
 
       {/* Provider sign-in sheet (front-end mock of Google / Apple account choose) */}

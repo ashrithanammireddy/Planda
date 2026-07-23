@@ -27,6 +27,8 @@ import AccountSection from './components/sections/AccountSection'
 import GradesSection from './components/sections/GradesSection'
 import { parseKey } from './lib/dates'
 import { isColorDark, themeTokens, accentColor, isValidColor } from './lib/colors'
+import { firebaseEnabled, auth, signOutFirebase } from './lib/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 // Used when no background/accent color is selected: a clean neutral grey.
 const NEUTRAL_BG = '#e8eaee'
@@ -35,7 +37,7 @@ const NEUTRAL_BG = '#e8eaee'
 const DARK_BG = '#14161c'
 
 function PlandaApp() {
-  const { settings, profile } = useStore()
+  const { settings, profile, updateProfile } = useStore()
 
   const prefersReduced =
     typeof window !== 'undefined' &&
@@ -61,6 +63,25 @@ function PlandaApp() {
   useEffect(() => {
     localStorage.setItem('planda.section', section)
   }, [section])
+
+  // With real Firebase auth on, the signed-in user drives whether we're authed;
+  // a Google/Apple account also pre-fills the profile name on first sign-in.
+  useEffect(() => {
+    if (!firebaseEnabled || !auth) return
+    return onAuthStateChanged(auth, (user) => {
+      if (user) {
+        localStorage.setItem('planda.authed', '1')
+        setAuthed(true)
+        if (!profile.name && user.displayName) {
+          updateProfile({ name: user.displayName.split(' ')[0] })
+        }
+      } else {
+        localStorage.removeItem('planda.authed')
+        setAuthed(false)
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Nav clicks: switch section; re-tapping the current tab resets it to its
   // first page (calendar back to default view/today) and scrolls to top.
@@ -177,6 +198,7 @@ function PlandaApp() {
         'Log out of Planda? Your planner data stays on this device.'
       )
     ) {
+      if (firebaseEnabled) signOutFirebase()
       localStorage.removeItem('planda.authed')
       setAuthed(false)
       setSection('calendar')
