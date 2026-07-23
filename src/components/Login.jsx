@@ -53,6 +53,7 @@ export default function Login({ onDone, notice = '' }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailMode, setEmailMode] = useState('signin') // 'signin' | 'signup'
+  const [info, setInfo] = useState('') // soft, non-error guidance
   const [toast, setToast] = useState(notice)
   const [provider, setProvider] = useState(null) // 'google' | 'apple' | null
   const [pStep, setPStep] = useState(1) // 1 = email, 2 = password
@@ -93,13 +94,31 @@ export default function Login({ onDone, notice = '' }) {
     }
     if (!validEmail || password.length < 6) return
     setAuthError('')
+    setInfo('')
     setBusy(true)
     try {
       if (emailMode === 'signup') await signUpWithEmail(email, password)
       else await signInWithEmail(email, password)
       // onAuthStateChanged in App flips us into the app.
     } catch (err) {
-      setAuthError(authMessage(err?.code))
+      const code = err?.code
+      if (
+        emailMode === 'signin' &&
+        (code === 'auth/invalid-credential' ||
+          code === 'auth/user-not-found' ||
+          code === 'auth/wrong-password')
+      ) {
+        // No matching account (they're likely new). Take them to create-account
+        // with the email + password they already typed still filled in.
+        setEmailMode('signup')
+        setInfo("Looks like you're new here — finish creating your account.")
+      } else if (emailMode === 'signup' && code === 'auth/email-already-in-use') {
+        // They actually have an account — send them back to sign in.
+        setEmailMode('signin')
+        setInfo('You already have an account. Enter your password to sign in.')
+      } else {
+        setAuthError(authMessage(code))
+      }
     } finally {
       setBusy(false)
     }
@@ -321,6 +340,7 @@ export default function Login({ onDone, notice = '' }) {
               type="button"
               onClick={() => {
                 setAuthError('')
+                setInfo('')
                 setEmailMode((m) => (m === 'signup' ? 'signin' : 'signup'))
               }}
               className="text-center text-xs font-semibold text-slate-500 transition hover:text-slate-700"
@@ -331,6 +351,9 @@ export default function Login({ onDone, notice = '' }) {
             </button>
           )}
 
+          {info && (
+            <p className="text-center text-xs font-semibold text-[#2f8f76]">{info}</p>
+          )}
           {authError && (
             <p className="text-center text-xs font-semibold text-red-500">{authError}</p>
           )}
