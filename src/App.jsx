@@ -12,6 +12,7 @@ import SettingsPanel from './components/SettingsPanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
+import Splash from './components/Splash'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
 import MobileNav from './components/MobileNav'
@@ -34,6 +35,12 @@ const NEUTRAL_BG = '#eceef1'
 function PlandaApp() {
   const { settings, profile, updateProfile } = useStore()
 
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const [showSplash, setShowSplash] = useState(
+    () => !prefersReduced && !sessionStorage.getItem('planda-splash-seen')
+  )
   const [section, setSection] = useState('calendar')
   const [collapsed, setCollapsed] = useState(false)
   const [view, setView] = useState(settings.defaultView)
@@ -125,7 +132,16 @@ function PlandaApp() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <>
+      {showSplash && (
+        <Splash
+          onDone={() => {
+            sessionStorage.setItem('planda-splash-seen', '1')
+            setShowSplash(false)
+          }}
+        />
+      )}
+      <div className="flex h-screen flex-col">
       <TopBar
         avatar={profile.avatar}
         onToggleSidebar={() => setCollapsed((c) => !c)}
@@ -238,7 +254,8 @@ function PlandaApp() {
         onEditItem={openEditItem}
         onAddForDay={openNewItem}
       />
-    </div>
+      </div>
+    </>
   )
 }
 
