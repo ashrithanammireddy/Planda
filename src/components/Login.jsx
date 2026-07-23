@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
-import { Mail } from 'lucide-react'
+import { Mail, CheckCircle2 } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
 // Login gate. Clean light-mint background with a mint spotlight that follows
 // the cursor + faint rings. Sign-in is front-end only for now.
-export default function Login({ onDone }) {
+export default function Login({ onDone, notice = '' }) {
   const glowRef = useRef(null)
   const [email, setEmail] = useState('')
+  const [toast, setToast] = useState(notice)
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+
+  // Show the log-out confirmation toast briefly, then let it fade away.
+  useEffect(() => {
+    if (!notice) return
+    setToast(notice)
+    const t = setTimeout(() => setToast(''), 3000)
+    return () => clearTimeout(t)
+  }, [notice])
 
   useEffect(() => {
     const move = (e) => {
@@ -23,6 +32,18 @@ export default function Login({ onDone }) {
 
   return (
     <div className="relative flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: '#eef5f1' }}>
+      {/* log-out confirmation toast */}
+      <div
+        className={`pointer-events-none absolute left-1/2 top-6 z-30 -translate-x-1/2 transition-all duration-300 ${
+          toast ? 'translate-y-0 opacity-100' : '-translate-y-3 opacity-0'
+        }`}
+      >
+        <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[0_12px_30px_rgba(20,40,34,0.18)] backdrop-blur">
+          <CheckCircle2 size={17} className="text-[#34a98a]" />
+          {toast || 'Logged out successfully'}
+        </div>
+      </div>
+
       {/* faint concentric rings */}
       <div
         className="pointer-events-none absolute inset-0 z-0"

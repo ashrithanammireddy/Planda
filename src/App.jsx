@@ -35,7 +35,7 @@ const NEUTRAL_BG = '#e8eaee'
 const DARK_BG = '#14161c'
 
 function PlandaApp() {
-  const { settings, profile, updateProfile } = useStore()
+  const { settings, profile } = useStore()
 
   const prefersReduced =
     typeof window !== 'undefined' &&
@@ -170,14 +170,17 @@ function PlandaApp() {
 
   const openAI = () => setAiOpen(true)
   const openSettings = () => setSettingsOpen(true)
+  const [loggedOut, setLoggedOut] = useState(false)
   const logout = () => {
     if (
       window.confirm(
-        'Log out of this local profile? Your planner data stays on this device.'
+        'Log out of Planda? Your planner data stays on this device.'
       )
     ) {
-      updateProfile({ name: '', school: '', avatar: '🐼' })
+      localStorage.removeItem('planda.authed')
+      setAuthed(false)
       setSection('calendar')
+      setLoggedOut(true)
     }
   }
 
@@ -195,9 +198,11 @@ function PlandaApp() {
   if (!authed) {
     return (
       <Login
+        notice={loggedOut ? 'Logged out successfully' : ''}
         onDone={(mode) => {
           localStorage.setItem('planda.authed', '1')
           setAuthed(true)
+          setLoggedOut(false)
           if (mode === 'guest') {
             localStorage.setItem('planda.onboarded', '1')
             setOnboarded(true)
