@@ -66,7 +66,7 @@ export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
   // random tint, so keep the accent a clean neutral graphite.
   if (s < 18) return neutral(alpha)
   // Boost saturation a touch (and floor it) so pastels read as a clear accent.
-  const sat = Math.min(70, Math.max(48, s * 1.15))
+  const sat = Math.min(68, Math.max(42, s * 1.15))
   return alpha < 1
     ? `hsla(${Math.round(h)}, ${Math.round(sat)}%, ${l}%, ${alpha})`
     : `hsl(${Math.round(h)}, ${Math.round(sat)}%, ${l}%)`
@@ -126,7 +126,7 @@ export function themeTokens(pageBg, isDark) {
       surface: mix(pageBg, '#ffffff', 0.12),
       surface2: mix(pageBg, '#ffffff', 0.2),
       border: mix(pageBg, '#ffffff', 0.16),
-      text: '#f1f3f9',
+      text: '#f4f4f5',
       textMuted: mix(pageBg, '#ffffff', 0.58),
     }
   }
@@ -135,7 +135,7 @@ export function themeTokens(pageBg, isDark) {
     surface: mix(pageBg, '#ffffff', 0.68),
     surface2: mix(pageBg, '#ffffff', 0.5),
     border: mix(pageBg, '#000000', 0.1),
-    text: '#1f2433',
+    text: '#232326',
     textMuted: mix(pageBg, '#000000', 0.45),
   }
 }
