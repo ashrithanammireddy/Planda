@@ -7,23 +7,57 @@ import wordmarkUrl from '../assets/planda-wordmark.png'
 // position (fraction of the viewport); each blob also gets nudged away from the
 // cursor, so moving the mouse pushes the fog around and it settles back after.
 const BLOBS = [
-  { home: [0.28, 0.32], size: 520, color: 'rgba(45,168,136,0.62)', sx: 0.13, sy: 0.17, ph: 0.0, amp: 26 },
-  { home: [0.72, 0.28], size: 460, color: 'rgba(108,201,170,0.58)', sx: 0.11, sy: 0.15, ph: 1.7, amp: 30 },
-  { home: [0.5, 0.62], size: 600, color: 'rgba(45,168,136,0.55)', sx: 0.09, sy: 0.12, ph: 3.1, amp: 34 },
-  { home: [0.24, 0.72], size: 420, color: 'rgba(150,222,198,0.60)', sx: 0.14, sy: 0.1, ph: 4.4, amp: 28 },
-  { home: [0.8, 0.74], size: 440, color: 'rgba(45,168,136,0.50)', sx: 0.1, sy: 0.16, ph: 5.6, amp: 32 },
-  { home: [0.55, 0.2], size: 360, color: 'rgba(120,205,175,0.55)', sx: 0.12, sy: 0.13, ph: 2.4, amp: 24 },
+  { home: [0.15, 0.2], size: 680, color: 'rgba(45,168,136,0.30)', sx: 0.045, sy: 0.055, ph: 0.0, amp: 46 },
+  { home: [0.85, 0.16], size: 640, color: 'rgba(108,201,170,0.27)', sx: 0.04, sy: 0.05, ph: 1.6, amp: 52 },
+  { home: [0.8, 0.82], size: 720, color: 'rgba(45,168,136,0.25)', sx: 0.05, sy: 0.045, ph: 3.0, amp: 50 },
+  { home: [0.17, 0.84], size: 660, color: 'rgba(150,222,198,0.30)', sx: 0.05, sy: 0.04, ph: 4.3, amp: 48 },
+  { home: [0.5, 0.5], size: 780, color: 'rgba(120,205,175,0.20)', sx: 0.035, sy: 0.04, ph: 2.2, amp: 58 },
 ]
 
+// Official multicolor Google "G".
+function GoogleG({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </svg>
+  )
+}
+
+// Apple logo glyph.
+function AppleGlyph({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 384 512" fill="currentColor" aria-hidden>
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+    </svg>
+  )
+}
+
 // Login gate. Clean light-mint background with drifting mint fog the cursor
-// pushes around. Sign-in is front-end only for now.
+// pushes around. Sign-in is front-end only for now (the provider sheets are a
+// realistic mock: they collect an account email, no real OAuth yet).
 export default function Login({ onDone, notice = '' }) {
   const layerRef = useRef(null)
   const blobRefs = useRef([])
   const mouse = useRef({ x: -9999, y: -9999 })
   const [email, setEmail] = useState('')
   const [toast, setToast] = useState(notice)
+  const [provider, setProvider] = useState(null) // 'google' | 'apple' | null
+  const [providerEmail, setProviderEmail] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+  const validProviderEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(providerEmail.trim())
+
+  const openProvider = (p) => {
+    setProviderEmail('')
+    setProvider(p)
+  }
+  const confirmProvider = () => {
+    if (!validProviderEmail) return
+    setProvider(null)
+    onDone('account')
+  }
 
   // Show the log-out confirmation toast briefly, then let it fade away.
   useEffect(() => {
@@ -102,7 +136,7 @@ export default function Login({ onDone, notice = '' }) {
       <div
         ref={layerRef}
         className="pointer-events-none absolute inset-0 z-0"
-        style={{ filter: 'blur(44px)' }}
+        style={{ filter: 'blur(80px)' }}
       >
         {BLOBS.map((b, i) => (
           <div
@@ -148,18 +182,20 @@ export default function Login({ onDone, notice = '' }) {
         <div className="mt-6 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={() => onDone('account')}
+            onClick={() => openProvider('google')}
             className="flex w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5"
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[13px] font-extrabold text-[#4285F4] ring-1 ring-black/5">G</span>
+            <GoogleG size={18} />
             Continue with Google
           </button>
           <button
             type="button"
-            onClick={() => onDone('account')}
+            onClick={() => openProvider('apple')}
             className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5"
           >
-            <span className="text-base leading-none"></span>
+            <span className="-mt-0.5">
+              <AppleGlyph size={16} />
+            </span>
             Continue with Apple
           </button>
 
@@ -199,6 +235,65 @@ export default function Login({ onDone, notice = '' }) {
           or keep going without an account
         </button>
       </div>
+
+      {/* Provider sign-in sheet (front-end mock of Google / Apple account choose) */}
+      {provider && (
+        <div
+          className="absolute inset-0 z-40 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          onClick={() => setProvider(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-[380px] max-w-[92%] overflow-hidden rounded-2xl bg-white shadow-[0_30px_80px_rgba(15,23,42,0.35)]"
+          >
+            <div className="flex flex-col items-center gap-2 px-7 pt-7 text-center">
+              {provider === 'google' ? <GoogleG size={26} /> : <AppleGlyph size={26} />}
+              <h2 className="text-[17px] font-semibold text-slate-900">
+                Sign in {provider === 'google' ? 'with Google' : 'with Apple'}
+              </h2>
+              <p className="text-sm text-slate-500">to continue to Planda</p>
+            </div>
+
+            <div className="px-7 pb-3 pt-5">
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                {provider === 'google' ? 'Email or phone' : 'Apple Account'}
+              </label>
+              <input
+                type="email"
+                autoFocus
+                value={providerEmail}
+                onChange={(e) => setProviderEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && confirmProvider()}
+                placeholder="you@example.com"
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
+              />
+              <p className="mt-2 text-[11px] leading-snug text-slate-400">
+                Demo sign-in for the app challenge. No real account is used and
+                nothing is sent anywhere.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between px-7 pb-6 pt-2">
+              <button
+                type="button"
+                onClick={() => setProvider(null)}
+                className="text-sm font-semibold text-slate-500 transition hover:text-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!validProviderEmail}
+                onClick={confirmProvider}
+                className="rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
+                style={{ background: provider === 'google' ? '#4285F4' : '#111' }}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
