@@ -13,6 +13,7 @@ import {
   DEFAULT_THEME_COLOR,
 } from '../lib/constants'
 import { generateStudySessions } from '../lib/studyPlan'
+import { DEFAULT_CATEGORIES } from '../lib/gradeEngine'
 
 const StoreContext = createContext(null)
 
@@ -44,8 +45,17 @@ function seedState() {
     sessions: [],
     items: [],
     focusLog: [],
+    grades: {},
     profile: { ...DEFAULT_PROFILE },
     settings: { ...DEFAULT_SETTINGS },
+  }
+}
+
+// Fresh grade record for a class (default weighted categories, no items yet).
+function newClassGrades() {
+  return {
+    categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
+    items: [],
   }
 }
 
@@ -60,6 +70,7 @@ function loadState() {
       sessions: parsed.sessions ?? [],
       items: parsed.items ?? [],
       focusLog: parsed.focusLog ?? [],
+      grades: parsed.grades ?? {},
       profile: { ...DEFAULT_PROFILE, ...(parsed.profile ?? {}) },
       settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
     }
@@ -241,6 +252,33 @@ function reducer(state, action) {
       }
       return { ...state, focusLog: [...(state.focusLog || []), entry] }
     }
+    case 'GRADE_ADD_ITEM': {
+      const g = state.grades[action.classId] || newClassGrades()
+      const items = [...g.items, { id: uid(), hypothetical: false, ...action.item }]
+      return { ...state, grades: { ...state.grades, [action.classId]: { ...g, items } } }
+    }
+    case 'GRADE_UPDATE_ITEM': {
+      const g = state.grades[action.classId] || newClassGrades()
+      const items = g.items.map((i) =>
+        i.id === action.id ? { ...i, ...action.changes } : i
+      )
+      return { ...state, grades: { ...state.grades, [action.classId]: { ...g, items } } }
+    }
+    case 'GRADE_DELETE_ITEM': {
+      const g = state.grades[action.classId] || newClassGrades()
+      const items = g.items.filter((i) => i.id !== action.id)
+      return { ...state, grades: { ...state.grades, [action.classId]: { ...g, items } } }
+    }
+    case 'GRADE_SET_WEIGHT': {
+      const g = state.grades[action.classId] || newClassGrades()
+      const categories = g.categories.map((c) =>
+        c.id === action.categoryId ? { ...c, weight: action.weight } : c
+      )
+      return {
+        ...state,
+        grades: { ...state.grades, [action.classId]: { ...g, categories } },
+      }
+    }
     case 'UPDATE_PROFILE':
       return { ...state, profile: { ...state.profile, ...action.changes } }
     case 'UPDATE_SETTINGS':
@@ -287,6 +325,14 @@ export function StoreProvider({ children }) {
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
       logFocus: (minutes) => dispatch({ type: 'LOG_FOCUS', minutes }),
+      gradeAddItem: (classId, item) =>
+        dispatch({ type: 'GRADE_ADD_ITEM', classId, item }),
+      gradeUpdateItem: (classId, id, changes) =>
+        dispatch({ type: 'GRADE_UPDATE_ITEM', classId, id, changes }),
+      gradeDeleteItem: (classId, id) =>
+        dispatch({ type: 'GRADE_DELETE_ITEM', classId, id }),
+      gradeSetWeight: (classId, categoryId, weight) =>
+        dispatch({ type: 'GRADE_SET_WEIGHT', classId, categoryId, weight }),
       loadSample: () => dispatch({ type: 'LOAD_SAMPLE' }),
       reset: () => dispatch({ type: 'RESET' }),
     }),

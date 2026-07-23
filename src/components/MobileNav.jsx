@@ -24,10 +24,12 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
   }
 
   const accountActive = section === 'account' || section === 'profile'
+  // Grades stays a desktop/sidebar item to keep the mobile bar uncluttered.
+  const tabs = NAV.filter((n) => n.id !== 'grades')
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center border-t pl-border pl-surface px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 lg:hidden">
-      {NAV.slice(0, 2).map(tab)}
+      {tabs.slice(0, 2).map(tab)}
       <button
         type="button"
         onClick={onOpenAI}
@@ -36,7 +38,7 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
       >
         <PandaLogo size={40} />
       </button>
-      {NAV.slice(2).map(tab)}
+      {tabs.slice(2).map(tab)}
       <button
         type="button"
         onClick={() => setSection('account')}

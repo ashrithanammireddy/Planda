@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './store/StoreContext'
 import Header from './components/Header'
 import MonthView from './components/MonthView'
@@ -23,6 +23,7 @@ import ProgressSection from './components/sections/ProgressSection'
 import FriendsSection from './components/sections/FriendsSection'
 import ProfileSection from './components/sections/ProfileSection'
 import AccountSection from './components/sections/AccountSection'
+import GradesSection from './components/sections/GradesSection'
 import { parseKey } from './lib/dates'
 import { isColorDark, themeTokens, accentColor, isValidColor } from './lib/colors'
 
@@ -41,10 +42,31 @@ function PlandaApp() {
   const [showSplash, setShowSplash] = useState(
     () => !prefersReduced && !sessionStorage.getItem('planda-splash-seen')
   )
-  const [section, setSection] = useState('calendar')
+  const [section, setSection] = useState(
+    () => localStorage.getItem('planda.section') || 'calendar'
+  )
   const [collapsed, setCollapsed] = useState(false)
   const [view, setView] = useState(settings.defaultView)
   const [date, setDate] = useState(() => new Date())
+  const mainRef = useRef(null)
+
+  // Remember the current screen across reloads.
+  useEffect(() => {
+    localStorage.setItem('planda.section', section)
+  }, [section])
+
+  // Nav clicks: switch section; re-tapping the current tab resets it to its
+  // first page (calendar back to default view/today) and scrolls to top.
+  const goTo = (id) => {
+    if (id === section) {
+      if (id === 'calendar') {
+        setView(settings.defaultView)
+        setDate(new Date())
+      }
+    }
+    setSection(id)
+    mainRef.current?.scrollTo({ top: 0 })
+  }
 
   // Modal / panel state
   const [assessmentOpen, setAssessmentOpen] = useState(false)
@@ -175,7 +197,7 @@ function PlandaApp() {
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar
           section={section}
-          setSection={setSection}
+          setSection={goTo}
           collapsed={collapsed}
           avatar={profile.avatar}
           name={profile.name}
@@ -184,7 +206,10 @@ function PlandaApp() {
           onLogout={logout}
         />
 
-        <main className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0">
+        <main
+          ref={mainRef}
+          className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0"
+        >
           <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
           {booting && <AppSkeleton />}
           {!booting && section === 'calendar' && (
@@ -237,6 +262,7 @@ function PlandaApp() {
           )}
 
           {!booting && section === 'progress' && <ProgressSection />}
+          {!booting && section === 'grades' && <GradesSection />}
           {!booting && section === 'friends' && <FriendsSection />}
           {!booting && section === 'profile' && <ProfileSection />}
           {!booting && section === 'account' && (
@@ -251,7 +277,7 @@ function PlandaApp() {
 
       <MobileNav
         section={section}
-        setSection={setSection}
+        setSection={goTo}
         onOpenAI={openAI}
         avatar={profile.avatar}
       />

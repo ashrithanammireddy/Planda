@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   CalendarDays,
   TrendingUp,
+  GraduationCap,
   Users,
   UserCircle,
   LogOut,
@@ -12,6 +13,7 @@ import {
 export const NAV = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'progress', label: 'Progress', icon: TrendingUp },
+  { id: 'grades', label: 'Grades', icon: GraduationCap },
   { id: 'friends', label: 'Friends', icon: Users },
 ]
 

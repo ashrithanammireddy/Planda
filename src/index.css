@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --planda-bg: #f0c7c7;
+  --planda-bg: #e8eaee; /* neutral default; overridden before paint from storage */
 }
 
 html,

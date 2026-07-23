@@ -12,6 +12,25 @@
     />
     <meta name="description" content="Planda — an AI-powered study planner with time-blocking, assessments, and auto-generated study schedules." />
     <title>Planda — Study Planner</title>
+    <script>
+      // Paint the saved theme color immediately to avoid a flash of the default.
+      try {
+        var s = JSON.parse(localStorage.getItem('planda.state.v1') || '{}')
+        var bg = s.settings && s.settings.backgroundColor
+        var ap = (s.settings && s.settings.appearance) || 'Auto'
+        var lum = function (hex) {
+          hex = (hex || '').replace('#', '')
+          if (hex.length === 3) hex = hex.split('').map(function (c) { return c + c }).join('')
+          var n = parseInt(hex, 16)
+          if (isNaN(n)) return 1
+          return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255
+        }
+        var dark = ap === 'Dark' || (ap === 'Auto' && lum(bg) < 0.5)
+        var page = dark ? '#14161c' : bg || '#e8eaee'
+        document.documentElement.style.setProperty('--planda-bg', page)
+        if (dark) document.documentElement.classList.add('dark')
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

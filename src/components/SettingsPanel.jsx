@@ -206,9 +206,13 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
           </div>
         </div>
 
-        {/* Assessment emojis */}
+        {/* Assessment symbols */}
         <div className="mb-2">
-          <span className={sectionLabel}>Assessment Emojis</span>
+          <span className={sectionLabel}>Assessment Symbols</span>
+          <p className="-mt-1 mb-2 text-xs pl-text-muted">
+            Tap a box and press <b>Ctrl + Cmd + Space</b> (Mac) or <b>Win + .</b>{' '}
+            (Windows) to open the emoji keyboard.
+          </p>
           <div className="grid grid-cols-2 gap-3">
             {ASSESSMENT_TYPES.map((type) => (
               <div key={type}>
