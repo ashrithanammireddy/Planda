@@ -57,14 +57,14 @@ function rgbToHsl({ r, g, b }) {
 // `alpha` < 1 returns a translucent version (handy for soft rings).
 export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
   const rgb = hexToRgb(bg)
-  // No / invalid color -> near-neutral graphite (matches the B&W panda).
-  if (!rgb) return alpha < 1 ? `hsla(220, 5%, ${l}%, ${alpha})` : `hsl(220, 5%, ${l}%)`
+  // No / invalid color -> a true neutral graphite (no blue tint).
+  const neutral = (a) =>
+    a < 1 ? `hsla(30, 4%, ${l}%, ${a})` : `hsl(30, 4%, ${l}%)`
+  if (!rgb) return neutral(alpha)
   const { h, s } = rgbToHsl(rgb)
   // Near-grey themes have no real hue — forcing saturation would invent a
-  // random (often red) tint, so keep the accent a clean neutral graphite.
-  if (s < 12) {
-    return alpha < 1 ? `hsla(220, 5%, ${l}%, ${alpha})` : `hsl(220, 5%, ${l}%)`
-  }
+  // random tint, so keep the accent a clean neutral graphite.
+  if (s < 18) return neutral(alpha)
   // Boost saturation a touch (and floor it) so pastels read as a clear accent.
   const sat = Math.min(70, Math.max(48, s * 1.15))
   return alpha < 1
@@ -122,8 +122,9 @@ export function darkThemeBg(hex) {
 export function themeTokens(pageBg, isDark) {
   if (isDark) {
     return {
-      surface: mix(pageBg, '#ffffff', 0.07),
-      surface2: mix(pageBg, '#ffffff', 0.13),
+      // Surfaces sit clearly above the dark page so cards separate cleanly.
+      surface: mix(pageBg, '#ffffff', 0.12),
+      surface2: mix(pageBg, '#ffffff', 0.2),
       border: mix(pageBg, '#ffffff', 0.16),
       text: '#f1f3f9',
       textMuted: mix(pageBg, '#ffffff', 0.58),

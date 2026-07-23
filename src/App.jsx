@@ -21,16 +21,13 @@ import FriendsSection from './components/sections/FriendsSection'
 import ProfileSection from './components/sections/ProfileSection'
 import AccountSection from './components/sections/AccountSection'
 import { parseKey } from './lib/dates'
-import {
-  isColorDark,
-  themeTokens,
-  accentColor,
-  darkThemeBg,
-  isValidColor,
-} from './lib/colors'
+import { isColorDark, themeTokens, accentColor, isValidColor } from './lib/colors'
 
 // Used when no background/accent color is selected: a clean neutral grey.
-const NEUTRAL_BG = '#eceef1'
+const NEUTRAL_BG = '#ececec'
+// Dark mode uses one consistent neutral dark; the chosen color only drives the
+// accent, not the darkness itself.
+const DARK_BG = '#14161c'
 
 function PlandaApp() {
   const { settings, profile, updateProfile } = useStore()
@@ -67,9 +64,9 @@ function PlandaApp() {
     const dark =
       settings.appearance === 'Dark' ||
       (settings.appearance === 'Auto' && isColorDark(chosen))
-    // In dark mode the page goes genuinely dark (theme-tinted near-black);
-    // otherwise the chosen color IS the page background.
-    const pageBg = dark ? darkThemeBg(chosen) : chosen
+    // In dark mode the page is a consistent neutral dark; the chosen color only
+    // drives the accent. In light mode the chosen color IS the page background.
+    const pageBg = dark ? DARK_BG : chosen
     const t = themeTokens(pageBg, dark)
     const accentL = dark ? 64 : 50
     const root = document.documentElement
@@ -82,7 +79,12 @@ function PlandaApp() {
     root.style.setProperty('--planda-text-muted', t.textMuted)
     // Accent keeps the CHOSEN color's hue (not the darkened page bg).
     root.style.setProperty('--planda-accent', accentColor(chosen, { l: accentL }))
-    root.style.setProperty('--planda-accent-soft', accentColor(chosen, { l: accentL, alpha: 0.16 }))
+    // In dark mode a low-opacity tint over the dark bg reads muddy, so use a
+    // lighter, slightly stronger soft accent there.
+    root.style.setProperty(
+      '--planda-accent-soft',
+      accentColor(chosen, { l: dark ? 72 : accentL, alpha: dark ? 0.26 : 0.16 })
+    )
     root.style.setProperty('--planda-on-accent', '#ffffff')
   }, [settings.appearance, settings.backgroundColor])
 
