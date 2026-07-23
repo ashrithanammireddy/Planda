@@ -14,6 +14,29 @@ import {
 } from '../lib/constants'
 import { generateStudySessions } from '../lib/studyPlan'
 import { DEFAULT_CATEGORIES } from '../lib/gradeEngine'
+import { HOLIDAY_SETS } from '../lib/holidays'
+
+// One-time migration: earlier versions filed holidays under different
+// categories, so a holiday could end up duplicated across calendars. Map any
+// item that matches a known holiday (by date + title) back to its correct set,
+// then drop exact duplicates so each holiday appears exactly once.
+function normalizeHolidays(items) {
+  const setByKey = {}
+  for (const [setName, list] of Object.entries(HOLIDAY_SETS)) {
+    for (const h of list) setByKey[`${h.title}|${h.date}`] = setName
+  }
+  const seen = new Set()
+  const out = []
+  for (const it of items) {
+    const holidaySet = setByKey[`${it.title}|${it.date}`]
+    const normalized = holidaySet ? { ...it, category: holidaySet } : it
+    const key = `${normalized.title}|${normalized.date}|${normalized.category || ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(normalized)
+  }
+  return out
+}
 
 const StoreContext = createContext(null)
 
@@ -69,7 +92,7 @@ function loadState() {
       classes: parsed.classes ?? [],
       assessments: parsed.assessments ?? [],
       sessions: parsed.sessions ?? [],
-      items: parsed.items ?? [],
+      items: normalizeHolidays(parsed.items ?? []),
       focusLog: parsed.focusLog ?? [],
       grades: parsed.grades ?? {},
       profile: { ...DEFAULT_PROFILE, ...(parsed.profile ?? {}) },
