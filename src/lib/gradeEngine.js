@@ -27,6 +27,30 @@ export function letterGrade(percent) {
   return 'F'
 }
 
+// Unweighted 4.0 GPA points from a percent.
+const GPA_POINTS = [
+  [93, 4.0], [90, 3.7], [87, 3.3], [83, 3.0], [80, 2.7],
+  [77, 2.3], [73, 2.0], [70, 1.7], [67, 1.3], [63, 1.0], [60, 0.7], [0, 0.0],
+]
+export function gradePoints(percent) {
+  if (percent == null) return null
+  for (const [min, pts] of GPA_POINTS) if (percent >= min) return pts
+  return 0
+}
+
+// Final-grade calculator (Bessy-style): given the current overall %, how much
+// the final is worth (% of the whole grade), and a target overall %, what do
+// you need on the final?  target = current*(1-w) + final*w  ->  solve final.
+export function neededOnFinal(current, finalWeightPct, target) {
+  const w = (Number(finalWeightPct) || 0) / 100
+  if (w <= 0) return { invalid: true }
+  if (current == null) return { noData: true }
+  const needed = (target - current * (1 - w)) / w
+  if (needed <= 0) return { needed: 0, alreadyMet: true }
+  if (needed > 100) return { needed, impossible: true }
+  return { needed }
+}
+
 // Returns { percent: number|null, byCategory: [{ id, name, weight, percent }] }
 export function calcOverallGrade(cls, { includeHypothetical = false } = {}) {
   const categories = cls?.categories || []

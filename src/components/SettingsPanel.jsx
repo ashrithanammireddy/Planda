@@ -208,7 +208,7 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
 
         {/* Assessment symbols */}
         <div className="mb-2">
-          <span className={sectionLabel}>Assessment Symbols</span>
+          <span className={sectionLabel}>Symbols</span>
           <p className="-mt-1 mb-2 text-xs pl-text-muted">
             Tap a box and press <b>Ctrl + Cmd + Space</b> (Mac) or <b>Win + .</b>{' '}
             (Windows) to open the emoji keyboard.
