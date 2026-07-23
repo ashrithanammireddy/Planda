@@ -55,6 +55,9 @@ export default function Login({ onDone, notice = '' }) {
   const [emailMode, setEmailMode] = useState('signin') // 'signin' | 'signup'
   const [info, setInfo] = useState('') // soft, non-error guidance
   const [toast, setToast] = useState(notice)
+  // Emails we've confirmed already have an account, so a wrong password on them
+  // shows a real error instead of bouncing to create-account.
+  const knownExisting = useRef(new Set())
   const [provider, setProvider] = useState(null) // 'google' | 'apple' | null
   const [pStep, setPStep] = useState(1) // 1 = email, 2 = password
   const [providerEmail, setProviderEmail] = useState('')
@@ -102,18 +105,24 @@ export default function Login({ onDone, notice = '' }) {
       // onAuthStateChanged in App flips us into the app.
     } catch (err) {
       const code = err?.code
-      if (
-        emailMode === 'signin' &&
-        (code === 'auth/invalid-credential' ||
-          code === 'auth/user-not-found' ||
-          code === 'auth/wrong-password')
-      ) {
-        // No matching account (they're likely new). Take them to create-account
-        // with the email + password they already typed still filled in.
-        setEmailMode('signup')
-        setInfo("Looks like you're new here — finish creating your account.")
+      const key = email.trim().toLowerCase()
+      const looksMissing =
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password'
+      if (emailMode === 'signin' && looksMissing) {
+        if (knownExisting.current.has(key)) {
+          // We know this account exists, so this is just a wrong password.
+          setAuthError('Incorrect password. Please try again.')
+        } else {
+          // Likely a new person. Take them to create-account with the email +
+          // password they already typed still filled in.
+          setEmailMode('signup')
+          setInfo("Looks like you're new here — finish creating your account.")
+        }
       } else if (emailMode === 'signup' && code === 'auth/email-already-in-use') {
-        // They actually have an account — send them back to sign in.
+        // Definitive: they already have an account — send them back to sign in.
+        knownExisting.current.add(key)
         setEmailMode('signin')
         setInfo('You already have an account. Enter your password to sign in.')
       } else {
