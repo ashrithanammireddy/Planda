@@ -3,90 +3,48 @@ import { Mail } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
-// Login gate. A mint "aura" sits under a soft fog canvas that the cursor wipes
-// away (and slowly re-forms). Sign-in is front-end only for now.
+// Login gate. Clean light-mint background with a mint spotlight that follows
+// the cursor + faint rings. Sign-in is front-end only for now.
 export default function Login({ onDone }) {
-  const canvasRef = useRef(null)
+  const glowRef = useRef(null)
   const [email, setEmail] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    let w = 0
-    let h = 0
-    let raf
-
-    const fog = (alpha) => {
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.fillStyle = `rgba(196, 224, 214, ${alpha})`
-      ctx.fillRect(0, 0, w, h)
+    const move = (e) => {
+      const g = glowRef.current
+      if (!g) return
+      g.style.setProperty('--sx', `${(e.clientX / window.innerWidth) * 100}%`)
+      g.style.setProperty('--sy', `${(e.clientY / window.innerHeight) * 100}%`)
     }
-    const resize = () => {
-      w = canvas.offsetWidth
-      h = canvas.offsetHeight
-      canvas.width = w * dpr
-      canvas.height = h * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      fog(0.95)
-      if (reduce) {
-        ctx.globalCompositeOperation = 'destination-out'
-        ctx.fillStyle = 'rgba(0,0,0,1)'
-        ctx.fillRect(0, 0, w, h)
-      }
-    }
-    const wipe = (x, y) => {
-      ctx.globalCompositeOperation = 'destination-out'
-      const r = 110
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r)
-      g.addColorStop(0, 'rgba(0,0,0,0.45)')
-      g.addColorStop(1, 'rgba(0,0,0,0)')
-      ctx.fillStyle = g
-      ctx.beginPath()
-      ctx.arc(x, y, r, 0, Math.PI * 2)
-      ctx.fill()
-    }
-    const onMove = (e) => {
-      const rect = canvas.getBoundingClientRect()
-      const p = e.touches ? e.touches[0] : e
-      wipe(p.clientX - rect.left, p.clientY - rect.top)
-    }
-    const loop = () => {
-      fog(0.012) // slowly re-form the fog
-      raf = requestAnimationFrame(loop)
-    }
-
-    resize()
-    window.addEventListener('resize', resize)
-    if (!reduce) {
-      window.addEventListener('mousemove', onMove)
-      window.addEventListener('touchmove', onMove, { passive: true })
-      raf = requestAnimationFrame(loop)
-    }
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', resize)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('touchmove', onMove)
-    }
+    window.addEventListener('mousemove', move)
+    return () => window.removeEventListener('mousemove', move)
   }, [])
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: '#bcdcd3' }}>
-      {/* aura beneath the fog */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full" style={{ background: '#7fd3b0', filter: 'blur(70px)', opacity: 0.8 }} />
-        <div className="absolute -bottom-24 -right-16 h-96 w-96 rounded-full" style={{ background: '#a7d8ea', filter: 'blur(70px)', opacity: 0.75 }} />
-        <div className="absolute bottom-10 left-1/3 h-72 w-72 rounded-full" style={{ background: '#e7d59a', filter: 'blur(70px)', opacity: 0.6 }} />
-      </div>
-      {/* fog layer */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-10 h-full w-full" />
+    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: '#eef5f1' }}>
+      {/* faint concentric rings */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 42%, transparent 0 120px, rgba(52,169,138,.09) 121px 123px, transparent 124px),' +
+            'radial-gradient(circle at 50% 42%, transparent 0 210px, rgba(52,169,138,.07) 211px 213px, transparent 214px),' +
+            'radial-gradient(circle at 50% 42%, transparent 0 320px, rgba(52,169,138,.05) 321px 323px, transparent 324px)',
+        }}
+      />
+      {/* cursor spotlight */}
+      <div
+        ref={glowRef}
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(420px 420px at var(--sx,50%) var(--sy,42%), rgba(52,169,138,.30), transparent 70%)',
+        }}
+      />
 
       {/* card */}
-      <div className="relative z-20 w-[360px] max-w-[88%] rounded-[26px] border border-white/50 bg-white/80 p-8 shadow-[0_30px_70px_rgba(20,40,34,0.25)] backdrop-blur-md">
+      <div className="relative z-20 w-[360px] max-w-[88%] rounded-[26px] border border-white/60 bg-white/85 p-8 shadow-[0_30px_70px_rgba(20,40,34,0.18)] backdrop-blur-md">
         <div className="flex flex-col items-center gap-2">
           <img src={pandaUrl} alt="Planda" className="h-20 w-20 object-contain" />
           <span
