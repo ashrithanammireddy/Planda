@@ -1,4 +1,4 @@
-import { CalendarDays, TrendingUp, Users, Settings } from 'lucide-react'
+import { CalendarDays, TrendingUp, Users, Palette } from 'lucide-react'
 
 // Primary navigation (Profile/Account live in the top-bar avatar menu).
 export const NAV = [
@@ -45,7 +45,7 @@ export default function Sidebar({ section, setSection, collapsed, onOpenSettings
           collapsed ? 'justify-center px-0' : 'px-3'
         }`}
       >
-        <Settings size={19} />
+        <Palette size={19} />
         {!collapsed && 'Settings'}
       </button>
     </aside>

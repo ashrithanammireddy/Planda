@@ -130,7 +130,6 @@ function PlandaApp() {
         avatar={profile.avatar}
         onToggleSidebar={() => setCollapsed((c) => !c)}
         onOpenAI={openAI}
-        onOpenColors={openSettings}
         onLogout={logout}
         setSection={setSection}
       />

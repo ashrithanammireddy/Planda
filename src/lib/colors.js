@@ -113,9 +113,10 @@ export function themeTokens(pageBg, isDark) {
     }
   }
   return {
-    surface: mix(pageBg, '#ffffff', 0.82),
-    surface2: mix(pageBg, '#ffffff', 0.66),
-    border: mix(pageBg, '#000000', 0.09),
+    // Keep a visible hint of the theme color so surfaces aren't stark white.
+    surface: mix(pageBg, '#ffffff', 0.68),
+    surface2: mix(pageBg, '#ffffff', 0.5),
+    border: mix(pageBg, '#000000', 0.1),
     text: '#1f2433',
     textMuted: mix(pageBg, '#000000', 0.45),
   }

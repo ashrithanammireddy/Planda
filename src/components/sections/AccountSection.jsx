@@ -1,4 +1,4 @@
-import { LogIn, Download, Trash2, ShieldCheck, Settings } from 'lucide-react'
+import { LogIn, Download, Trash2, ShieldCheck, Settings, Sparkles } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 
 function Row({ icon, title, desc, action }) {
@@ -20,7 +20,8 @@ function Row({ icon, title, desc, action }) {
 
 export default function AccountSection({ onOpenSettings }) {
   const store = useStore()
-  const { profile, classes, assessments, sessions, items, settings, reset } = store
+  const { profile, classes, assessments, sessions, items, settings, reset, loadSample } =
+    store
 
   const exportData = () => {
     const data = { profile, classes, assessments, sessions, items, settings }
@@ -70,6 +71,16 @@ export default function AccountSection({ onOpenSettings }) {
           icon={<ShieldCheck size={18} />}
           title="Data & privacy"
           desc="Your data is stored only in this browser. No account needed to use Planda."
+        />
+        <Row
+          icon={<Sparkles size={18} />}
+          title="Load sample data"
+          desc="Fill Planda with example classes, assessments, and tasks to explore."
+          action={
+            <button type="button" onClick={loadSample} className={btn}>
+              Load
+            </button>
+          }
         />
         <Row
           icon={<Download size={18} />}

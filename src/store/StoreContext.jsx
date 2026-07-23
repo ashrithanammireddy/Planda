@@ -182,6 +182,42 @@ function reducer(state, action) {
       )
       return { ...state, sessions }
     }
+    case 'LOAD_SAMPLE': {
+      const key = (d) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+          d.getDate()
+        ).padStart(2, '0')}`
+      const addDays = (n) => {
+        const d = new Date()
+        d.setDate(d.getDate() + n)
+        return key(d)
+      }
+      const todayKey = key(new Date())
+      const classes = state.classes.length
+        ? state.classes
+        : SEED_CLASSES.map((c) => ({ id: uid(), name: c.name, color: c.color }))
+      const cid = (i) => classes[i % classes.length]?.id || null
+
+      const assessments = [
+        { id: uid(), classId: cid(3), title: 'Vocab Quiz', type: 'Quiz', dueDate: addDays(2), difficulty: 'Easy', dailyStudyMinutes: 20, topics: ['Ch. 4 words'], notes: '', customColor: '' },
+        { id: uid(), classId: cid(0), title: 'Unit 3 Test', type: 'Test', dueDate: addDays(3), difficulty: 'Medium', dailyStudyMinutes: 30, topics: ['Quadratics', 'Factoring'], notes: '', customColor: '' },
+        { id: uid(), classId: cid(2), title: 'Essay Draft', type: 'Project', dueDate: addDays(5), difficulty: 'Medium', dailyStudyMinutes: 40, topics: ['Thesis', 'Sources'], notes: '', customColor: '' },
+        { id: uid(), classId: cid(1), title: 'Biology Midterm', type: 'Exam', dueDate: addDays(8), difficulty: 'Hard', dailyStudyMinutes: 45, topics: ['Cells', 'Genetics', 'Ecology'], notes: '', customColor: '' },
+      ]
+      const sessions = rebuildSessions(assessments, classes, []).map((s) =>
+        s.date === todayKey ? { ...s, completed: true } : s
+      )
+      const items = [
+        { id: uid(), kind: 'item', title: 'Read chapter 4', description: '', date: addDays(0), category: 'School', priority: 'Medium', type: 'Task', customColor: '', checkable: true, completed: false, timeBlock: { enabled: false, time: '09:00', durationMinutes: 60 } },
+        { id: uid(), kind: 'item', title: 'Soccer practice', description: '', date: addDays(1), category: 'Personal', priority: 'Low', type: 'Event', customColor: '', checkable: false, completed: false, timeBlock: { enabled: true, time: '16:00', durationMinutes: 90 } },
+        { id: uid(), kind: 'item', title: 'Dentist appointment', description: '', date: addDays(4), category: 'Health', priority: 'Medium', type: 'Event', customColor: '', checkable: false, completed: false, timeBlock: { enabled: true, time: '10:30', durationMinutes: 60 } },
+        // completed on previous days -> builds a study streak
+        { id: uid(), kind: 'item', title: 'Review flashcards', description: '', date: addDays(-1), category: 'School', priority: 'Medium', type: 'Task', customColor: '', checkable: true, completed: true, timeBlock: { enabled: false, time: '09:00', durationMinutes: 30 } },
+        { id: uid(), kind: 'item', title: 'Outline essay', description: '', date: addDays(-2), category: 'School', priority: 'Medium', type: 'Task', customColor: '', checkable: true, completed: true, timeBlock: { enabled: false, time: '09:00', durationMinutes: 30 } },
+        { id: uid(), kind: 'item', title: 'Practice problems', description: '', date: addDays(-3), category: 'School', priority: 'Medium', type: 'Task', customColor: '', checkable: true, completed: true, timeBlock: { enabled: false, time: '09:00', durationMinutes: 30 } },
+      ]
+      return { ...state, classes, assessments, sessions, items }
+    }
     case 'UPDATE_PROFILE':
       return { ...state, profile: { ...state.profile, ...action.changes } }
     case 'UPDATE_SETTINGS':
@@ -226,6 +262,7 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'UPDATE_SETTINGS', changes }),
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
+      loadSample: () => dispatch({ type: 'LOAD_SAMPLE' }),
       reset: () => dispatch({ type: 'RESET' }),
     }),
     []

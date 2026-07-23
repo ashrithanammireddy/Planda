@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UserCircle, Palette, LogOut, PanelLeft } from 'lucide-react'
+import { UserCircle, LogOut, PanelLeft } from 'lucide-react'
 import PandaLogo from './PandaLogo'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
@@ -9,7 +9,6 @@ export default function TopBar({
   avatar,
   onToggleSidebar,
   onOpenAI,
-  onOpenColors,
   onLogout,
   setSection,
 }) {
@@ -105,15 +104,6 @@ export default function TopBar({
                 >
                   <UserCircle size={18} className="pl-text-muted" />
                   Account
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => go(onOpenColors)}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium pl-text transition hover:pl-surface-2"
-                >
-                  <Palette size={18} className="pl-text-muted" />
-                  Colors
                 </button>
                 <div className="my-1 h-px pl-surface-2" />
                 <button

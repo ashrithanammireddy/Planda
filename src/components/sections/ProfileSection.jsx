@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Settings, Flame, Clock } from 'lucide-react'
+import { Flame, Clock } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
 
@@ -7,7 +7,7 @@ const field = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transitio
 const label = 'mb-1.5 block text-sm font-semibold pl-text'
 const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
 
-export default function ProfileSection({ onOpenSettings }) {
+export default function ProfileSection() {
   const { profile, updateProfile, assessments, sessions, items } = useStore()
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items }),
