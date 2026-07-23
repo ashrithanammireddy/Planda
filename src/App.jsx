@@ -9,6 +9,7 @@ import UpcomingAssessments from './components/UpcomingAssessments'
 import AssessmentModal from './components/AssessmentModal'
 import ItemModal from './components/ItemModal'
 import SettingsPanel from './components/SettingsPanel'
+import ThemePanel from './components/ThemePanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
@@ -52,6 +53,7 @@ function PlandaApp() {
   const [itemOpen, setItemOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [themeOpen, setThemeOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   // Brief skeleton while webfonts settle, so first paint is smooth (no spinner).
@@ -140,6 +142,7 @@ function PlandaApp() {
 
   const openAI = () => setAiOpen(true)
   const openSettings = () => setSettingsOpen(true)
+  const openTheme = () => setThemeOpen(true)
   const logout = () => {
     if (
       window.confirm(
@@ -163,11 +166,10 @@ function PlandaApp() {
       )}
       <div className="flex h-screen flex-col">
       <TopBar
-        avatar={profile.avatar}
         onToggleSidebar={() => setCollapsed((c) => !c)}
         onOpenAI={openAI}
-        onLogout={logout}
-        setSection={setSection}
+        onOpenTheme={openTheme}
+        onOpenSettings={openSettings}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -175,7 +177,11 @@ function PlandaApp() {
           section={section}
           setSection={setSection}
           collapsed={collapsed}
-          onOpenSettings={openSettings}
+          avatar={profile.avatar}
+          name={profile.name}
+          onProfile={() => setSection('profile')}
+          onAccount={() => setSection('account')}
+          onLogout={logout}
         />
 
         <main className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0">
@@ -221,7 +227,10 @@ function PlandaApp() {
                 </div>
 
                 {view !== 'Year' && (
-                  <UpcomingAssessments onSelectAssessment={openEditAssessment} />
+                  <UpcomingAssessments
+                    onSelectAssessment={openEditAssessment}
+                    onImport={() => setImportOpen(true)}
+                  />
                 )}
               </div>
             </div>
@@ -266,7 +275,15 @@ function PlandaApp() {
         editing={editingItem}
         initialDate={initialDate}
       />
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onOpenImport={() => {
+          setSettingsOpen(false)
+          setImportOpen(true)
+        }}
+      />
+      <ThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <StudyAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
       <DayDetailModal

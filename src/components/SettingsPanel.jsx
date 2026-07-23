@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { Sun, Moon, Monitor, Plus, Pencil, Trash2, Check, X, Palette } from 'lucide-react'
+import { Plus, Pencil, Trash2, Check, X, Settings, DownloadCloud } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
-import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS, THEME_PRESETS } from '../lib/constants'
+import { ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
 
-const fieldCls =
-  'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
+const fieldCls = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const sectionLabel = 'mb-2 block text-sm font-bold pl-text'
 
 function Toggle({ checked, onChange }) {
@@ -25,28 +24,16 @@ function Toggle({ checked, onChange }) {
   )
 }
 
-const APPEARANCES = [
-  { id: 'Light', icon: Sun },
-  { id: 'Dark', icon: Moon },
-  { id: 'Auto', icon: Monitor },
-]
-
-export default function SettingsPanel({ open, onClose }) {
-  const {
-    settings,
-    updateSettings,
-    classes,
-    addClass,
-    updateClass,
-    deleteClass,
-  } = useStore()
+// General settings (everything that isn't theme). Theme lives in ThemePanel.
+export default function SettingsPanel({ open, onClose, onOpenImport }) {
+  const { settings, updateSettings, classes, addClass, updateClass, deleteClass } =
+    useStore()
   const [newClass, setNewClass] = useState('')
   const [newColor, setNewColor] = useState(CLASS_COLORS[2])
   const [editingId, setEditingId] = useState(null)
   const [editName, setEditName] = useState('')
 
   if (!open) return null
-
   const set = (changes) => updateSettings(changes)
 
   const handleAddClass = () => {
@@ -63,101 +50,37 @@ export default function SettingsPanel({ open, onClose }) {
       >
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Palette size={22} className="pl-text" />
-            <h2 className="text-2xl font-bold pl-text">Settings &amp; Theme</h2>
+            <Settings size={22} className="pl-text" />
+            <h2 className="text-2xl font-bold pl-text">Settings</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-full border pl-accent-border p-1 pl-accent-text transition hover:pl-accent-soft"
-            aria-label="Close settings"
+            aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Appearance */}
-        <div className="mb-6">
-          <span className={sectionLabel}>Appearance</span>
-          <div className="grid grid-cols-3 gap-3">
-            {APPEARANCES.map(({ id, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => set({ appearance: id })}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 py-4 text-sm font-medium transition ${
-                  settings.appearance === id
-                    ? 'pl-accent-border pl-accent-soft pl-accent-text'
-                    : 'pl-border pl-text-muted hover:border-slate-300'
-                }`}
-              >
-                <Icon size={20} />
-                {id}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Theme color */}
-        <div className="mb-6">
-          <span className={sectionLabel}>Theme Color</span>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {THEME_PRESETS.map((p) => {
-              const active =
-                settings.backgroundColor.toLowerCase() === p.value.toLowerCase()
-              return (
-                <button
-                  key={p.name}
-                  type="button"
-                  onClick={() => set({ backgroundColor: p.value })}
-                  title={p.name}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl border-2 transition"
-                  style={{
-                    backgroundColor: p.value,
-                    borderColor: active ? 'var(--planda-accent)' : 'var(--planda-border)',
-                  }}
-                >
-                  {active && (
-                    <Check
-                      size={18}
-                      className={
-                        p.name === 'Dark' ? 'text-white' : 'text-slate-700'
-                      }
-                    />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="color"
-              value={settings.backgroundColor}
-              onChange={(e) => set({ backgroundColor: e.target.value })}
-              className="h-11 w-16 shrink-0 cursor-pointer rounded-xl border pl-border pl-surface p-1"
-            />
-            <input
-              className={fieldCls}
-              value={settings.backgroundColor}
-              onChange={(e) => set({ backgroundColor: e.target.value })}
-              placeholder="Custom hex or color"
-            />
-          </div>
-        </div>
-
-        {/* Default view */}
-        <div className="mb-5">
-          <span className={sectionLabel}>Default View</span>
-          <select
-            className={fieldCls}
-            value={settings.defaultView}
-            onChange={(e) => set({ defaultView: e.target.value })}
+        {/* Import */}
+        {onOpenImport && (
+          <button
+            type="button"
+            onClick={onOpenImport}
+            className="mb-6 flex w-full items-center gap-3 rounded-2xl border pl-border p-4 text-left transition hover:pl-surface-2"
           >
-            {VIEWS.map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-        </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl pl-accent-soft pl-accent-text">
+              <DownloadCloud size={18} />
+            </span>
+            <span>
+              <span className="block font-semibold pl-text">Import &amp; export</span>
+              <span className="block text-sm pl-text-muted">
+                Canvas / Google Classroom assignments, holidays, calendar export
+              </span>
+            </span>
+          </button>
+        )}
 
         {/* Time format */}
         <div className="mb-5">
@@ -187,9 +110,7 @@ export default function SettingsPanel({ open, onClose }) {
 
         {/* Show completed */}
         <div className="mb-6 flex items-center justify-between">
-          <span className="text-sm font-bold pl-text">
-            Show Completed Tasks
-          </span>
+          <span className="text-sm font-bold pl-text">Show Completed Tasks</span>
           <Toggle
             checked={settings.showCompletedTasks}
             onChange={(v) => set({ showCompletedTasks: v })}
@@ -268,7 +189,7 @@ export default function SettingsPanel({ open, onClose }) {
                       setEditingId(c.id)
                       setEditName(c.name)
                     }}
-                    className="pl-text-muted hover:pl-text-muted"
+                    className="pl-text-muted"
                   >
                     <Pencil size={16} />
                   </button>

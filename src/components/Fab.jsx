@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, CheckSquare, BookOpen } from 'lucide-react'
 
 // Floating action button (bottom-right). Tapping the + expands a small menu:
-// "Add Item" (generic task/event) and "Assessment".
+// "Add Item" and "Assessment".
 export default function Fab({ onAddItem, onAddAssessment }) {
   const [open, setOpen] = useState(false)
 

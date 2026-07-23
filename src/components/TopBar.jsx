@@ -1,20 +1,14 @@
 import { useState } from 'react'
-import { UserCircle, LogOut, PanelLeft } from 'lucide-react'
+import { Settings, Palette, SlidersHorizontal, PanelLeft } from 'lucide-react'
 import PandaLogo from './PandaLogo'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
-// Full-width top bar: hamburger + planda wordmark on the left; Ask Planda and
-// the account avatar (with Profile / Account / Colors / Log out) on the right.
-export default function TopBar({
-  avatar,
-  onToggleSidebar,
-  onOpenAI,
-  onLogout,
-  setSection,
-}) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const go = (fn) => {
-    setMenuOpen(false)
+// Full-width top bar: hamburger + planda wordmark (left); Ask Planda + a
+// Settings gear that opens Theme / Settings (right).
+export default function TopBar({ onToggleSidebar, onOpenAI, onOpenTheme, onOpenSettings }) {
+  const [menu, setMenu] = useState(false)
+  const pick = (fn) => {
+    setMenu(false)
     fn()
   }
 
@@ -38,7 +32,6 @@ export default function TopBar({
             maskImage: `url(${wordmarkUrl})`,
             WebkitMaskRepeat: 'no-repeat',
             maskRepeat: 'no-repeat',
-            // fill the box so we can stretch it a touch wider than natural
             WebkitMaskSize: '100% 100%',
             maskSize: '100% 100%',
             WebkitMaskPosition: 'left center',
@@ -67,54 +60,44 @@ export default function TopBar({
         <div className="relative">
           <button
             type="button"
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={() => setMenu((o) => !o)}
             aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            aria-label="Account"
-            className="flex h-10 w-10 items-center justify-center rounded-full pl-surface-2 text-xl leading-none transition hover:brightness-95"
+            aria-expanded={menu}
+            aria-label="Settings"
+            className="rounded-full p-2 pl-text-muted transition hover:pl-surface-2 hover:pl-text"
           >
-            {avatar || '🐼'}
+            <Settings size={20} />
           </button>
 
-          {menuOpen && (
+          {menu && (
             <>
               <button
                 type="button"
                 aria-label="Close menu"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => setMenu(false)}
                 className="fixed inset-0 z-40 cursor-default"
               />
               <div
                 role="menu"
-                className="planda-pop absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border pl-border pl-surface p-1.5 shadow-xl"
+                className="planda-pop absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-2xl border pl-border pl-surface p-1.5 shadow-xl"
               >
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => go(() => setSection('profile'))}
+                  onClick={() => pick(onOpenTheme)}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium pl-text transition hover:pl-surface-2"
                 >
-                  <span className="text-lg leading-none">{avatar || '🐼'}</span>
-                  Profile
+                  <Palette size={18} className="pl-text-muted" />
+                  Theme
                 </button>
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => go(() => setSection('account'))}
+                  onClick={() => pick(onOpenSettings)}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium pl-text transition hover:pl-surface-2"
                 >
-                  <UserCircle size={18} className="pl-text-muted" />
-                  Account
-                </button>
-                <div className="my-1 h-px pl-surface-2" />
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => go(onLogout)}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
-                >
-                  <LogOut size={18} />
-                  Log out
+                  <SlidersHorizontal size={18} className="pl-text-muted" />
+                  Settings
                 </button>
               </div>
             </>

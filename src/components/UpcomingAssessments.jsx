@@ -1,11 +1,11 @@
-import { BookOpen } from 'lucide-react'
+import { BookOpen, DownloadCloud } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { upcomingAssessments } from '../lib/events'
 import { format, parseKey, relativeDays } from '../lib/dates'
 import { readableText, tint } from '../lib/colors'
 
-export default function UpcomingAssessments({ onSelectAssessment }) {
-  const { assessments, classes, settings } = useStore()
+export default function UpcomingAssessments({ onSelectAssessment, onImport }) {
+  const { assessments, classes, settings, loadSample } = useStore()
   const list = upcomingAssessments(assessments, classes)
 
   return (
@@ -25,9 +25,25 @@ export default function UpcomingAssessments({ onSelectAssessment }) {
           <div className="text-base font-semibold pl-text">
             No Upcoming Assessments
           </div>
-          <div className="max-w-[200px] text-sm pl-text-muted">
-            Add a test, quiz, or exam to get AI-powered study plans
+          <div className="max-w-[210px] text-sm pl-text-muted">
+            Import from your school, or add a test, quiz, or exam to get
+            AI-powered study plans.
           </div>
+          <button
+            type="button"
+            onClick={onImport}
+            className="mt-1 inline-flex items-center gap-2 rounded-xl pl-accent px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110"
+          >
+            <DownloadCloud size={16} />
+            Import assignments
+          </button>
+          <button
+            type="button"
+            onClick={loadSample}
+            className="text-xs font-semibold pl-text-muted underline-offset-2 transition hover:underline"
+          >
+            or explore with sample data
+          </button>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
