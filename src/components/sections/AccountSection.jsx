@@ -1,4 +1,4 @@
-import { LogIn, Download, Trash2, ShieldCheck, Settings, Sparkles } from 'lucide-react'
+import { LogIn, Download, Trash2, ShieldCheck, Settings, Sparkles, DownloadCloud } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 
 function Row({ icon, title, desc, action }) {
@@ -18,7 +18,7 @@ function Row({ icon, title, desc, action }) {
   )
 }
 
-export default function AccountSection({ onOpenSettings }) {
+export default function AccountSection({ onOpenSettings, onOpenImport }) {
   const store = useStore()
   const { profile, classes, assessments, sessions, items, settings, reset, loadSample } =
     store
@@ -71,6 +71,16 @@ export default function AccountSection({ onOpenSettings }) {
           icon={<ShieldCheck size={18} />}
           title="Data & privacy"
           desc="Your data is stored only in this browser. No account needed to use Planda."
+        />
+        <Row
+          icon={<DownloadCloud size={18} />}
+          title="Import from Canvas / Google Classroom"
+          desc="Upload your class calendar (.ics) to auto-add assignments, plus holiday presets."
+          action={
+            <button type="button" onClick={onOpenImport} className={btn}>
+              Import
+            </button>
+          }
         />
         <Row
           icon={<Sparkles size={18} />}

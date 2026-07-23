@@ -151,6 +151,14 @@ function reducer(state, action) {
       const item = { id: uid(), completed: false, ...action.item }
       return { ...state, items: [...state.items, item] }
     }
+    case 'IMPORT_ITEMS': {
+      // De-dupe against existing items by title + date so re-imports are safe.
+      const seen = new Set(state.items.map((i) => `${i.title}|${i.date}`))
+      const fresh = action.items
+        .filter((i) => i.title && i.date && !seen.has(`${i.title}|${i.date}`))
+        .map((i) => ({ id: uid(), completed: false, ...i }))
+      return { ...state, items: [...state.items, ...fresh], lastImportCount: fresh.length }
+    }
     case 'UPDATE_ITEM': {
       const items = state.items.map((i) =>
         i.id === action.id ? { ...i, ...action.changes } : i
@@ -267,6 +275,7 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'UPDATE_ASSESSMENT', id, changes }),
       deleteAssessment: (id) => dispatch({ type: 'DELETE_ASSESSMENT', id }),
       addItem: (item) => dispatch({ type: 'ADD_ITEM', item }),
+      importItems: (items) => dispatch({ type: 'IMPORT_ITEMS', items }),
       updateItem: (id, changes) => dispatch({ type: 'UPDATE_ITEM', id, changes }),
       deleteItem: (id) => dispatch({ type: 'DELETE_ITEM', id }),
       toggleItem: (id) => dispatch({ type: 'TOGGLE_ITEM', id }),

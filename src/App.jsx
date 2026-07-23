@@ -13,6 +13,8 @@ import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import Splash from './components/Splash'
+import ImportModal from './components/ImportModal'
+import AppSkeleton from './components/Skeleton'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
 import MobileNav from './components/MobileNav'
@@ -50,7 +52,10 @@ function PlandaApp() {
   const [itemOpen, setItemOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
+  // Brief skeleton while webfonts settle, so first paint is smooth (no spinner).
+  const [booting, setBooting] = useState(true)
   const [detailDay, setDetailDay] = useState(null)
 
   // Theme the whole app from the chosen background color. The color is ALWAYS
@@ -120,6 +125,19 @@ function PlandaApp() {
     else setDetailDay(parseKey(item.ref.date))
   }
 
+  useEffect(() => {
+    let done = false
+    const finish = () => {
+      if (!done) {
+        done = true
+        setBooting(false)
+      }
+    }
+    document.fonts?.ready.then(finish)
+    const t = setTimeout(finish, 900) // safety cap
+    return () => clearTimeout(t)
+  }, [])
+
   const openAI = () => setAiOpen(true)
   const openSettings = () => setSettingsOpen(true)
   const logout = () => {
@@ -162,7 +180,8 @@ function PlandaApp() {
 
         <main className="min-w-0 flex-1 overflow-y-auto pb-24 planda-scroll lg:pb-0">
           <div className="mx-auto max-w-[1500px] p-4 sm:p-6">
-          {section === 'calendar' && (
+          {booting && <AppSkeleton />}
+          {!booting && section === 'calendar' && (
             <div className="flex flex-col gap-4">
               <Header
                 view={view}
@@ -208,13 +227,14 @@ function PlandaApp() {
             </div>
           )}
 
-          {section === 'progress' && <ProgressSection />}
-          {section === 'friends' && <FriendsSection />}
-          {section === 'profile' && (
-            <ProfileSection onOpenSettings={openSettings} />
-          )}
-          {section === 'account' && (
-            <AccountSection onOpenSettings={openSettings} />
+          {!booting && section === 'progress' && <ProgressSection />}
+          {!booting && section === 'friends' && <FriendsSection />}
+          {!booting && section === 'profile' && <ProfileSection />}
+          {!booting && section === 'account' && (
+            <AccountSection
+              onOpenSettings={openSettings}
+              onOpenImport={() => setImportOpen(true)}
+            />
           )}
         </div>
       </main>
@@ -247,6 +267,7 @@ function PlandaApp() {
         initialDate={initialDate}
       />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <StudyAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
       <DayDetailModal
         open={!!detailDay}

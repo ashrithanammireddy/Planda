@@ -114,7 +114,7 @@ body {
   }
 }
 .planda-pop {
-  animation: planda-pop 0.16s ease-out;
+  animation: planda-pop 0.16s ease-out both;
 }
 
 @keyframes planda-slide {
@@ -127,6 +127,26 @@ body {
 }
 .planda-slide {
   animation: planda-slide 0.22s ease-out;
+}
+
+/* Skeleton shimmer for loading states (better UX than a spinner). */
+.pl-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--planda-surface-2) 25%,
+    var(--planda-surface) 50%,
+    var(--planda-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: pl-shimmer 1.3s ease-in-out infinite;
+  border-radius: 12px;
+}
+@keyframes pl-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-skeleton { animation: none; }
 }
 
 @keyframes planda-breathe-kf {
