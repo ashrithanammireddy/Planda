@@ -73,7 +73,7 @@ function PlandaApp() {
     if (authed && onboarded && !enteredRef.current) {
       enteredRef.current = true
       setEntering(true)
-      const t = setTimeout(() => setEntering(false), 1600)
+      const t = setTimeout(() => setEntering(false), 950)
       return () => clearTimeout(t)
     }
   }, [authed, onboarded])
