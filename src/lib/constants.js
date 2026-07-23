@@ -50,6 +50,19 @@ export const CLASS_COLORS = [
   '#fcd34d', // amber
 ]
 
+// Theme presets shown in Settings. "Default" is a neutral grey (the standard).
+export const DEFAULT_THEME_COLOR = '#e9ebef'
+export const THEME_PRESETS = [
+  { name: 'Default', value: DEFAULT_THEME_COLOR },
+  { name: 'Mint', value: '#bcdcd3' },
+  { name: 'Pink', value: '#f0c7c7' },
+  { name: 'Sky', value: '#cfe1f5' },
+  { name: 'Lavender', value: '#e2dbf6' },
+  { name: 'Peach', value: '#f8ddc8' },
+  { name: 'Butter', value: '#f6ecc5' },
+  { name: 'Dark', value: '#20242c' },
+]
+
 export const STUDY_SESSION_COLOR = '#bbf7d0' // green pill used for generated study blocks
 export const DEFAULT_STUDY_TIME = '09:00'
 

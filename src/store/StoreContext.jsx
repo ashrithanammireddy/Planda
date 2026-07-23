@@ -10,6 +10,7 @@ import {
   SEED_CLASSES,
   CLASS_COLORS,
   DEFAULT_ASSESSMENT_EMOJIS,
+  DEFAULT_THEME_COLOR,
 } from '../lib/constants'
 import { generateStudySessions } from '../lib/studyPlan'
 
@@ -23,7 +24,7 @@ const DEFAULT_PROFILE = { name: '', school: '', avatar: '🐼' }
 
 const DEFAULT_SETTINGS = {
   appearance: 'Auto', // Light | Dark | Auto (Auto follows the theme color)
-  backgroundColor: '#bcdcd3', // Planda mint (matches the brand)
+  backgroundColor: DEFAULT_THEME_COLOR, // neutral grey by default
   defaultView: 'Month',
   timeFormat: '12-hour', // 12-hour | 24-hour
   weekStartsOn: 'Monday', // Monday | Sunday

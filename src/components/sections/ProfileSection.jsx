@@ -88,15 +88,6 @@ export default function ProfileSection() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onOpenSettings}
-        className="mt-4 flex w-full items-center gap-3 rounded-2xl border pl-border pl-surface p-4 text-left font-semibold pl-text transition hover:pl-surface-2"
-      >
-        <Settings size={20} className="pl-text-muted" />
-        Settings &amp; Theme
-      </button>
-
       <p className="mt-4 text-center text-xs pl-text-muted">
         Your profile and data are stored privately in this browser.
       </p>

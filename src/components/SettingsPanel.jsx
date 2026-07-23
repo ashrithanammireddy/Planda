@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Sun, Moon, Monitor, Plus, Pencil, Trash2, Check, X, Palette } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
-import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS } from '../lib/constants'
+import { VIEWS, ASSESSMENT_TYPES, CLASS_COLORS, THEME_PRESETS } from '../lib/constants'
 
 const fieldCls =
   'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
@@ -98,9 +98,37 @@ export default function SettingsPanel({ open, onClose }) {
           </div>
         </div>
 
-        {/* Background color */}
+        {/* Theme color */}
         <div className="mb-6">
-          <span className={sectionLabel}>Background Color</span>
+          <span className={sectionLabel}>Theme Color</span>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {THEME_PRESETS.map((p) => {
+              const active =
+                settings.backgroundColor.toLowerCase() === p.value.toLowerCase()
+              return (
+                <button
+                  key={p.name}
+                  type="button"
+                  onClick={() => set({ backgroundColor: p.value })}
+                  title={p.name}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border-2 transition"
+                  style={{
+                    backgroundColor: p.value,
+                    borderColor: active ? 'var(--planda-accent)' : 'var(--planda-border)',
+                  }}
+                >
+                  {active && (
+                    <Check
+                      size={18}
+                      className={
+                        p.name === 'Dark' ? 'text-white' : 'text-slate-700'
+                      }
+                    />
+                  )}
+                </button>
+              )
+            })}
+          </div>
           <div className="flex gap-2">
             <input
               type="color"
@@ -112,6 +140,7 @@ export default function SettingsPanel({ open, onClose }) {
               className={fieldCls}
               value={settings.backgroundColor}
               onChange={(e) => set({ backgroundColor: e.target.value })}
+              placeholder="Custom hex or color"
             />
           </div>
         </div>
