@@ -51,7 +51,7 @@ export const CLASS_COLORS = [
 ]
 
 // Theme presets shown in Settings. "Default" is a neutral grey (the standard).
-export const DEFAULT_THEME_COLOR = '#ececec'
+export const DEFAULT_THEME_COLOR = '#e8eaee'
 export const THEME_PRESETS = [
   { name: 'Default', value: DEFAULT_THEME_COLOR },
   { name: 'Mint', value: '#bcdcd3' },

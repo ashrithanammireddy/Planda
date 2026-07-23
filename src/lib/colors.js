@@ -59,7 +59,7 @@ export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
   const rgb = hexToRgb(bg)
   // No / invalid color -> a true neutral graphite (no blue tint).
   const neutral = (a) =>
-    a < 1 ? `hsla(30, 4%, ${l}%, ${a})` : `hsl(30, 4%, ${l}%)`
+    a < 1 ? `hsla(220, 4%, ${l}%, ${a})` : `hsl(220, 4%, ${l}%)`
   if (!rgb) return neutral(alpha)
   const { h, s } = rgbToHsl(rgb)
   // Near-grey themes have no real hue — forcing saturation would invent a

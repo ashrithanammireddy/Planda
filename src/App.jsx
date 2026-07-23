@@ -24,7 +24,7 @@ import { parseKey } from './lib/dates'
 import { isColorDark, themeTokens, accentColor, isValidColor } from './lib/colors'
 
 // Used when no background/accent color is selected: a clean neutral grey.
-const NEUTRAL_BG = '#ececec'
+const NEUTRAL_BG = '#e8eaee'
 // Dark mode uses one consistent neutral dark; the chosen color only drives the
 // accent, not the darkness itself.
 const DARK_BG = '#14161c'
