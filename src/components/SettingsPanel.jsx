@@ -149,9 +149,12 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
                 key={c.id}
                 className="flex items-center gap-3 rounded-2xl border pl-border px-3 py-2.5"
               >
-                <span
-                  className="h-4 w-4 shrink-0 rounded"
-                  style={{ backgroundColor: c.color }}
+                <input
+                  type="color"
+                  value={c.color}
+                  onChange={(e) => updateClass(c.id, { color: e.target.value })}
+                  title="Change color"
+                  className="h-6 w-6 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0"
                 />
                 {editingId === c.id ? (
                   <input
