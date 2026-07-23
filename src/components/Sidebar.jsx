@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { categoryColor } from '../lib/constants'
+import { HOLIDAY_SETS } from '../lib/holidays'
 
 // Primary navigation. Account lives at the bottom-left.
 export const NAV = [
@@ -39,17 +40,17 @@ export default function Sidebar({
   const { classes, items, settings, toggleCalendar } = useStore()
   const hidden = settings.hiddenCalendars || []
   const usedCats = [...new Set(items.map((i) => i.category))].filter(Boolean)
+  const holidayKeys = Object.keys(HOLIDAY_SETS)
   const classCals = classes.map((c) => ({
     id: `class:${c.id}`,
     name: c.name,
     color: c.color,
   }))
-  const otherCals = usedCats.map((cat) => ({
-    id: `cat:${cat}`,
-    name: cat,
-    color: categoryColor(cat),
-  }))
-  const hasCalendars = classCals.length + otherCals.length > 0
+  const toCal = (cat) => ({ id: `cat:${cat}`, name: cat, color: categoryColor(cat) })
+  // "My calendars" = the user's own categories; "Other" = imported holiday sets.
+  const myCals = usedCats.filter((c) => !holidayKeys.includes(c)).map(toCal)
+  const otherCals = usedCats.filter((c) => holidayKeys.includes(c)).map(toCal)
+  const hasCalendars = classCals.length + myCals.length + otherCals.length > 0
 
   const calRow = (cal) => {
     const off = hidden.includes(cal.id)
@@ -113,9 +114,15 @@ export default function Sidebar({
               {classCals.map(calRow)}
             </>
           )}
-          {otherCals.length > 0 && (
+          {myCals.length > 0 && (
             <>
               <div className={groupHead}>My calendars</div>
+              {myCals.map(calRow)}
+            </>
+          )}
+          {otherCals.length > 0 && (
+            <>
+              <div className={groupHead}>Other</div>
               {otherCals.map(calRow)}
             </>
           )}
