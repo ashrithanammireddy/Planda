@@ -60,21 +60,21 @@ export default function FriendsSection() {
         real pods sync when you sign in.
       </p>
 
-      {/* Focus Room hero */}
-      <div className="mb-4 overflow-hidden rounded-3xl pl-accent p-6 text-white shadow-sm">
+      {/* Focus Room hero (uses the soft sidebar-highlight tint) */}
+      <div className="mb-4 overflow-hidden rounded-3xl pl-accent-soft p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="text-lg font-bold">Focus Room</div>
-            <p className="mt-0.5 max-w-sm text-sm text-white/85">
+            <div className="text-lg font-bold pl-text">Focus Room</div>
+            <p className="mt-0.5 max-w-sm text-sm pl-text-muted">
               Start a timed session and study alongside your squad. Body-doubling
               makes it way easier to start.
             </p>
-            <div className="mt-3 flex items-center gap-2 text-sm text-white/90">
+            <div className="mt-3 flex items-center gap-2 text-sm pl-text-muted">
               <div className="flex -space-x-2">
                 {focusingNow.map((f) => (
                   <span
                     key={f.id}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25 text-base ring-2 ring-white/40"
+                    className="flex h-7 w-7 items-center justify-center rounded-full pl-surface text-base ring-2 ring-[var(--planda-surface)]"
                   >
                     {f.avatar}
                   </span>
@@ -86,7 +86,7 @@ export default function FriendsSection() {
           <button
             type="button"
             onClick={() => setFocusOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold pl-accent-text shadow transition hover:brightness-105"
+            className="inline-flex items-center gap-2 rounded-full pl-accent px-5 py-2.5 text-sm font-bold text-white shadow transition hover:brightness-110"
           >
             <Play size={16} />
             Start focus session

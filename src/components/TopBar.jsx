@@ -45,7 +45,8 @@ export default function TopBar({
             maskPosition: 'left center',
             backgroundColor: 'var(--planda-text)',
             width: '100px',
-            height: '42px',
+            height: '40px',
+            marginTop: '2px',
           }}
         />
       </div>
