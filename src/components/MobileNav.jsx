@@ -14,7 +14,7 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
         aria-current={active ? 'page' : undefined}
         style={active ? { color: 'var(--planda-accent)' } : undefined}
         className={`flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] font-semibold ${
-          active ? '' : 'pl-text-muted'
+          active ? '' : 'pl-text'
         }`}
       >
         <Icon size={20} />
@@ -45,7 +45,7 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
         aria-current={accountActive ? 'page' : undefined}
         style={accountActive ? { color: 'var(--planda-accent)' } : undefined}
         className={`flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] font-semibold ${
-          accountActive ? '' : 'pl-text-muted'
+          accountActive ? '' : 'pl-text'
         }`}
       >
         <span className="text-xl leading-none">{avatar || '🐼'}</span>

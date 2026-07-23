@@ -69,7 +69,7 @@ export default function Login({ onDone }) {
         <div className="mt-6 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={onDone}
+            onClick={() => onDone('account')}
             className="flex w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5"
           >
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[13px] font-extrabold text-[#4285F4] ring-1 ring-black/5">G</span>
@@ -77,7 +77,7 @@ export default function Login({ onDone }) {
           </button>
           <button
             type="button"
-            onClick={onDone}
+            onClick={() => onDone('account')}
             className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5"
           >
             <span className="text-base leading-none"></span>
@@ -96,7 +96,7 @@ export default function Login({ onDone }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && validEmail && onDone()}
+              onKeyDown={(e) => e.key === 'Enter' && validEmail && onDone('account')}
               placeholder="Enter your email"
               className="w-full rounded-xl border border-black/10 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#34a98a] focus:ring-2 focus:ring-[#34a98a]/25"
             />
@@ -104,7 +104,7 @@ export default function Login({ onDone }) {
           <button
             type="button"
             disabled={!validEmail}
-            onClick={onDone}
+            onClick={() => onDone('account')}
             className="w-full rounded-full py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
             style={{ background: '#34a98a' }}
           >
@@ -114,7 +114,7 @@ export default function Login({ onDone }) {
 
         <button
           type="button"
-          onClick={onDone}
+          onClick={() => onDone('guest')}
           className="mt-4 w-full text-center text-xs font-semibold text-slate-500 transition hover:text-slate-700"
         >
           or keep going without an account

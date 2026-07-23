@@ -47,7 +47,7 @@ export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-full pl-surface transition group-hover:scale-105">
             <PandaLogo size={26} />
           </span>
-          <span className="text-sm font-semibold pl-accent-text">Ask Planda</span>
+          <span className="text-sm font-semibold pl-text">Ask Planda</span>
         </button>
 
         <button

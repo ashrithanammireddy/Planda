@@ -95,7 +95,7 @@ export default function Sidebar({
               style={active ? { color: 'var(--planda-accent)' } : undefined}
               className={`flex items-center gap-3 rounded-xl py-2.5 text-sm font-semibold transition ${
                 collapsed ? 'justify-center px-0' : 'px-3'
-              } ${active ? 'pl-accent-soft' : 'pl-text-muted hover:pl-surface-2'}`}
+              } ${active ? 'pl-accent-soft' : 'pl-text hover:pl-surface-2'}`}
             >
               <Icon size={20} />
               {!collapsed && label}

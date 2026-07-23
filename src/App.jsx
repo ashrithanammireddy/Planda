@@ -14,6 +14,7 @@ import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
 import Splash from './components/Splash'
 import Login from './components/Login'
+import Onboarding from './components/Onboarding'
 import ImportModal from './components/ImportModal'
 import AppSkeleton from './components/Skeleton'
 import Sidebar from './components/Sidebar'
@@ -44,6 +45,9 @@ function PlandaApp() {
   )
   const [authed, setAuthed] = useState(
     () => !!localStorage.getItem('planda.authed')
+  )
+  const [onboarded, setOnboarded] = useState(
+    () => !!localStorage.getItem('planda.onboarded')
   )
   const [section, setSection] = useState(
     () => localStorage.getItem('planda.section') || 'calendar'
@@ -191,9 +195,24 @@ function PlandaApp() {
   if (!authed) {
     return (
       <Login
-        onDone={() => {
+        onDone={(mode) => {
           localStorage.setItem('planda.authed', '1')
           setAuthed(true)
+          if (mode === 'guest') {
+            localStorage.setItem('planda.onboarded', '1')
+            setOnboarded(true)
+          }
+        }}
+      />
+    )
+  }
+
+  if (!onboarded) {
+    return (
+      <Onboarding
+        onDone={() => {
+          localStorage.setItem('planda.onboarded', '1')
+          setOnboarded(true)
         }}
       />
     )
