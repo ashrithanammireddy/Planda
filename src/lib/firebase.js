@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile as fbUpdateProfile,
   signOut as fbSignOut,
 } from 'firebase/auth'
 
@@ -42,8 +43,11 @@ export async function signInWithApple() {
   return res.user
 }
 
-export async function signUpWithEmail(email, password) {
+export async function signUpWithEmail(email, password, name = '') {
   const res = await createUserWithEmailAndPassword(auth, email.trim(), password)
+  if (name.trim()) {
+    await fbUpdateProfile(res.user, { displayName: name.trim() })
+  }
   return res.user
 }
 

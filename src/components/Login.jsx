@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Mail, Lock, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, User, CheckCircle2 } from 'lucide-react'
 import pandaUrl from '../assets/planda-panda.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 import {
@@ -52,6 +52,8 @@ export default function Login({ onDone, notice = '' }) {
   const mouse = useRef({ x: -9999, y: -9999 })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [signupName, setSignupName] = useState('')
   const [emailMode, setEmailMode] = useState('signin') // 'signin' | 'signup'
   const [info, setInfo] = useState('') // soft, non-error guidance
   const [toast, setToast] = useState(notice)
@@ -96,11 +98,18 @@ export default function Login({ onDone, notice = '' }) {
       return
     }
     if (!validEmail || password.length < 6) return
+    if (emailMode === 'signup') {
+      if (!signupName.trim()) return
+      if (password !== confirmPass) {
+        setAuthError('Passwords do not match.')
+        return
+      }
+    }
     setAuthError('')
     setInfo('')
     setBusy(true)
     try {
-      if (emailMode === 'signup') await signUpWithEmail(email, password)
+      if (emailMode === 'signup') await signUpWithEmail(email, password, signupName)
       else await signInWithEmail(email, password)
       // onAuthStateChanged in App flips us into the app.
     } catch (err) {
@@ -310,6 +319,20 @@ export default function Login({ onDone, notice = '' }) {
             <span className="h-px flex-1 bg-black/10" />
           </div>
 
+          {firebaseEnabled && emailMode === 'signup' && (
+            <div className="relative">
+              <User size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={signupName}
+                onChange={(e) => setSignupName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitEmail()}
+                placeholder="Your name"
+                className="w-full rounded-xl border border-black/10 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#34a98a] focus:ring-2 focus:ring-[#34a98a]/25"
+              />
+            </div>
+          )}
+
           <div className="relative">
             <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -336,9 +359,30 @@ export default function Login({ onDone, notice = '' }) {
             </div>
           )}
 
+          {firebaseEnabled && emailMode === 'signup' && (
+            <div className="relative">
+              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="password"
+                value={confirmPass}
+                onChange={(e) => setConfirmPass(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitEmail()}
+                placeholder="Re-enter password"
+                className="w-full rounded-xl border border-black/10 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#34a98a] focus:ring-2 focus:ring-[#34a98a]/25"
+              />
+            </div>
+          )}
+
           <button
             type="button"
-            disabled={busy || !validEmail || (firebaseEnabled && password.length < 6)}
+            disabled={
+              busy ||
+              !validEmail ||
+              (firebaseEnabled && password.length < 6) ||
+              (firebaseEnabled &&
+                emailMode === 'signup' &&
+                (!signupName.trim() || password !== confirmPass))
+            }
             onClick={submitEmail}
             className="w-full rounded-full py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
             style={{ background: '#34a98a' }}
