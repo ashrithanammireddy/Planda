@@ -42,6 +42,7 @@ function seedState() {
     assessments: [],
     sessions: [],
     items: [],
+    focusLog: [],
     profile: { ...DEFAULT_PROFILE },
     settings: { ...DEFAULT_SETTINGS },
   }
@@ -57,6 +58,7 @@ function loadState() {
       assessments: parsed.assessments ?? [],
       sessions: parsed.sessions ?? [],
       items: parsed.items ?? [],
+      focusLog: parsed.focusLog ?? [],
       profile: { ...DEFAULT_PROFILE, ...(parsed.profile ?? {}) },
       settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
     }
@@ -218,6 +220,18 @@ function reducer(state, action) {
       ]
       return { ...state, classes, assessments, sessions, items }
     }
+    case 'LOG_FOCUS': {
+      const key = (d) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+          d.getDate()
+        ).padStart(2, '0')}`
+      const entry = {
+        id: uid(),
+        date: key(new Date()),
+        minutes: action.minutes,
+      }
+      return { ...state, focusLog: [...(state.focusLog || []), entry] }
+    }
     case 'UPDATE_PROFILE':
       return { ...state, profile: { ...state.profile, ...action.changes } }
     case 'UPDATE_SETTINGS':
@@ -262,6 +276,7 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'UPDATE_SETTINGS', changes }),
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
+      logFocus: (minutes) => dispatch({ type: 'LOG_FOCUS', minutes }),
       loadSample: () => dispatch({ type: 'LOAD_SAMPLE' }),
       reset: () => dispatch({ type: 'RESET' }),
     }),

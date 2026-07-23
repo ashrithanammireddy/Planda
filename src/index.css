@@ -130,6 +130,17 @@ body {
   animation: planda-slide 0.22s ease-out;
 }
 
+@keyframes planda-breathe-kf {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.planda-breathe {
+  animation: planda-breathe-kf 3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .planda-breathe { animation: none; }
+}
+
 @keyframes planda-fade {
   from {
     opacity: 0;

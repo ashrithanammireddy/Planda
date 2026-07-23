@@ -21,10 +21,10 @@ function StatCard({ icon, value, label }) {
 }
 
 export default function ProgressSection() {
-  const { assessments, sessions, items } = useStore()
+  const { assessments, sessions, items, focusLog } = useStore()
   const stats = useMemo(
-    () => computeStats({ assessments, sessions, items }),
-    [assessments, sessions, items]
+    () => computeStats({ assessments, sessions, items, focusLog }),
+    [assessments, sessions, items, focusLog]
   )
   const hrs = Math.floor(stats.totalMinutes / 60)
   const mins = stats.totalMinutes % 60

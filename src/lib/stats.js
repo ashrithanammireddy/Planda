@@ -1,17 +1,31 @@
 import { dateKey, startOfDay, addDays, differenceInCalendarDays } from './dates'
 
 // Derives progress metrics from the store for the Progress section.
-export function computeStats({ assessments = [], sessions = [], items = [] }) {
+export function computeStats({
+  assessments = [],
+  sessions = [],
+  items = [],
+  focusLog = [],
+}) {
   const completedSessions = sessions.filter((s) => s.completed)
-  const totalMinutes = completedSessions.reduce(
-    (sum, s) => sum + (s.durationMinutes || 0),
-    0
-  )
+  const focusMinutes = focusLog.reduce((sum, f) => sum + (f.minutes || 0), 0)
+  const totalMinutes =
+    completedSessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0) +
+    focusMinutes
 
-  // Set of day-keys on which anything was completed (study session or item).
+  // Set of day-keys on which anything was completed (session, item, or focus).
   const activeDays = new Set()
   for (const s of completedSessions) activeDays.add(s.date)
   for (const it of items) if (it.completed && it.checkable) activeDays.add(it.date)
+  for (const f of focusLog) activeDays.add(f.date)
+
+  // Minutes in the last 7 days (for the squad leaderboard).
+  const weekAgo = dateKey(addDays(startOfDay(new Date()), -6))
+  const weeklyMinutes =
+    completedSessions
+      .filter((s) => s.date >= weekAgo)
+      .reduce((sum, s) => sum + (s.durationMinutes || 0), 0) +
+    focusLog.filter((f) => f.date >= weekAgo).reduce((s, f) => s + (f.minutes || 0), 0)
 
   // Current streak: consecutive days (ending today or yesterday) with activity.
   const today = startOfDay(new Date())
@@ -46,6 +60,8 @@ export function computeStats({ assessments = [], sessions = [], items = [] }) {
   return {
     streak,
     totalMinutes,
+    focusMinutes,
+    weeklyMinutes,
     sessionsDone: completedSessions.length,
     sessionsTotal: sessions.length,
     itemsDone: items.filter((i) => i.completed && i.checkable).length,

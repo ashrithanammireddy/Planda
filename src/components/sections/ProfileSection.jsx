@@ -8,10 +8,11 @@ const label = 'mb-1.5 block text-sm font-semibold pl-text'
 const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
 
 export default function ProfileSection() {
-  const { profile, updateProfile, assessments, sessions, items } = useStore()
+  const { profile, updateProfile, assessments, sessions, items, focusLog } =
+    useStore()
   const stats = useMemo(
-    () => computeStats({ assessments, sessions, items }),
-    [assessments, sessions, items]
+    () => computeStats({ assessments, sessions, items, focusLog }),
+    [assessments, sessions, items, focusLog]
   )
   const hrs = Math.floor(stats.totalMinutes / 60)
   const mins = stats.totalMinutes % 60
