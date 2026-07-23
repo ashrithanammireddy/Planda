@@ -7,6 +7,7 @@ import {
   UserCircle,
   LogOut,
   ChevronUp,
+  ChevronDown,
   Check,
 } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
@@ -32,6 +33,13 @@ export default function Sidebar({
   onLogout,
 }) {
   const [menu, setMenu] = useState(false)
+  const [openGroups, setOpenGroups] = useState({
+    Classes: true,
+    'My calendars': true,
+    Other: true,
+  })
+  const toggleGroup = (title) =>
+    setOpenGroups((g) => ({ ...g, [title]: !g[title] }))
   const pick = (fn) => {
     setMenu(false)
     fn()
@@ -76,7 +84,27 @@ export default function Sidebar({
       </button>
     )
   }
-  const groupHead = 'px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider pl-text-muted'
+  // Collapsible calendar group with a clickable header + chevron.
+  const calGroup = (title, cals) => {
+    if (cals.length === 0) return null
+    const open = openGroups[title]
+    return (
+      <div key={title}>
+        <button
+          type="button"
+          onClick={() => toggleGroup(title)}
+          className="flex w-full items-center justify-between rounded-lg px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider pl-text-muted transition hover:pl-text"
+        >
+          <span>{title}</span>
+          <ChevronDown
+            size={14}
+            className={`transition-transform ${open ? '' : '-rotate-90'}`}
+          />
+        </button>
+        {open && cals.map(calRow)}
+      </div>
+    )
+  }
 
   return (
     <aside
@@ -108,24 +136,9 @@ export default function Sidebar({
       {/* Calendars: toggle what shows (grouped, Google-Calendar style) */}
       {!collapsed && hasCalendars && (
         <div className="mt-3 max-h-[42vh] overflow-y-auto planda-scroll">
-          {classCals.length > 0 && (
-            <>
-              <div className={groupHead}>Classes</div>
-              {classCals.map(calRow)}
-            </>
-          )}
-          {myCals.length > 0 && (
-            <>
-              <div className={groupHead}>My calendars</div>
-              {myCals.map(calRow)}
-            </>
-          )}
-          {otherCals.length > 0 && (
-            <>
-              <div className={groupHead}>Other</div>
-              {otherCals.map(calRow)}
-            </>
-          )}
+          {calGroup('Classes', classCals)}
+          {calGroup('My calendars', myCals)}
+          {calGroup('Other', otherCals)}
         </div>
       )}
 
