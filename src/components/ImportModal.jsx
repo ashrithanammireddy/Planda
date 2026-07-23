@@ -1,9 +1,26 @@
 import { useRef, useState } from 'react'
-import { Upload, Link as LinkIcon, CalendarPlus, Check, Download } from 'lucide-react'
+import { Upload, Link as LinkIcon, Check, Download, ChevronDown } from 'lucide-react'
 import Modal, { ModalHeader } from './Modal'
 import { useStore } from '../store/StoreContext'
 import { parseICS, buildICS } from '../lib/ics'
 import { HOLIDAY_SETS } from '../lib/holidays'
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const prettyDate = (iso) => {
+  const [, m, d] = iso.split('-')
+  return `${MONTHS[Number(m) - 1]} ${Number(d)}`
+}
+const holidayItem = (h, category) => ({
+  title: h.title,
+  description: '',
+  date: h.date,
+  category,
+  priority: 'Low',
+  type: 'Event',
+  customColor: '',
+  checkable: false,
+  timeBlock: { enabled: false, time: '09:00', durationMinutes: 60 },
+})
 
 const field = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 
@@ -26,7 +43,7 @@ function eventsToItems(events) {
 }
 
 export default function ImportModal({ open, onClose }) {
-  const { importItems, assessments, sessions, items, settings } = useStore()
+  const { importItems, deleteItem, assessments, sessions, items, settings } = useStore()
 
   const exportICS = () => {
     const entries = [
@@ -65,7 +82,32 @@ export default function ImportModal({ open, onClose }) {
   const [url, setUrl] = useState('')
   const [note, setNote] = useState('')
   const [done, setDone] = useState('')
-  const [holidaySet, setHolidaySet] = useState(Object.keys(HOLIDAY_SETS)[0])
+  const [openSet, setOpenSet] = useState({ [Object.keys(HOLIDAY_SETS)[0]]: true })
+
+  // Presence lookup so each holiday renders as a checkbox (on = it's on your
+  // calendar). Toggling adds or removes just that date.
+  const keyOf = (i) => `${i.title}|${i.date}|${i.category || ''}`
+  const present = new Set(items.map(keyOf))
+  const isOn = (h, cat) => present.has(`${h.title}|${h.date}|${cat}`)
+
+  const toggleHoliday = (h, cat) => {
+    const existing = items.find((i) => keyOf(i) === `${h.title}|${h.date}|${cat}`)
+    if (existing) deleteItem(existing.id)
+    else importItems([holidayItem(h, cat)])
+  }
+
+  const toggleSet = (cat) => {
+    const list = HOLIDAY_SETS[cat] || []
+    const allOn = list.every((h) => isOn(h, cat))
+    if (allOn) {
+      list.forEach((h) => {
+        const existing = items.find((i) => keyOf(i) === `${h.title}|${h.date}|${cat}`)
+        if (existing) deleteItem(existing.id)
+      })
+    } else {
+      importItems(list.filter((h) => !isOn(h, cat)).map((h) => holidayItem(h, cat)))
+    }
+  }
 
   const reset = () => {
     setParsed([])
@@ -114,28 +156,6 @@ export default function ImportModal({ open, onClose }) {
     setPasteText('')
   }
 
-  const addHolidays = () => {
-    const set = (HOLIDAY_SETS[holidaySet] || []).map((h) => ({
-      title: h.title,
-      description: '',
-      date: h.date,
-      category: holidaySet,
-      priority: 'Low',
-      type: 'Event',
-      customColor: '',
-      checkable: false,
-      timeBlock: { enabled: false, time: '09:00', durationMinutes: 60 },
-    }))
-    // How many are genuinely new (same category-aware key the store uses).
-    const existing = new Set(items.map((i) => `${i.title}|${i.date}|${i.category || ''}`))
-    const newCount = set.filter((i) => !existing.has(`${i.title}|${i.date}|${i.category}`)).length
-    importItems(set)
-    setDone(
-      newCount > 0
-        ? `Added ${newCount} ${holidaySet} holidays 🎉 — see them under "Other" in the sidebar.`
-        : `${holidaySet} is already on your calendar (under "Other" in the sidebar).`
-    )
-  }
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -236,30 +256,76 @@ export default function ImportModal({ open, onClose }) {
 
         <div className="h-px pl-surface-2" />
 
-        {/* Holidays */}
+        {/* Holidays — check the ones you want on your calendar */}
         <section>
           <h3 className="mb-1 text-sm font-bold pl-text">Holidays &amp; breaks</h3>
           <p className="mb-3 text-xs pl-text-muted">
-            Add a set of holidays to your calendar in one tap.
+            Check the holidays you want. They show up under &quot;Other&quot; in
+            the sidebar, and unchecking removes them.
           </p>
-          <div className="flex gap-2">
-            <select
-              className={field}
-              value={holidaySet}
-              onChange={(e) => setHolidaySet(e.target.value)}
-            >
-              {Object.keys(HOLIDAY_SETS).map((k) => (
-                <option key={k}>{k}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={addHolidays}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border pl-border px-4 text-sm font-semibold pl-text transition hover:pl-surface-2"
-            >
-              <CalendarPlus size={15} />
-              Add
-            </button>
+
+          <div className="flex flex-col gap-2">
+            {Object.keys(HOLIDAY_SETS).map((cat) => {
+              const list = HOLIDAY_SETS[cat]
+              const onCount = list.filter((h) => isOn(h, cat)).length
+              const allOn = onCount === list.length
+              const open = openSet[cat]
+              return (
+                <div key={cat} className="overflow-hidden rounded-xl border pl-border">
+                  <div className="flex items-center gap-2.5 px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={allOn}
+                      ref={(el) => {
+                        if (el) el.indeterminate = onCount > 0 && !allOn
+                      }}
+                      onChange={() => toggleSet(cat)}
+                      className="h-4 w-4 shrink-0 cursor-pointer"
+                      style={{ accentColor: 'var(--planda-accent)' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setOpenSet((s) => ({ ...s, [cat]: !s[cat] }))}
+                      className="flex flex-1 items-center justify-between text-left"
+                    >
+                      <span className="text-sm font-semibold pl-text">{cat}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-xs pl-text-muted">
+                          {onCount}/{list.length}
+                        </span>
+                        <ChevronDown
+                          size={15}
+                          className={`pl-text-muted transition-transform ${open ? '' : '-rotate-90'}`}
+                        />
+                      </span>
+                    </button>
+                  </div>
+
+                  {open && (
+                    <div className="border-t pl-border">
+                      {list.map((h) => (
+                        <label
+                          key={h.date}
+                          className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm transition hover:pl-surface-2"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isOn(h, cat)}
+                            onChange={() => toggleHoliday(h, cat)}
+                            className="h-4 w-4 shrink-0 cursor-pointer"
+                            style={{ accentColor: 'var(--planda-accent)' }}
+                          />
+                          <span className="flex-1 truncate pl-text">{h.title}</span>
+                          <span className="shrink-0 text-xs pl-text-muted">
+                            {prettyDate(h.date)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </section>
 
