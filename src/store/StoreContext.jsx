@@ -164,11 +164,13 @@ function reducer(state, action) {
       return { ...state, items: [...state.items, item] }
     }
     case 'IMPORT_ITEMS': {
-      // De-dupe against existing items by title + date so re-imports are safe.
-      const seen = new Set(state.items.map((i) => `${i.title}|${i.date}`))
+      // De-dupe by title + date + category, so the same event can live on two
+      // different calendars (e.g. a holiday set) without being dropped.
+      const key = (i) => `${i.title}|${i.date}|${i.category || ''}`
+      const seen = new Set(state.items.map(key))
       const fresh = action.items
-        .filter((i) => i.title && i.date && !seen.has(`${i.title}|${i.date}`))
-        .map((i) => ({ id: uid(), completed: false, ...i }))
+        .filter((i) => i.title && i.date && !seen.has(key(i)))
+        .map((i) => ({ id: uid(), completed: false, kind: 'item', ...i }))
       return { ...state, items: [...state.items, ...fresh], lastImportCount: fresh.length }
     }
     case 'UPDATE_ITEM': {

@@ -115,7 +115,7 @@ export default function ImportModal({ open, onClose }) {
   }
 
   const addHolidays = () => {
-    const items = (HOLIDAY_SETS[holidaySet] || []).map((h) => ({
+    const set = (HOLIDAY_SETS[holidaySet] || []).map((h) => ({
       title: h.title,
       description: '',
       date: h.date,
@@ -126,8 +126,15 @@ export default function ImportModal({ open, onClose }) {
       checkable: false,
       timeBlock: { enabled: false, time: '09:00', durationMinutes: 60 },
     }))
-    importItems(items)
-    setDone(`Added ${holidaySet} holidays 🎉`)
+    // How many are genuinely new (same category-aware key the store uses).
+    const existing = new Set(items.map((i) => `${i.title}|${i.date}|${i.category || ''}`))
+    const newCount = set.filter((i) => !existing.has(`${i.title}|${i.date}|${i.category}`)).length
+    importItems(set)
+    setDone(
+      newCount > 0
+        ? `Added ${newCount} ${holidaySet} holidays 🎉 — see them under "Other" in the sidebar.`
+        : `${holidaySet} is already on your calendar (under "Other" in the sidebar).`
+    )
   }
 
   return (
