@@ -279,6 +279,7 @@ function PlandaApp() {
         onToggleSidebar={() => setCollapsed((c) => !c)}
         onOpenAI={openAI}
         onOpenSettings={openSettings}
+        iconHidden={entering}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -367,6 +368,7 @@ function PlandaApp() {
         setSection={goTo}
         onOpenAI={openAI}
         avatar={profile.avatar}
+        iconHidden={entering}
       />
 
       {section === 'calendar' && (

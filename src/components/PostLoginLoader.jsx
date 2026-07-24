@@ -78,7 +78,7 @@ export default function PostLoginLoader({ onDone }) {
           muted
           playsInline
           className="h-full w-full object-cover"
-          style={{ objectPosition: 'center 25%', transform: 'scale(2)' }}
+          style={{ objectPosition: 'center 23%', transform: 'scale(1.69)' }}
         />
       </div>
     </div>

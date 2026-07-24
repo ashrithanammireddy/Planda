@@ -4,7 +4,7 @@ import wordmarkUrl from '../assets/planda-wordmark.png'
 
 // Full-width top bar: hamburger + planda wordmark (left); Ask Planda + a
 // Settings gear (right).
-export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings }) {
+export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings, iconHidden }) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b pl-border pl-surface px-4 py-2.5">
       <div className="flex items-center gap-2">
@@ -46,9 +46,14 @@ export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings }) {
         >
           <span
             id="panda-anchor-desktop"
-            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full transition group-hover:scale-105"
+            className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full transition group-hover:scale-105"
           >
-            <img src={bookPandaUrl} alt="" className="h-full w-full object-cover" />
+            <img
+              src={bookPandaUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              style={{ opacity: iconHidden ? 0 : 1, transition: 'opacity 200ms ease' }}
+            />
           </span>
           <span className="text-sm font-bold pl-accent-text">Ask Planda</span>
         </button>

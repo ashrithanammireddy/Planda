@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Mail, Lock, User, CheckCircle2 } from 'lucide-react'
-import pandaUrl from '../assets/planda-panda.png'
+import pandaUrl from '../assets/planda-book.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 import {
   firebaseEnabled,

@@ -3,7 +3,7 @@ import bookPandaUrl from '../assets/planda-book.png'
 
 // Bottom tab bar for small screens (hidden at lg+). Panda in the middle opens
 // the Study Assistant; the avatar on the right opens the account area.
-export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
+export default function MobileNav({ section, setSection, onOpenAI, avatar, iconHidden }) {
   const tab = ({ id, label, icon: Icon }) => {
     const active = section === id
     return (
@@ -37,7 +37,12 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
         id="panda-anchor-mobile"
         className="mx-1 -mt-6 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full shadow-lg ring-4 ring-[var(--planda-bg)]"
       >
-        <img src={bookPandaUrl} alt="" className="h-full w-full object-cover" />
+        <img
+          src={bookPandaUrl}
+          alt=""
+          className="h-full w-full object-cover"
+          style={{ opacity: iconHidden ? 0 : 1, transition: 'opacity 200ms ease' }}
+        />
       </button>
       {tabs.slice(2).map(tab)}
       <button

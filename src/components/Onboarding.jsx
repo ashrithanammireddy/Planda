@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../store/StoreContext'
-import pandaUrl from '../assets/planda-panda.png'
+import pandaUrl from '../assets/planda-book.png'
 
 const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
 

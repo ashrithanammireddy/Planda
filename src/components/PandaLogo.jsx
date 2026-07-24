@@ -1,4 +1,4 @@
-import pandaUrl from '../assets/planda-panda.png'
+import pandaUrl from '../assets/planda-book.png'
 
 // Planda's hand-drawn panda mascot (transparent PNG).
 export default function PandaLogo({ size = 40, className = '' }) {

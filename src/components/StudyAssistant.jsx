@@ -3,7 +3,7 @@ import { Send, X, User } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { upcomingAssessments } from '../lib/events'
 import { buildContextMessage, assistantReply } from '../lib/aiStub'
-import pandaUrl from '../assets/planda-panda.png'
+import pandaUrl from '../assets/planda-book.png'
 
 function PandaAvatar({ size = 32 }) {
   return (
