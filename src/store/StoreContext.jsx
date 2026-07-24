@@ -292,6 +292,7 @@ function reducer(state, action) {
         id: uid(),
         date: key(new Date()),
         minutes: action.minutes,
+        classId: action.classId || null,
       }
       return { ...state, focusLog: [...(state.focusLog || []), entry] }
     }
@@ -386,7 +387,7 @@ export function StoreProvider({ children }) {
       togglePinBadge: (id) => dispatch({ type: 'TOGGLE_PIN_BADGE', id }),
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
-      logFocus: (minutes) => dispatch({ type: 'LOG_FOCUS', minutes }),
+      logFocus: (minutes, classId) => dispatch({ type: 'LOG_FOCUS', minutes, classId }),
       gradeAddItem: (classId, item) =>
         dispatch({ type: 'GRADE_ADD_ITEM', classId, item }),
       gradeUpdateItem: (classId, id, changes) =>

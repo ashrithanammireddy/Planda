@@ -5,7 +5,7 @@ import { computeStats } from '../../lib/stats'
 import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
-import FocusRoom from '../FocusRoom'
+import { useFocus } from '../../store/FocusContext'
 import Avatar from '../Avatar'
 
 const statusDot = {
@@ -16,7 +16,7 @@ const statusDot = {
 
 export default function FriendsSection() {
   const { profile, assessments, sessions, items, focusLog } = useStore()
-  const [focusOpen, setFocusOpen] = useState(false)
+  const focus = useFocus()
   const [cheered, setCheered] = useState({})
 
   const stats = useMemo(
@@ -95,11 +95,11 @@ export default function FriendsSection() {
           </div>
           <button
             type="button"
-            onClick={() => setFocusOpen(true)}
+            onClick={() => focus.setOpen(true)}
             className="inline-flex items-center gap-2 rounded-full pl-accent px-5 py-2.5 text-sm font-bold text-white shadow transition hover:brightness-110"
           >
             <Play size={16} />
-            Start focus session
+            {focus.active ? 'Back to focus' : 'Start focus session'}
           </button>
         </div>
       </div>
@@ -203,8 +203,6 @@ export default function FriendsSection() {
           ))}
         </div>
       </div>
-
-      <FocusRoom open={focusOpen} onClose={() => setFocusOpen(false)} />
     </div>
   )
 }

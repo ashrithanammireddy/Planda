@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './store/StoreContext'
+import { FocusProvider } from './store/FocusContext'
+import FocusRoom from './components/FocusRoom'
+import FocusPill from './components/FocusPill'
 import Header from './components/Header'
 import MonthView from './components/MonthView'
 import WeekView from './components/WeekView'
@@ -402,6 +405,8 @@ function PlandaApp() {
       />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <StudyAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
+      <FocusRoom />
+      <FocusPill />
       <DayDetailModal
         open={!!detailDay}
         day={detailDay}
@@ -418,7 +423,9 @@ function PlandaApp() {
 export default function App() {
   return (
     <StoreProvider>
-      <PlandaApp />
+      <FocusProvider>
+        <PlandaApp />
+      </FocusProvider>
     </StoreProvider>
   )
 }
