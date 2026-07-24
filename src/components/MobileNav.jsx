@@ -34,6 +34,7 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
         type="button"
         onClick={onOpenAI}
         aria-label="Ask Planda"
+        id="panda-anchor-mobile"
         className="mx-1 -mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-full pl-surface shadow-lg ring-4 ring-[var(--planda-bg)]"
       >
         <PandaLogo size={40} />

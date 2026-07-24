@@ -73,19 +73,20 @@ function PlandaApp() {
     if (authed && onboarded && !enteredRef.current) {
       enteredRef.current = true
       setEntering(true)
-      const t = setTimeout(() => {
-        setEntering(false)
-        // Fresh sign-ins land on the calendar; plain reloads keep their screen.
-        if (sessionStorage.getItem('planda.justLoggedIn')) {
-          sessionStorage.removeItem('planda.justLoggedIn')
-          setView(settings.defaultView)
-          setDate(new Date())
-          setSection('calendar')
-        }
-      }, 950)
-      return () => clearTimeout(t)
     }
   }, [authed, onboarded])
+
+  // Called when the loader's zoom-into-Ask-Planda transition finishes.
+  const finishEntering = () => {
+    setEntering(false)
+    // Fresh sign-ins land on the calendar; plain reloads keep their screen.
+    if (sessionStorage.getItem('planda.justLoggedIn')) {
+      sessionStorage.removeItem('planda.justLoggedIn')
+      setView(settings.defaultView)
+      setDate(new Date())
+      setSection('calendar')
+    }
+  }
 
   // With real Firebase auth on, the signed-in user drives whether we're authed;
   // a Google/Apple account also pre-fills the profile name on first sign-in.
@@ -272,7 +273,7 @@ function PlandaApp() {
 
   return (
     <>
-      {entering && <PostLoginLoader />}
+      {entering && <PostLoginLoader onDone={finishEntering} />}
       <div className="flex h-screen flex-col">
       <TopBar
         onToggleSidebar={() => setCollapsed((c) => !c)}
