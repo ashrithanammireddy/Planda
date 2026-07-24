@@ -343,6 +343,14 @@ export default function FriendsSection() {
       <FriendProfileModal
         friend={selectedFriend}
         onClose={() => setSelectedFriend(null)}
+        onRemove={
+          usingReal
+            ? (id) => {
+                social.removeFriend(id)
+                setSelectedFriend(null)
+              }
+            : undefined
+        }
         onCheer={(id) => {
           cheer(id)
           setSelectedFriend(null)

@@ -1,4 +1,4 @@
-import { Flame, Clock, Send } from 'lucide-react'
+import { Flame, Clock, Send, UserMinus } from 'lucide-react'
 import Modal, { ModalHeader } from './Modal'
 import Avatar from './Avatar'
 import BadgeMedal from './Badge'
@@ -13,7 +13,7 @@ const statusDot = {
 }
 
 // A friend's profile card, opened from the Friends leaderboard.
-export default function FriendProfileModal({ friend, onClose, onCheer }) {
+export default function FriendProfileModal({ friend, onClose, onCheer, onRemove }) {
   if (!friend) return null
   const rank = rankFor(friend.points || 0).rank
   const badgeName = (id) => BADGES.find((b) => b.id === id)?.name || id
@@ -77,6 +77,18 @@ export default function FriendProfileModal({ friend, onClose, onCheer }) {
       >
         <Send size={16} /> Send {friend.name} a cheer
       </button>
+
+      {onRemove && (
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm(`Remove ${friend.name} from your friends?`)) onRemove(friend.id)
+          }}
+          className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+        >
+          <UserMinus size={15} /> Remove friend
+        </button>
+      )}
     </Modal>
   )
 }
