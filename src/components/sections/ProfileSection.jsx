@@ -6,7 +6,7 @@ import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
 import { AVATARS, GLASSES, HATS } from '../../lib/avatars'
 import Avatar from '../Avatar'
-import AnimalAvatar from '../AnimalAvatar'
+import AnimalAvatar, { AccessoryIcon } from '../AnimalAvatar'
 import MilestonesModal from '../MilestonesModal'
 
 const HAT_LABEL = { none: 'None', beanie: 'Beanie', cap: 'Cap', bow: 'Bow', party: 'Party', crown: 'Crown' }
@@ -166,9 +166,9 @@ export default function ProfileSection() {
                     ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
-                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full pl-surface-2 transition hover:-translate-y-0.5"
               >
-                <AnimalAvatar id={profile.avatar} glasses={g} hat="none" size={44} />
+                <AccessoryIcon kind="glasses" value={g} size={40} />
               </button>
             ))}
           </div>
@@ -188,9 +188,9 @@ export default function ProfileSection() {
                     ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
-                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full pl-surface-2 transition hover:-translate-y-0.5"
               >
-                <AnimalAvatar id={profile.avatar} glasses="none" hat={h} size={44} />
+                <AccessoryIcon kind="hat" value={h} size={40} />
               </button>
             ))}
           </div>

@@ -98,10 +98,10 @@ const ANIMALS = {
       <rect x="36" y="4" width="7" height="24" rx="3.5" fill="#f3f0ee" />
       <rect x="23" y="7" width="3" height="18" rx="1.5" fill="#ffd1dc" />
       <rect x="38" y="7" width="3" height="18" rx="1.5" fill="#ffd1dc" />
-      <ellipse cx="32" cy="38" rx="17" ry="15" fill="#f6f3f1" />
-      <Eyes y={36} />
-      <path d="M32 41 l-2 1.6 l2 1.2 l2 -1.2 Z" fill="#ff9db0" />
-      <Blush y={44} dx="10.5" />
+      <ellipse cx="32" cy="37" rx="17" ry="15.5" fill="#f6f3f1" />
+      <Eyes y={34} />
+      <path d="M32 39 l-2 1.6 l2 1.2 l2 -1.2 Z" fill="#ff9db0" />
+      <Blush y={42} dx={10.5} />
     </g>
   ),
   koala: (
@@ -272,9 +272,9 @@ const ANIMALS = {
       <circle cx="50" cy="34" r="7" />
       <ellipse cx="16" cy="40" rx="4" ry="6" fill="#e7dccb" />
       <ellipse cx="48" cy="40" rx="4" ry="6" fill="#e7dccb" />
-      <ellipse cx="32" cy="39" rx="14" ry="13" fill="#efe6db" />
-      <Eyes y={37} />
-      <ellipse cx="32" cy="43" rx="2" ry="1.5" fill="#7a6a5c" />
+      <ellipse cx="32" cy="38" rx="14" ry="13.5" fill="#efe6db" />
+      <Eyes y={35} />
+      <ellipse cx="32" cy="41" rx="2" ry="1.5" fill="#7a6a5c" />
     </g>
   ),
   monkey: (
@@ -391,6 +391,25 @@ function Hat(type) {
       <circle cx="32" cy="9" r="1.6" fill="#5cc0e8" />
       <circle cx="40" cy="12" r="1.4" fill="#ff7fa3" />
     </g>
+  )
+}
+
+// Renders JUST an accessory (no animal) for the pickers. Hats are shifted down
+// so they sit centered in the swatch; 'none' shows a subtle slash.
+export function AccessoryIcon({ kind, value, size = 44 }) {
+  if (!value || value === 'none') {
+    return (
+      <svg viewBox="0 0 64 64" width={size} height={size} aria-label="none">
+        <line x1="22" y1="42" x2="42" y2="22" stroke="#b9c0c9" strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    )
+  }
+  const inner = kind === 'glasses' ? Glasses(value) : Hat(value)
+  const ty = kind === 'hat' ? 18 : 2
+  return (
+    <svg viewBox="0 0 64 64" width={size} height={size} aria-label={value}>
+      <g transform={`translate(0 ${ty})`}>{inner}</g>
+    </svg>
   )
 }
 
