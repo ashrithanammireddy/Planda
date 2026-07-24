@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
-import { Flame, Play, Send, Trophy } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Flame, Play, Send, Trophy, Copy, UserPlus, Check } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
-import { computeBadges, badgePointsFrom, squadGoalMinutes } from '../../lib/badges'
+import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
 import { useFocus } from '../../store/FocusContext'
+import { useSocial } from '../../store/SocialContext'
 import Avatar from '../Avatar'
 import FriendProfileModal from '../FriendProfileModal'
 
@@ -18,9 +19,18 @@ const statusDot = {
 export default function FriendsSection() {
   const { profile, settings, updateSettings, assessments, sessions, items, focusLog } = useStore()
   const focus = useFocus()
+  const social = useSocial()
   const [cheered, setCheered] = useState({})
   const [selectedFriend, setSelectedFriend] = useState(null)
+  const [codeInput, setCodeInput] = useState('')
+  const [addMsg, setAddMsg] = useState('')
+  const [copied, setCopied] = useState(false)
   const myGoal = settings.weeklyGoal || 0
+
+  // Real friends once the cloud profile loads; otherwise the simulated squad
+  // (also the graceful fallback if Firestore isn't enabled yet).
+  const usingReal = social.enabled && social.signedIn && !!social.myCode
+  const friendList = usingReal ? social.friends : FRIENDS
 
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
@@ -48,20 +58,55 @@ export default function FriendsSection() {
   }
 
   const squadMinutes =
-    FRIENDS.reduce((s, f) => s + f.weeklyMinutes, 0) + me.weeklyMinutes
-  const squadGoal = squadGoalMinutes(myGoal)
-  const goalPct = Math.min(100, Math.round((squadMinutes / squadGoal) * 100))
+    friendList.reduce((s, f) => s + (f.weeklyMinutes || 0), 0) + me.weeklyMinutes
+  const squadGoal =
+    friendList.reduce((s, f) => s + (f.goal || myGoal || 0), 0) + (myGoal || 0)
+  const goalPct = squadGoal
+    ? Math.min(100, Math.round((squadMinutes / squadGoal) * 100))
+    : 0
 
-  const leaderboard = [...FRIENDS, me].sort(
-    (a, b) => b.weeklyMinutes - a.weeklyMinutes
+  const leaderboard = [...friendList, me].sort(
+    (a, b) => (b.weeklyMinutes || 0) - (a.weeklyMinutes || 0)
   )
-  const focusingNow = FRIENDS.filter((f) => f.status === 'focusing')
+  const focusingNow = friendList.filter((f) => f.status === 'focusing')
 
   const cheer = (id) => {
     const msg = CHEERS[Math.floor((id.length + Date.now()) % CHEERS.length)]
     setCheered((c) => ({ ...c, [id]: msg }))
     setTimeout(() => setCheered((c) => ({ ...c, [id]: null })), 1800)
   }
+
+  const inviteLink = social.myCode
+    ? `${window.location.origin}/?add=${social.myCode}`
+    : ''
+  const copyLink = () => {
+    if (!inviteLink) return
+    navigator.clipboard?.writeText(inviteLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1600)
+  }
+  const submitCode = async (code) => {
+    const c = (code ?? codeInput).trim()
+    if (!c) return
+    setAddMsg('Adding…')
+    const res = await social.addFriend(c)
+    setAddMsg(res?.ok ? `Added ${res.friend.name || 'friend'}! 🎉` : res?.error || 'Could not add.')
+    if (res?.ok) setCodeInput('')
+    setTimeout(() => setAddMsg(''), 2600)
+  }
+
+  // Auto-add a friend if the app was opened via an invite link (?add=CODE).
+  useEffect(() => {
+    if (!usingReal) return
+    const code = new URLSearchParams(window.location.search).get('add')
+    if (code) {
+      submitCode(code)
+      const url = new URL(window.location.href)
+      url.searchParams.delete('add')
+      window.history.replaceState({}, '', url)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usingReal])
 
   const medal = ['🥇', '🥈', '🥉']
 
@@ -70,10 +115,54 @@ export default function FriendsSection() {
       <div className="mb-1 flex items-center gap-2">
         <h1 className="text-2xl font-bold pl-text">Study with friends</h1>
       </div>
-      <p className="mb-6 text-sm pl-text-muted">
-        Follow-through is easier together. Friends are simulated in this demo,
-        real pods sync when you sign in.
+      <p className="mb-4 text-sm pl-text-muted">
+        Follow-through is easier together.
+        {usingReal
+          ? ' Share your code to add friends and cheer each other on.'
+          : ' Sign in to add real friends — the squad below is a demo for now.'}
       </p>
+
+      {/* Your friend code + add a friend (real friends, when signed in) */}
+      {usingReal && (
+        <div className="mb-4 rounded-3xl border pl-border pl-surface p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold pl-text">Your friend code</div>
+              <div className="mt-0.5 text-2xl font-extrabold tracking-widest pl-accent-text">
+                {social.myCode || '……'}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={copyLink}
+              disabled={!inviteLink}
+              className="inline-flex items-center gap-1.5 rounded-xl border pl-border px-3.5 py-2 text-sm font-semibold pl-text transition hover:pl-surface-2 disabled:opacity-50"
+            >
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              {copied ? 'Copied!' : 'Copy invite link'}
+            </button>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t pl-border pt-4">
+            <span className="text-sm font-semibold pl-text">Add a friend</span>
+            <input
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && submitCode()}
+              placeholder="Enter their code"
+              maxLength={8}
+              className="pl-field w-40 rounded-lg border px-3 py-1.5 text-sm uppercase tracking-widest"
+            />
+            <button
+              type="button"
+              onClick={() => submitCode()}
+              className="inline-flex items-center gap-1.5 rounded-xl pl-accent px-4 py-1.5 text-sm font-semibold text-white transition hover:brightness-110"
+            >
+              <UserPlus size={15} /> Add
+            </button>
+            {addMsg && <span className="text-sm font-semibold pl-accent-text">{addMsg}</span>}
+          </div>
+        </div>
+      )}
 
       {/* Focus Room hero — a light surface (lifted above the page background). */}
       <div className="mb-4 overflow-hidden rounded-3xl border pl-border pl-surface p-6 shadow-sm">
@@ -118,7 +207,7 @@ export default function FriendsSection() {
           </div>
           <div className="flex -space-x-2">
             <Avatar value={me.avatar} glasses={me.glasses} hat={me.hat} size={36} className="ring-2 ring-[var(--planda-surface)]" />
-            {FRIENDS.map((f) => (
+            {friendList.map((f) => (
               <Avatar
                 key={f.id}
                 value={f.avatar}
@@ -211,7 +300,7 @@ export default function FriendsSection() {
                   <span className="flex items-center gap-1">
                     <Flame size={12} /> {p.streak}
                   </span>
-                  {!p.isMe && (
+                  {!p.isMe && p.status && (
                     <span className="flex items-center gap-1">
                       <span className={`h-2 w-2 rounded-full ${statusDot[p.status]}`} />
                       {STATUS_LABEL[p.status]}

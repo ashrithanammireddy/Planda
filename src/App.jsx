@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './store/StoreContext'
 import { FocusProvider } from './store/FocusContext'
+import { SocialProvider } from './store/SocialContext'
 import FocusRoom from './components/FocusRoom'
 import FocusPill from './components/FocusPill'
 import Header from './components/Header'
@@ -423,9 +424,11 @@ function PlandaApp() {
 export default function App() {
   return (
     <StoreProvider>
-      <FocusProvider>
-        <PlandaApp />
-      </FocusProvider>
+      <SocialProvider>
+        <FocusProvider>
+          <PlandaApp />
+        </FocusProvider>
+      </SocialProvider>
     </StoreProvider>
   )
 }

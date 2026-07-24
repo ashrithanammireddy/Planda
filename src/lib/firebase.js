@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { getFirestore } from 'firebase/firestore'
 import {
   getAuth,
   GoogleAuthProvider,
@@ -24,11 +25,13 @@ const cfg = {
 export const firebaseEnabled = Boolean(cfg.apiKey && cfg.authDomain && cfg.appId)
 
 let auth = null
+let db = null
 if (firebaseEnabled) {
   const app = initializeApp(cfg)
   auth = getAuth(app)
+  db = getFirestore(app)
 }
-export { auth }
+export { auth, db }
 
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider()
