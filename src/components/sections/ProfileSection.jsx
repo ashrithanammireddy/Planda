@@ -10,7 +10,7 @@ import AnimalAvatar from '../AnimalAvatar'
 import MilestonesModal from '../MilestonesModal'
 
 const HAT_LABEL = { none: 'None', beanie: 'Beanie', cap: 'Cap', bow: 'Bow', party: 'Party', crown: 'Crown' }
-const GLASSES_LABEL = { none: 'None', round: 'Round', square: 'Square', sun: 'Shades' }
+const GLASSES_LABEL = { none: 'None', round: 'Round', square: 'Square', sun: 'Shades', redshades: 'Red shades' }
 
 const field = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const label = 'mb-1.5 block text-sm font-semibold pl-text'

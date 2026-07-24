@@ -26,5 +26,5 @@ export const isAnimalAvatar = (v) => AVATAR_IDS.includes(v)
 export const DEFAULT_AVATAR = 'panda'
 
 // Optional accessories layered on top of any animal (same fixed positions).
-export const GLASSES = ['none', 'round', 'square', 'sun']
+export const GLASSES = ['none', 'round', 'square', 'sun', 'redshades']
 export const HATS = ['none', 'beanie', 'cap', 'bow', 'party', 'crown']

@@ -325,6 +325,22 @@ function Glasses(type) {
       </g>
     )
   }
+  if (type === 'redshades') {
+    return (
+      <g>
+        <g fill="#22262b" stroke="#e63946" strokeWidth="2" strokeLinejoin="round">
+          <path d="M20 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
+          <path d="M34 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
+        </g>
+        <line x1="30" y1="30" x2="34" y2="30" stroke="#e63946" strokeWidth="2.4" />
+        <g stroke="#e63946" strokeWidth="2" strokeLinecap="round">
+          <line x1="20.5" y1="29.5" x2="15" y2="27.5" />
+          <line x1="43.5" y1="29.5" x2="49" y2="27.5" />
+        </g>
+        <line x1="22" y1="31" x2="24.5" y2="31" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+      </g>
+    )
+  }
   // sunglasses
   return (
     <g>
@@ -371,11 +387,11 @@ function Hat(type) {
   }
   if (type === 'party') {
     return (
-      <g transform="rotate(-22 23 20)">
-        <path d="M23 1 L16 20 L30 20 Z" fill="#8bd0bb" />
-        <path d="M23 1 L19.5 10 L26.5 10 Z" fill="#f5c542" />
-        <path d="M20 14 h6" stroke="#f5c542" strokeWidth="1.6" />
-        <circle cx="23" cy="1" r="2.6" fill="#ff7fa3" />
+      <g transform="rotate(-13 28 19)">
+        <path d="M28 2 L21.5 19 L34.5 19 Z" fill="#8bd0bb" />
+        <path d="M28 2 L24.6 10.5 L31.4 10.5 Z" fill="#f5c542" />
+        <path d="M25 14.5 h6" stroke="#f5c542" strokeWidth="1.6" />
+        <circle cx="28" cy="2" r="2.6" fill="#ff7fa3" />
       </g>
     )
   }
