@@ -73,7 +73,16 @@ function PlandaApp() {
     if (authed && onboarded && !enteredRef.current) {
       enteredRef.current = true
       setEntering(true)
-      const t = setTimeout(() => setEntering(false), 950)
+      const t = setTimeout(() => {
+        setEntering(false)
+        // Fresh sign-ins land on the calendar; plain reloads keep their screen.
+        if (sessionStorage.getItem('planda.justLoggedIn')) {
+          sessionStorage.removeItem('planda.justLoggedIn')
+          setView(settings.defaultView)
+          setDate(new Date())
+          setSection('calendar')
+        }
+      }, 950)
       return () => clearTimeout(t)
     }
   }, [authed, onboarded])
@@ -236,6 +245,7 @@ function PlandaApp() {
       <Login
         notice={loggedOut ? 'Logged out successfully' : ''}
         onDone={(mode) => {
+          sessionStorage.setItem('planda.justLoggedIn', '1')
           localStorage.setItem('planda.authed', '1')
           setAuthed(true)
           setLoggedOut(false)
@@ -252,6 +262,7 @@ function PlandaApp() {
     return (
       <Onboarding
         onDone={() => {
+          sessionStorage.setItem('planda.justLoggedIn', '1')
           localStorage.setItem('planda.onboarded', '1')
           setOnboarded(true)
         }}

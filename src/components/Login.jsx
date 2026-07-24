@@ -81,6 +81,7 @@ export default function Login({ onDone, notice = '' }) {
     try {
       await (p === 'google' ? signInWithGoogle() : signInWithApple())
       // onAuthStateChanged in App flips us into the app; no onDone needed.
+      sessionStorage.setItem('planda.justLoggedIn', '1')
     } catch (err) {
       if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
         setAuthError('Could not sign in. Please try again.')
@@ -112,6 +113,7 @@ export default function Login({ onDone, notice = '' }) {
       if (emailMode === 'signup') await signUpWithEmail(email, password, signupName)
       else await signInWithEmail(email, password)
       // onAuthStateChanged in App flips us into the app.
+      sessionStorage.setItem('planda.justLoggedIn', '1')
     } catch (err) {
       const code = err?.code
       const key = email.trim().toLowerCase()

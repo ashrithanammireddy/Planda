@@ -12,14 +12,14 @@ export default function PostLoginLoader() {
         WebkitBackdropFilter: 'blur(12px)',
       }}
     >
-      <div className="h-40 w-40 overflow-hidden rounded-full shadow-lg ring-4 ring-white/50">
+      <div className="h-40 w-40 overflow-hidden rounded-full shadow-lg ring-2 ring-white/60">
         <video
           src="/planda-intro.mp4"
           autoPlay
           muted
           playsInline
           className="h-full w-full object-cover"
-          style={{ objectPosition: 'center 40%', transform: 'scale(2.1)' }}
+          style={{ objectPosition: 'center 25%', transform: 'scale(2)' }}
         />
       </div>
     </div>
