@@ -48,12 +48,19 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
             items: userItems,
           })
           return (
-            <button
+            <div
               key={day.toISOString()}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectDay(day)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onSelectDay(day)
+                }
+              }}
               style={isToday ? { boxShadow: `0 0 0 2px ${accentRing}` } : undefined}
-              className={`flex min-h-0 flex-col gap-1 overflow-hidden rounded-2xl border p-2 text-left transition ${
+              className={`flex min-h-0 cursor-pointer flex-col gap-1 overflow-hidden rounded-2xl border p-2 text-left transition ${
                 inMonth
                   ? 'pl-border pl-surface hover:border-black/10'
                   : 'border-transparent pl-surface opacity-50 pl-text-muted'
@@ -86,7 +93,7 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
                   </span>
                 )}
               </div>
-            </button>
+            </div>
           )
         })}
       </div>
