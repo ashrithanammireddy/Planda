@@ -34,17 +34,19 @@ const Smile = ({ y = 41 }) => (
 const ANIMALS = {
   panda: (
     <g>
-      <circle cx="20" cy="21" r="7" fill="#2b2b2b" />
-      <circle cx="44" cy="21" r="7" fill="#2b2b2b" />
-      <ellipse cx="32" cy="36" rx="19" ry="17" fill="#f7f7f5" />
-      <g transform="rotate(18 25 34)"><ellipse cx="25" cy="34" rx="4.4" ry="5.8" fill="#2b2b2b" /></g>
-      <g transform="rotate(-18 39 34)"><ellipse cx="39" cy="34" rx="4.4" ry="5.8" fill="#2b2b2b" /></g>
-      <circle cx="25" cy="34" r="2" fill="#fff" />
-      <circle cx="39" cy="34" r="2" fill="#fff" />
-      <circle cx="25.5" cy="33.4" r="0.9" fill="#2b2b2b" />
-      <circle cx="39.5" cy="33.4" r="0.9" fill="#2b2b2b" />
-      <ellipse cx="32" cy="41" rx="2" ry="1.4" fill="#2b2b2b" />
-      <Smile y={44} />
+      <circle cx="18" cy="20" r="8" fill="#2b2b2b" />
+      <circle cx="46" cy="20" r="8" fill="#2b2b2b" />
+      <circle cx="18" cy="20" r="3.6" fill="#4b4b4b" />
+      <circle cx="46" cy="20" r="3.6" fill="#4b4b4b" />
+      <circle cx="32" cy="37" r="18.5" fill="#f8f8f6" />
+      <g transform="rotate(22 25 36)"><ellipse cx="25" cy="36" rx="5" ry="6.6" fill="#2b2b2b" /></g>
+      <g transform="rotate(-22 39 36)"><ellipse cx="39" cy="36" rx="5" ry="6.6" fill="#2b2b2b" /></g>
+      <circle cx="25.5" cy="36" r="2.4" fill="#fff" />
+      <circle cx="38.5" cy="36" r="2.4" fill="#fff" />
+      <circle cx="26" cy="36.4" r="1.2" fill="#2b2b2b" />
+      <circle cx="38" cy="36.4" r="1.2" fill="#2b2b2b" />
+      <ellipse cx="32" cy="43" rx="2.3" ry="1.6" fill="#2b2b2b" />
+      <path d="M29.5 46 Q32 48.4 34.5 46" fill="none" stroke="#2b2b2b" strokeWidth="1.2" strokeLinecap="round" />
     </g>
   ),
   fox: (
@@ -249,20 +251,17 @@ const ANIMALS = {
   ),
   raccoon: (
     <g>
-      <circle cx="20" cy="23" r="5.5" fill="#9098a1" />
-      <circle cx="44" cy="23" r="5.5" fill="#9098a1" />
-      <circle cx="20" cy="23" r="2.6" fill="#3a3f47" />
-      <circle cx="44" cy="23" r="2.6" fill="#3a3f47" />
-      <ellipse cx="32" cy="37" rx="18" ry="16" fill="#aeb6be" />
-      <path d="M32 28 Q23 30 22 37 Q22 41 26 41 Q30 41 31 37 Z" fill="#3a3f47" />
-      <path d="M32 28 Q41 30 42 37 Q42 41 38 41 Q34 41 33 37 Z" fill="#3a3f47" />
-      <path d="M32 27 Q29 33 32 38 Q35 33 32 27 Z" fill="#eef1f4" />
-      <circle cx="26.5" cy="35" r="2.1" fill="#fff" />
-      <circle cx="37.5" cy="35" r="2.1" fill="#fff" />
-      <circle cx="26.5" cy="35" r="1.2" fill="#2b2b2b" />
-      <circle cx="37.5" cy="35" r="1.2" fill="#2b2b2b" />
-      <ellipse cx="32" cy="43" rx="6" ry="4.5" fill="#eef1f4" />
-      <ellipse cx="32" cy="42.5" rx="2" ry="1.5" fill="#2b2b2b" />
+      <circle cx="19" cy="21" r="6.5" fill="#9198a1" />
+      <circle cx="45" cy="21" r="6.5" fill="#9198a1" />
+      <circle cx="19" cy="21" r="3.2" fill="#5b626b" />
+      <circle cx="45" cy="21" r="3.2" fill="#5b626b" />
+      <ellipse cx="32" cy="37" rx="18" ry="16.5" fill="#b3bbc3" />
+      <path d="M18 34 Q22 29 27 31.5 Q32 34 37 31.5 Q42 29 46 34 Q45 40 39 39.5 Q32 40.5 25 39.5 Q19 40 18 34 Z" fill="#3a3f47" />
+      <circle cx="26" cy="35" r="2.4" fill="#fff" />
+      <circle cx="38" cy="35" r="2.4" fill="#fff" />
+      <circle cx="26" cy="35.3" r="1.3" fill="#2b2b2b" />
+      <circle cx="38" cy="35.3" r="1.3" fill="#2b2b2b" />
+      <ellipse cx="32" cy="42" rx="2.2" ry="1.6" fill="#2b2b2b" />
       <Smile y={45} />
     </g>
   ),
@@ -372,11 +371,11 @@ function Hat(type) {
   }
   if (type === 'party') {
     return (
-      <g transform="rotate(17 31 19)">
-        <path d="M31 0 L23 19 L39 19 Z" fill="#8bd0bb" />
-        <path d="M31 0 L27.5 9 L34.5 9 Z" fill="#f5c542" />
-        <path d="M28 13 h6" stroke="#f5c542" strokeWidth="1.6" />
-        <circle cx="31" cy="0" r="2.6" fill="#ff7fa3" />
+      <g transform="rotate(-22 23 20)">
+        <path d="M23 1 L16 20 L30 20 Z" fill="#8bd0bb" />
+        <path d="M23 1 L19.5 10 L26.5 10 Z" fill="#f5c542" />
+        <path d="M20 14 h6" stroke="#f5c542" strokeWidth="1.6" />
+        <circle cx="23" cy="1" r="2.6" fill="#ff7fa3" />
       </g>
     )
   }
