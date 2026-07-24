@@ -375,11 +375,11 @@ function Hat(type) {
   }
   if (type === 'party') {
     return (
-      <g transform="rotate(-13 28 19)">
-        <path d="M28 2 L21.5 19 L34.5 19 Z" fill="#8bd0bb" />
-        <path d="M28 2 L24.6 10.5 L31.4 10.5 Z" fill="#f5c542" />
-        <path d="M25 14.5 h6" stroke="#f5c542" strokeWidth="1.6" />
-        <circle cx="28" cy="2" r="2.6" fill="#ff7fa3" />
+      <g transform="rotate(-12 30 22)">
+        <path d="M30 4 L22.5 23 L37.5 23 Z" fill="#8bd0bb" />
+        <path d="M30 4 L26.3 13 L33.7 13 Z" fill="#f5c542" />
+        <path d="M27 17.5 h6" stroke="#f5c542" strokeWidth="1.6" />
+        <circle cx="30" cy="4" r="2.6" fill="#ff7fa3" />
       </g>
     )
   }
