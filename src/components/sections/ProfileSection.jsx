@@ -8,6 +8,7 @@ import { AVATARS, GLASSES, HATS } from '../../lib/avatars'
 import Avatar from '../Avatar'
 import AnimalAvatar, { AccessoryIcon } from '../AnimalAvatar'
 import MilestonesModal from '../MilestonesModal'
+import RanksModal from '../RanksModal'
 import BadgeMedal from '../Badge'
 
 const HAT_LABEL = { none: 'None', beanie: 'Beanie', cap: 'Cap', bow: 'Bow', party: 'Party', crown: 'Crown' }
@@ -20,6 +21,7 @@ export default function ProfileSection() {
   const { profile, updateProfile, settings, assessments, sessions, items, focusLog } =
     useStore()
   const [milestonesOpen, setMilestonesOpen] = useState(false)
+  const [ranksOpen, setRanksOpen] = useState(false)
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
     [assessments, sessions, items, focusLog]
@@ -103,15 +105,22 @@ export default function ProfileSection() {
         </div>
       </div>
 
-      {/* Rank */}
-      <div className="mb-4 rounded-3xl border pl-border pl-surface p-5">
+      {/* Rank — tap to see the whole ladder */}
+      <button
+        type="button"
+        onClick={() => setRanksOpen(true)}
+        className="mb-4 w-full rounded-3xl border pl-border pl-surface p-5 text-left transition hover:pl-surface-2"
+      >
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl pl-accent-soft text-2xl">
             {rankInfo.rank.emoji}
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="font-bold pl-text">{rankInfo.rank.name}</span>
+              <span className="flex items-center gap-1.5 font-bold pl-text">
+                {rankInfo.rank.name}
+                <ChevronRight size={16} className="pl-text-muted" />
+              </span>
               <span className="text-sm font-semibold pl-text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {points.toLocaleString()} pts
               </span>
@@ -129,7 +138,7 @@ export default function ProfileSection() {
             </div>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Milestones trophy shelf */}
       <button
@@ -285,6 +294,12 @@ export default function ProfileSection() {
         open={milestonesOpen}
         onClose={() => setMilestonesOpen(false)}
         badges={badges}
+      />
+      <RanksModal
+        open={ranksOpen}
+        onClose={() => setRanksOpen(false)}
+        points={points}
+        currentIndex={rankInfo.index}
       />
     </div>
   )
