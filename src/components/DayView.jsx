@@ -8,7 +8,7 @@ import { readableText, accentColor } from '../lib/colors'
 const HOURS = Array.from({ length: 24 }, (_, i) => i) // full day, scrollable
 
 export default function DayView({ date, onSelectItem }) {
-  const { assessments, sessions, classes, settings, items: userItems, toggleSession } = useStore()
+  const { assessments, sessions, classes, settings, items: userItems, toggleSession, toggleItem } = useStore()
   const items = useMemo(
     () => itemsForDate(date, { assessments, sessions, classes, settings, items: userItems }),
     [date, assessments, sessions, classes, settings, userItems]
@@ -115,7 +115,19 @@ export default function DayView({ date, onSelectItem }) {
                 </div>
                 <div className="flex flex-1 flex-col gap-1.5">
                   {hourItems.map((item) => {
-                    const s = item.ref
+                    const ref = item.ref
+                    const dur =
+                      item.kind === 'study'
+                        ? ref.durationMinutes
+                        : item.kind === 'item'
+                          ? ref.timeBlock?.durationMinutes
+                          : null
+                    const canToggle =
+                      item.kind === 'study' || (item.kind === 'item' && ref.checkable)
+                    const toggle = () => {
+                      if (item.kind === 'study') toggleSession(ref.id)
+                      else if (item.kind === 'item') toggleItem(ref.id)
+                    }
                     return (
                       <div
                         key={item.id}
@@ -127,30 +139,34 @@ export default function DayView({ date, onSelectItem }) {
                           item.completed ? 'opacity-60' : ''
                         }`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => toggleSession(s.id)}
-                          className="mt-0.5 shrink-0"
-                          aria-label="Toggle complete"
-                        >
-                          {item.completed ? (
-                            <CheckCircle2 size={17} />
-                          ) : (
-                            <Circle size={17} className="opacity-60" />
-                          )}
-                        </button>
+                        {canToggle ? (
+                          <button
+                            type="button"
+                            onClick={toggle}
+                            className="mt-0.5 shrink-0"
+                            aria-label="Toggle complete"
+                          >
+                            {item.completed ? (
+                              <CheckCircle2 size={17} />
+                            ) : (
+                              <Circle size={17} className="opacity-60" />
+                            )}
+                          </button>
+                        ) : (
+                          <span className="mt-0.5 shrink-0 text-base leading-none">{item.emoji}</span>
+                        )}
                         <button
                           type="button"
                           onClick={() => onSelectItem(item)}
                           className="flex-1 text-left"
                         >
                           <div className={`font-semibold ${item.completed ? 'line-through' : ''}`}>
-                            {item.emoji} {item.title}
+                            {canToggle ? `${item.emoji} ` : ''}{item.title}
                           </div>
                           <div className="text-xs opacity-80">
-                            {formatTime(item.time, settings.timeFormat)} ·{' '}
-                            {s.durationMinutes} min
-                            {s.className ? ` · ${s.className}` : ''}
+                            {formatTime(item.time, settings.timeFormat)}
+                            {dur ? ` · ${dur} min` : ''}
+                            {ref.className ? ` · ${ref.className}` : ''}
                           </div>
                         </button>
                       </div>

@@ -200,13 +200,14 @@ export default function FocusRoom() {
           <div className="flex -space-x-2">
             <Avatar value={profile.avatar} glasses={profile.glasses} hat={profile.hat} size={32} className="ring-2 ring-[var(--planda-surface)]" />
             {roomFriends.map((f) => (
-              <span
+              <Avatar
                 key={f.id}
-                title={f.name}
-                className="flex h-8 w-8 items-center justify-center rounded-full pl-surface-2 text-lg ring-2 ring-[var(--planda-surface)]"
-              >
-                {f.avatar}
-              </span>
+                value={f.avatar}
+                glasses={f.glasses}
+                hat={f.hat}
+                size={32}
+                className="ring-2 ring-[var(--planda-surface)]"
+              />
             ))}
           </div>
           <span className="text-xs pl-text-muted">{roomFriends.length + 1} studying now</span>

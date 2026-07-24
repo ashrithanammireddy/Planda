@@ -35,7 +35,10 @@ export function makeBadgeCard({ badge, name }) {
 
       ctx.fillStyle = '#2f8f76'
       ctx.font = '600 46px Poppins, system-ui, sans-serif'
-      ctx.fillText(`${badge.tierLabel}  ·  ${badge.value} ${badge.unit}`, S / 2, 792)
+      const subtitle = badge.bool
+        ? 'Achievement unlocked'
+        : `${badge.tierLabel}  ·  ${badge.value} ${badge.unit}`
+      ctx.fillText(subtitle, S / 2, 792)
 
       ctx.fillStyle = '#8a94a6'
       ctx.font = '500 40px Poppins, system-ui, sans-serif'

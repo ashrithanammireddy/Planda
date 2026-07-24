@@ -17,25 +17,32 @@ export function FocusProvider({ children }) {
   const [done, setDone] = useState(false)
   const tick = useRef(null)
 
+  // Count down. The updater stays pure (just decrements) — completion side
+  // effects live in the effect below so they run exactly once.
   useEffect(() => {
     if (!running) return
     tick.current = setInterval(() => {
-      setLeft((s) => {
-        if (s <= 1) {
-          clearInterval(tick.current)
-          setRunning(false)
-          setDone(true)
-          logFocus(minutes, classId)
-          return 0
-        }
-        return s - 1
-      })
+      setLeft((s) => (s <= 0 ? 0 : s - 1))
     }, 1000)
     return () => clearInterval(tick.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running])
 
+  // Handle completion once: log the minutes, show the done screen (reopening the
+  // modal if it was minimized), and stop.
+  const loggedRef = useRef(false)
+  useEffect(() => {
+    if (active && running && left <= 0 && !loggedRef.current) {
+      loggedRef.current = true
+      logFocus(minutes, classId)
+      setRunning(false)
+      setDone(true)
+      setOpen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [left, active, running])
+
   const start = ({ minutes: m, classId: c }) => {
+    loggedRef.current = false
     setMinutes(m)
     setClassId(c ?? null)
     setLeft(m * 60)

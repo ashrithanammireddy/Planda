@@ -166,10 +166,13 @@ function reducer(state, action) {
       const assessments = state.assessments.map((a) =>
         a.classId === action.id ? { ...a, classId: null } : a
       )
+      const grades = { ...state.grades }
+      delete grades[action.id]
       return {
         ...state,
         classes,
         assessments,
+        grades,
         sessions: rebuildSessions(assessments, classes, state.sessions),
       }
     }

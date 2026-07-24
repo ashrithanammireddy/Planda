@@ -62,6 +62,7 @@ export default function StudyAssistant({ open, onClose }) {
       const reply = await askPlanda({
         message: text,
         context: ctx.text,
+        history: messages.slice(-8),
         localBrain: (msg) =>
           assistantReply(msg, {
             assessments: ctx.upcoming,
