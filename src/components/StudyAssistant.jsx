@@ -3,6 +3,8 @@ import { Send, X, User } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { buildPlannerContext, askPlanda } from '../lib/ai'
 import { assistantReply } from '../lib/aiStub'
+import { parseAction } from '../lib/assistantActions'
+import { relativeDays } from '../lib/dates'
 import pandaUrl from '../assets/planda-book.png'
 
 const SUGGESTIONS = [
@@ -55,6 +57,45 @@ export default function StudyAssistant({ open, onClose }) {
     if (!text || typing) return
     setInput('')
     setMessages((m) => [...m, { role: 'user', text }])
+
+    // Actions first: if the user is asking to log a test/quiz/homework, actually
+    // create it (works with or without the AI backend).
+    const action = parseAction(text, { classes: store.classes })
+    if (action) {
+      let reply
+      if (action.needDate) {
+        reply = `Sure — when is that ${action.type.toLowerCase()} due? (e.g. "next Tuesday" or "Oct 3")`
+      } else if (action.kind === 'assessment') {
+        store.addAssessment({
+          classId: action.classId,
+          title: action.title,
+          type: action.type,
+          dueDate: action.date,
+          difficulty: 'Medium',
+          dailyStudyMinutes: 30,
+          topics: [],
+          notes: '',
+          customColor: '',
+        })
+        const cls = store.classes.find((c) => c.id === action.classId)
+        reply = `Done ✅ I logged a ${action.type.toLowerCase()}${cls ? ` for ${cls.name}` : action.category !== 'School' ? ` for ${action.category}` : ''} due ${relativeDays(action.date).toLowerCase()}: "${action.title}". It's on your calendar and I set up study blocks leading up to it. Tap it anytime to tweak the details.`
+      } else {
+        store.addItem({
+          title: action.title,
+          description: '',
+          date: action.date,
+          category: action.category,
+          priority: 'Medium',
+          type: 'Task',
+          customColor: '',
+          checkable: true,
+          timeBlock: { enabled: false, time: '09:00', durationMinutes: 30 },
+        })
+        reply = `Done ✅ I added "${action.title}"${action.category !== 'School' ? ` under ${action.category}` : ''} for ${relativeDays(action.date).toLowerCase()}. Tap it on your calendar to edit.`
+      }
+      setMessages((m) => [...m, { role: 'assistant', text: reply }])
+      return
+    }
 
     const ctx = buildPlannerContext(store)
     setTyping(true)
