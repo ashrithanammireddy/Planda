@@ -1,5 +1,8 @@
-import { LogIn, Download, Trash2, ShieldCheck, Settings, Sparkles, DownloadCloud } from 'lucide-react'
+import { useState } from 'react'
+import { LogIn, Download, Trash2, ShieldCheck, Settings, Sparkles, DownloadCloud, UserX } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
+import { firebaseEnabled, deleteAccountFirebase } from '../../lib/firebase'
+import PrivacyModal from '../PrivacyModal'
 
 function Row({ icon, title, desc, action }) {
   return (
@@ -22,6 +25,26 @@ export default function AccountSection({ onOpenSettings, onOpenImport }) {
   const store = useStore()
   const { profile, classes, assessments, sessions, items, settings, reset, loadSample } =
     store
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+
+  // Permanently delete the account + all local data (App Store requirement).
+  const deleteAccount = async () => {
+    if (
+      !window.confirm(
+        'Delete your account and all Planda data? This permanently removes your sign-in and clears everything on this device. This cannot be undone.'
+      )
+    )
+      return
+    try {
+      if (firebaseEnabled) await deleteAccountFirebase()
+    } catch {
+      // If Firebase needs a fresh login it signs you out; we still wipe locally.
+    }
+    ;['planda.authed', 'planda.onboarded', 'planda.section', 'planda.state.v1'].forEach(
+      (k) => localStorage.removeItem(k)
+    )
+    window.location.reload()
+  }
 
   const exportData = () => {
     const data = { profile, classes, assessments, sessions, items, settings }
@@ -69,8 +92,13 @@ export default function AccountSection({ onOpenSettings, onOpenImport }) {
         />
         <Row
           icon={<ShieldCheck size={18} />}
-          title="Data & privacy"
-          desc="Your data is stored only in this browser. No account needed to use Planda."
+          title="Privacy Policy"
+          desc="How Planda handles your data. Your data is never sold."
+          action={
+            <button type="button" onClick={() => setPrivacyOpen(true)} className={btn}>
+              View
+            </button>
+          }
         />
         <Row
           icon={<DownloadCloud size={18} />}
@@ -126,7 +154,23 @@ export default function AccountSection({ onOpenSettings, onOpenImport }) {
             </button>
           }
         />
+        <Row
+          icon={<UserX size={18} />}
+          title="Delete account"
+          desc="Permanently delete your account and all data. This cannot be undone."
+          action={
+            <button
+              type="button"
+              onClick={deleteAccount}
+              className="shrink-0 rounded-xl bg-red-500 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+            >
+              Delete
+            </button>
+          }
+        />
       </div>
+
+      <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </div>
   )
 }

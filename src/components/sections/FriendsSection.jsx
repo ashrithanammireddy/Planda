@@ -7,6 +7,7 @@ import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
 import { useFocus } from '../../store/FocusContext'
 import Avatar from '../Avatar'
+import FriendProfileModal from '../FriendProfileModal'
 
 const statusDot = {
   focusing: 'bg-emerald-500',
@@ -18,6 +19,7 @@ export default function FriendsSection() {
   const { profile, settings, updateSettings, assessments, sessions, items, focusLog } = useStore()
   const focus = useFocus()
   const [cheered, setCheered] = useState({})
+  const [selectedFriend, setSelectedFriend] = useState(null)
   const myGoal = settings.weeklyGoal || 0
 
   const stats = useMemo(
@@ -182,8 +184,10 @@ export default function FriendsSection() {
           {leaderboard.map((p, i) => (
             <div
               key={p.id}
-              className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${
-                p.isMe ? 'pl-accent-soft' : ''
+              onClick={() => !p.isMe && setSelectedFriend(p)}
+              role={p.isMe ? undefined : 'button'}
+              className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition ${
+                p.isMe ? 'pl-accent-soft' : 'cursor-pointer hover:pl-surface-2'
               }`}
             >
               <span className="w-6 text-center text-sm font-bold pl-text-muted">
@@ -229,7 +233,10 @@ export default function FriendsSection() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => cheer(p.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      cheer(p.id)
+                    }}
                     title={`Nudge ${p.name}`}
                     className="flex h-8 w-8 items-center justify-center rounded-full pl-surface-2 pl-text-muted transition hover:pl-accent-text hover:brightness-95"
                   >
@@ -240,6 +247,15 @@ export default function FriendsSection() {
           ))}
         </div>
       </div>
+
+      <FriendProfileModal
+        friend={selectedFriend}
+        onClose={() => setSelectedFriend(null)}
+        onCheer={(id) => {
+          cheer(id)
+          setSelectedFriend(null)
+        }}
+      />
     </div>
   )
 }

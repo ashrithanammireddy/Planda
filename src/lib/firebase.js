@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile as fbUpdateProfile,
+  deleteUser,
   signOut as fbSignOut,
 } from 'firebase/auth'
 
@@ -58,6 +59,19 @@ export async function signInWithEmail(email, password) {
 
 export async function signOutFirebase() {
   if (auth) await fbSignOut(auth)
+}
+
+// Permanently delete the signed-in account. If the session is too old, Firebase
+// requires a recent login — we sign out in that case so the caller can still
+// clear local data and prompt a fresh sign-in.
+export async function deleteAccountFirebase() {
+  if (!auth?.currentUser) return
+  try {
+    await deleteUser(auth.currentUser)
+  } catch (err) {
+    await fbSignOut(auth)
+    throw err
+  }
 }
 
 // Turn Firebase's error codes into friendly, human messages.
