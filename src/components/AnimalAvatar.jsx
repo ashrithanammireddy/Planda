@@ -128,14 +128,19 @@ const ANIMALS = {
   ),
   frog: (
     <g>
-      <ellipse cx="32" cy="37" rx="19" ry="16.5" fill="#8bc46a" />
-      <circle cx="25" cy="31" r="5.4" fill="#9ed17f" />
-      <circle cx="39" cy="31" r="5.4" fill="#9ed17f" />
-      <Eyes y={32} dx={6.5} r={2.7} />
-      <path d="M21 40 Q32 47 43 40" fill="none" stroke="#4f7d38" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="30" cy="37" r="0.8" fill="#4f7d38" />
-      <circle cx="34" cy="37" r="0.8" fill="#4f7d38" />
-      <Blush y={39} dx={13} />
+      <ellipse cx="32" cy="39" rx="19.5" ry="14.5" fill="#8bc46a" />
+      <circle cx="25" cy="27" r="6.6" fill="#8bc46a" />
+      <circle cx="39" cy="27" r="6.6" fill="#8bc46a" />
+      <circle cx="25" cy="30" r="4.5" fill="#fafcf6" />
+      <circle cx="39" cy="30" r="4.5" fill="#fafcf6" />
+      <circle cx="25" cy="31" r="2.3" fill="#2b2b2b" />
+      <circle cx="39" cy="31" r="2.3" fill="#2b2b2b" />
+      <circle cx="25.9" cy="30.1" r="0.9" fill="#fff" />
+      <circle cx="39.9" cy="30.1" r="0.9" fill="#fff" />
+      <path d="M19 41 Q32 49 45 41" fill="none" stroke="#4f7d38" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="30" cy="37.5" r="0.85" fill="#4f7d38" />
+      <circle cx="34" cy="37.5" r="0.85" fill="#4f7d38" />
+      <Blush y={39} dx={14} />
     </g>
   ),
   owl: (
