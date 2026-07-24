@@ -1,5 +1,5 @@
 import { Settings, PanelLeft } from 'lucide-react'
-import PandaLogo from './PandaLogo'
+import bookPandaUrl from '../assets/planda-book.png'
 import wordmarkUrl from '../assets/planda-wordmark.png'
 
 // Full-width top bar: hamburger + planda wordmark (left); Ask Planda + a
@@ -46,9 +46,9 @@ export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings }) {
         >
           <span
             id="panda-anchor-desktop"
-            className="flex h-11 w-11 items-center justify-center rounded-full pl-surface transition group-hover:scale-105"
+            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full transition group-hover:scale-105"
           >
-            <PandaLogo size={40} />
+            <img src={bookPandaUrl} alt="" className="h-full w-full object-cover" />
           </span>
           <span className="text-sm font-bold pl-accent-text">Ask Planda</span>
         </button>

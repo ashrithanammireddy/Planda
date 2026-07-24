@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 
 const SIZE = 160 // starting circle diameter (px)
 
-// Shown right after sign-in: a frosted overlay with the animated panda in a
-// circle. After a beat it zooms out / flies into the "Ask Planda" icon, then
-// hands off to the app. onDone fires when the transition is finished.
+// Shown right after sign-in: a frosted background with the animated panda in a
+// circle. After a beat the circle flies into the "Ask Planda" icon while the
+// frosted backdrop clears — the panda circle itself stays fully visible the
+// whole way, so you can see where it's going. onDone fires when it lands.
 export default function PostLoginLoader({ onDone }) {
-  const circleRef = useRef(null)
   const [moved, setMoved] = useState(false)
   const [xform, setXform] = useState('none')
-  const [fade, setFade] = useState(false)
+  const [bgFade, setBgFade] = useState(false)
 
   useEffect(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
@@ -19,29 +19,25 @@ export default function PostLoginLoader({ onDone }) {
       return () => clearTimeout(t)
     }
 
-    // Play the panda briefly, then fly the circle into the Ask Planda icon.
     const startMove = setTimeout(() => {
-      const anchor =
-        ['panda-anchor-desktop', 'panda-anchor-mobile']
-          .map((id) => document.getElementById(id))
-          .find((el) => el && el.getBoundingClientRect().width > 0)
+      const anchor = ['panda-anchor-desktop', 'panda-anchor-mobile']
+        .map((id) => document.getElementById(id))
+        .find((el) => el && el.getBoundingClientRect().width > 0)
 
       if (anchor) {
         const a = anchor.getBoundingClientRect()
-        const ax = a.left + a.width / 2
-        const ay = a.top + a.height / 2
-        const dx = ax - window.innerWidth / 2
-        const dy = ay - window.innerHeight / 2
+        const dx = a.left + a.width / 2 - window.innerWidth / 2
+        const dy = a.top + a.height / 2 - window.innerHeight / 2
         const scale = a.width / SIZE
         setXform(`translate(${dx}px, ${dy}px) scale(${scale})`)
       } else {
         setXform('translate(0, -42vh) scale(0.28)')
       }
       setMoved(true)
-      setFade(true)
-    }, 450)
+      setBgFade(true)
+    }, 950)
 
-    const done = setTimeout(finish, 450 + 620)
+    const done = setTimeout(finish, 950 + 900)
     return () => {
       clearTimeout(startMove)
       clearTimeout(done)
@@ -49,18 +45,20 @@ export default function PostLoginLoader({ onDone }) {
   }, [onDone])
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center"
-      style={{
-        background: 'color-mix(in srgb, var(--planda-bg) 55%, transparent)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        opacity: fade ? 0 : 1,
-        transition: 'opacity 560ms ease-out',
-      }}
-    >
+    <div className="fixed inset-0 z-[70]">
+      {/* frosted backdrop — clears gently so the app shows through */}
       <div
-        ref={circleRef}
+        className="absolute inset-0"
+        style={{
+          background: 'color-mix(in srgb, var(--planda-bg) 55%, transparent)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          opacity: bgFade ? 0 : 1,
+          transition: 'opacity 820ms ease-in-out',
+        }}
+      />
+      {/* the panda circle — travels to Ask Planda, stays fully opaque */}
+      <div
         className="fixed overflow-hidden rounded-full shadow-lg ring-2 ring-white/60"
         style={{
           left: '50%',
@@ -71,7 +69,7 @@ export default function PostLoginLoader({ onDone }) {
           marginTop: -SIZE / 2,
           transform: xform,
           transformOrigin: 'center',
-          transition: moved ? 'transform 620ms cubic-bezier(0.5, 0.05, 0.2, 1)' : 'none',
+          transition: moved ? 'transform 880ms cubic-bezier(0.5, 0.05, 0.2, 1)' : 'none',
         }}
       >
         <video

@@ -1,5 +1,5 @@
 import { NAV } from './Sidebar'
-import PandaLogo from './PandaLogo'
+import bookPandaUrl from '../assets/planda-book.png'
 
 // Bottom tab bar for small screens (hidden at lg+). Panda in the middle opens
 // the Study Assistant; the avatar on the right opens the account area.
@@ -35,9 +35,9 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar }) {
         onClick={onOpenAI}
         aria-label="Ask Planda"
         id="panda-anchor-mobile"
-        className="mx-1 -mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-full pl-surface shadow-lg ring-4 ring-[var(--planda-bg)]"
+        className="mx-1 -mt-6 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full shadow-lg ring-4 ring-[var(--planda-bg)]"
       >
-        <PandaLogo size={40} />
+        <img src={bookPandaUrl} alt="" className="h-full w-full object-cover" />
       </button>
       {tabs.slice(2).map(tab)}
       <button
