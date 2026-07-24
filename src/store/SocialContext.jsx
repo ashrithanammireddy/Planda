@@ -18,6 +18,7 @@ export function SocialProvider({ children }) {
   const [myCode, setMyCode] = useState(null)
   const [friends, setFriends] = useState([])
   const [ready, setReady] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!firebaseEnabled || !auth) return
@@ -29,9 +30,11 @@ export function SocialProvider({ children }) {
       setMyCode(null)
       setFriends([])
       setReady(false)
+      setError(null)
       return
     }
     let unsub
+    setError(null)
     ensureUserDoc(uid, {
       name: profile.name || 'You',
       avatar: profile.avatar,
@@ -39,13 +42,25 @@ export function SocialProvider({ children }) {
       hat: profile.hat || 'none',
     })
       .then(() => {
-        unsub = subscribeToSocial(uid, ({ code, friends: fr }) => {
-          setMyCode(code)
-          setFriends(fr)
-          setReady(true)
-        })
+        unsub = subscribeToSocial(
+          uid,
+          ({ code, friends: fr }) => {
+            setMyCode(code)
+            setFriends(fr)
+            setReady(true)
+          },
+          (err) => {
+            console.error('[Planda social] snapshot error:', err?.code, err?.message)
+            setError(err?.code || err?.message || 'error')
+            setReady(true)
+          }
+        )
       })
-      .catch(() => setReady(true))
+      .catch((err) => {
+        console.error('[Planda social] setup error:', err?.code, err?.message)
+        setError(err?.code || err?.message || 'error')
+        setReady(true)
+      })
     return () => unsub && unsub()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid])
@@ -64,7 +79,7 @@ export function SocialProvider({ children }) {
     [stats, settings.weeklyGoal]
   )
   useEffect(() => {
-    if (!uid) return
+    if (!uid || !myCode) return // wait until the profile doc + code exist
     syncProfile(uid, {
       name: profile.name || 'You',
       avatar: profile.avatar,
@@ -74,12 +89,13 @@ export function SocialProvider({ children }) {
       weeklyMinutes: stats.weeklyMinutes,
       points,
     }).catch(() => {})
-  }, [uid, profile.name, profile.avatar, profile.glasses, profile.hat, stats.streak, stats.weeklyMinutes, points])
+  }, [uid, myCode, profile.name, profile.avatar, profile.glasses, profile.hat, stats.streak, stats.weeklyMinutes, points])
 
   const value = {
     enabled: firebaseEnabled,
     signedIn: !!uid,
     ready,
+    error,
     myCode,
     friends,
     addFriend: (code) => addFriendByCode(uid, code),

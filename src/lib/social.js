@@ -25,10 +25,20 @@ function genCode(len = 6) {
 }
 
 // Create the user's public profile doc on first sign-in (with a friend code).
+// If a doc already exists but is missing a code (e.g. created by a racing
+// profile-sync write), backfill one so it self-heals.
 export async function ensureUserDoc(uid, base) {
   const ref = doc(db, 'users', uid)
   const snap = await getDoc(ref)
-  if (snap.exists()) return snap.data()
+  if (snap.exists()) {
+    const data = snap.data()
+    if (!data.code) {
+      const code = genCode()
+      await updateDoc(ref, { code, friends: data.friends || [] })
+      return { ...data, code }
+    }
+    return data
+  }
   const data = {
     ...base,
     code: genCode(),
@@ -66,16 +76,20 @@ export async function removeFriend(uid, friendId) {
 }
 
 // Live subscription to my doc; refetches friends' public docs when it changes.
-export function subscribeToSocial(uid, cb) {
-  return onSnapshot(doc(db, 'users', uid), async (snap) => {
-    if (!snap.exists()) return cb({ code: null, friends: [] })
-    const me = snap.data()
-    const ids = me.friends || []
-    const friends = []
-    for (const id of ids) {
-      const fs = await getDoc(doc(db, 'users', id))
-      if (fs.exists()) friends.push({ id, ...fs.data() })
-    }
-    cb({ code: me.code, friends })
-  })
+export function subscribeToSocial(uid, cb, onError) {
+  return onSnapshot(
+    doc(db, 'users', uid),
+    async (snap) => {
+      if (!snap.exists()) return cb({ code: null, friends: [] })
+      const me = snap.data()
+      const ids = me.friends || []
+      const friends = []
+      for (const id of ids) {
+        const fs = await getDoc(doc(db, 'users', id))
+        if (fs.exists()) friends.push({ id, ...fs.data() })
+      }
+      cb({ code: me.code, friends })
+    },
+    (err) => onError?.(err)
+  )
 }

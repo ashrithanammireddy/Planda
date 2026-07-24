@@ -16,7 +16,6 @@ import SettingsPanel from './components/SettingsPanel'
 import StudyAssistant from './components/StudyAssistant'
 import DayDetailModal from './components/DayDetailModal'
 import Fab from './components/Fab'
-import Splash from './components/Splash'
 import Login from './components/Login'
 import Onboarding from './components/Onboarding'
 import PostLoginLoader from './components/PostLoginLoader'
@@ -44,12 +43,6 @@ const DARK_BG = '#14161c'
 function PlandaApp() {
   const { settings, profile, updateProfile } = useStore()
 
-  const prefersReduced =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const [showSplash, setShowSplash] = useState(
-    () => !prefersReduced && !sessionStorage.getItem('planda-splash-seen')
-  )
   const [authed, setAuthed] = useState(
     () => !!localStorage.getItem('planda.authed')
   )
@@ -232,17 +225,6 @@ function PlandaApp() {
       setSection('calendar')
       setLoggedOut(true)
     }
-  }
-
-  if (showSplash) {
-    return (
-      <Splash
-        onDone={() => {
-          sessionStorage.setItem('planda-splash-seen', '1')
-          setShowSplash(false)
-        }}
-      />
-    )
   }
 
   if (!authed) {

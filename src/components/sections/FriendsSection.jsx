@@ -115,53 +115,20 @@ export default function FriendsSection() {
       <div className="mb-1 flex items-center gap-2">
         <h1 className="text-2xl font-bold pl-text">Study with friends</h1>
       </div>
-      <p className="mb-4 text-sm pl-text-muted">
+      <p className="mb-2 text-sm pl-text-muted">
         Follow-through is easier together.
         {usingReal
           ? ' Share your code to add friends and cheer each other on.'
           : ' Sign in to add real friends — the squad below is a demo for now.'}
       </p>
 
-      {/* Your friend code + add a friend (real friends, when signed in) */}
-      {usingReal && (
-        <div className="mb-4 rounded-3xl border pl-border pl-surface p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold pl-text">Your friend code</div>
-              <div className="mt-0.5 text-2xl font-extrabold tracking-widest pl-accent-text">
-                {social.myCode || '……'}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={copyLink}
-              disabled={!inviteLink}
-              className="inline-flex items-center gap-1.5 rounded-xl border pl-border px-3.5 py-2 text-sm font-semibold pl-text transition hover:pl-surface-2 disabled:opacity-50"
-            >
-              {copied ? <Check size={15} /> : <Copy size={15} />}
-              {copied ? 'Copied!' : 'Copy invite link'}
-            </button>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2 border-t pl-border pt-4">
-            <span className="text-sm font-semibold pl-text">Add a friend</span>
-            <input
-              value={codeInput}
-              onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === 'Enter' && submitCode()}
-              placeholder="Enter their code"
-              maxLength={8}
-              className="pl-field w-40 rounded-lg border px-3 py-1.5 text-sm uppercase tracking-widest"
-            />
-            <button
-              type="button"
-              onClick={() => submitCode()}
-              className="inline-flex items-center gap-1.5 rounded-xl pl-accent px-4 py-1.5 text-sm font-semibold text-white transition hover:brightness-110"
-            >
-              <UserPlus size={15} /> Add
-            </button>
-            {addMsg && <span className="text-sm font-semibold pl-accent-text">{addMsg}</span>}
-          </div>
-        </div>
+      {/* Diagnostic line: signed in but the cloud profile hasn't loaded. */}
+      {social.enabled && social.signedIn && !social.myCode && (
+        <p className="mb-4 text-xs font-medium text-amber-600">
+          {social.error
+            ? `Friends sync error: ${social.error}`
+            : 'Connecting to your friends…'}
+        </p>
       )}
 
       {/* Focus Room hero — a light surface (lifted above the page background). */}
@@ -336,6 +303,42 @@ export default function FriendsSection() {
           ))}
         </div>
       </div>
+
+      {/* Your code + add a friend — kept subtle, at the bottom. */}
+      {usingReal && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border pl-border pl-surface px-4 py-3 text-sm">
+          <span className="pl-text-muted">Your code</span>
+          <span className="font-bold tracking-widest pl-text">{social.myCode}</span>
+          <button
+            type="button"
+            onClick={copyLink}
+            disabled={!inviteLink}
+            title="Copy invite link"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold pl-text-muted transition hover:pl-surface-2 disabled:opacity-50"
+          >
+            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? 'Copied' : 'Copy link'}
+          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <input
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && submitCode()}
+              placeholder="Add by code"
+              maxLength={8}
+              className="pl-field w-32 rounded-lg border px-2.5 py-1.5 text-sm uppercase tracking-widest"
+            />
+            <button
+              type="button"
+              onClick={() => submitCode()}
+              className="inline-flex items-center gap-1 rounded-lg pl-accent px-3 py-1.5 text-sm font-semibold text-white transition hover:brightness-110"
+            >
+              <UserPlus size={14} /> Add
+            </button>
+          </div>
+          {addMsg && <span className="w-full text-xs font-semibold pl-accent-text">{addMsg}</span>}
+        </div>
+      )}
 
       <FriendProfileModal
         friend={selectedFriend}
