@@ -172,6 +172,21 @@ body {
   .planda-breathe { animation: none; }
 }
 
+@keyframes planda-typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+.planda-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--planda-text-muted);
+  animation: planda-typing 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .planda-typing-dot { animation: none; }
+}
+
 @keyframes planda-fill-kf {
   0% { width: 6%; }
   70% { width: 82%; }
