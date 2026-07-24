@@ -55,7 +55,7 @@ export default function TopBar({ onToggleSidebar, onOpenAI, onOpenSettings, icon
               style={{ opacity: iconHidden ? 0 : 1, transition: 'opacity 200ms ease' }}
             />
           </span>
-          <span className="text-sm font-bold pl-accent-text">Ask Planda</span>
+          <span className="text-sm font-bold pl-text">Ask Planda</span>
         </button>
 
         <button

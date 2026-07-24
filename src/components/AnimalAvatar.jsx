@@ -386,7 +386,7 @@ function Hat(type) {
   // crown
   return (
     <g>
-      <path d="M17 20 L17 9 L24 15 L32 6 L40 15 L47 9 L47 20 Z" fill="#f5c542" stroke="#e0ad24" strokeWidth="0.8" />
+      <path d="M16 18 L17 8 L24 14 L32 5 L40 14 L47 8 L48 18 Q32 24 16 18 Z" fill="#f5c542" stroke="#e0ad24" strokeWidth="0.8" strokeLinejoin="round" />
       <circle cx="24" cy="12" r="1.4" fill="#ff7fa3" />
       <circle cx="32" cy="9" r="1.6" fill="#5cc0e8" />
       <circle cx="40" cy="12" r="1.4" fill="#ff7fa3" />

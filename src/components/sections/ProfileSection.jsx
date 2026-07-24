@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Flame, Clock, ChevronRight, Pin } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
@@ -8,6 +8,7 @@ import { AVATARS, GLASSES, HATS } from '../../lib/avatars'
 import Avatar from '../Avatar'
 import AnimalAvatar, { AccessoryIcon } from '../AnimalAvatar'
 import MilestonesModal from '../MilestonesModal'
+import BadgeMedal from '../Badge'
 
 const HAT_LABEL = { none: 'None', beanie: 'Beanie', cap: 'Cap', bow: 'Bow', party: 'Party', crown: 'Crown' }
 const GLASSES_LABEL = { none: 'None', round: 'Round', square: 'Square', sun: 'Shades' }
@@ -37,23 +38,59 @@ export default function ProfileSection() {
   const hrs = Math.floor(stats.totalMinutes / 60)
   const mins = stats.totalMinutes % 60
 
+  // Edits are a draft — nothing is saved until "Update profile" is clicked.
+  const [draft, setDraft] = useState({
+    name: profile.name || '',
+    school: profile.school || '',
+    avatar: profile.avatar,
+    glasses: profile.glasses || 'none',
+    hat: profile.hat || 'none',
+  })
+  const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
+  const dirty =
+    draft.name !== (profile.name || '') ||
+    draft.school !== (profile.school || '') ||
+    draft.avatar !== profile.avatar ||
+    draft.glasses !== (profile.glasses || 'none') ||
+    draft.hat !== (profile.hat || 'none')
+  const save = () => updateProfile(draft)
+  const discard = () =>
+    setDraft({
+      name: profile.name || '',
+      school: profile.school || '',
+      avatar: profile.avatar,
+      glasses: profile.glasses || 'none',
+      hat: profile.hat || 'none',
+    })
+
+  // Warn before a hard reload / tab close if there are unsaved edits.
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (e) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 text-2xl font-bold pl-text">Profile</h1>
 
       <div className="mb-4 flex items-center gap-4 rounded-3xl border pl-border pl-surface p-5">
         <Avatar
-          value={profile.avatar}
-          glasses={profile.glasses}
-          hat={profile.hat}
+          value={draft.avatar}
+          glasses={draft.glasses}
+          hat={draft.hat}
           size={80}
         />
         <div>
           <div className="text-xl font-bold pl-text">
-            {profile.name || 'Your name'}
+            {draft.name || 'Your name'}
           </div>
           <div className="text-sm pl-text-muted">
-            {profile.school || 'Add your school'}
+            {draft.school || 'Add your school'}
           </div>
           <div className="mt-2 flex gap-4 text-sm pl-text-muted">
             <span className="inline-flex items-center gap-1">
@@ -111,9 +148,9 @@ export default function ProfileSection() {
             {pinnedBadges.map((b) => (
               <div
                 key={b.id}
-                className="flex flex-1 flex-col items-center gap-1 rounded-2xl pl-surface-2 p-3"
+                className="flex flex-1 flex-col items-center gap-1.5 rounded-2xl pl-surface-2 p-3"
               >
-                <span className="text-3xl">{b.emoji}</span>
+                <BadgeMedal badge={b} size={46} />
                 <span className="text-center text-xs font-semibold pl-text">{b.name}</span>
                 <span className="text-[10px] pl-text-muted">{b.tierLabel}</span>
               </div>
@@ -137,9 +174,9 @@ export default function ProfileSection() {
               <button
                 key={a.id}
                 type="button"
-                onClick={() => updateProfile({ avatar: a.id })}
+                onClick={() => set({ avatar: a.id })}
                 style={
-                  profile.avatar === a.id
+                  draft.avatar === a.id
                     ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
@@ -159,10 +196,10 @@ export default function ProfileSection() {
               <button
                 key={g}
                 type="button"
-                onClick={() => updateProfile({ glasses: g })}
+                onClick={() => set({ glasses: g })}
                 title={GLASSES_LABEL[g]}
                 style={
-                  profile.glasses === g
+                  draft.glasses === g
                     ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
@@ -181,10 +218,10 @@ export default function ProfileSection() {
               <button
                 key={h}
                 type="button"
-                onClick={() => updateProfile({ hat: h })}
+                onClick={() => set({ hat: h })}
                 title={HAT_LABEL[h]}
                 style={
-                  profile.hat === h
+                  draft.hat === h
                     ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
@@ -200,20 +237,43 @@ export default function ProfileSection() {
           <label className={label}>Name</label>
           <input
             className={field}
-            value={profile.name}
-            onChange={(e) => updateProfile({ name: e.target.value })}
+            value={draft.name}
+            onChange={(e) => set({ name: e.target.value })}
             placeholder="What should we call you?"
           />
         </div>
 
-        <div className="mb-2">
+        <div className="mb-4">
           <label className={label}>School</label>
           <input
             className={field}
-            value={profile.school}
-            onChange={(e) => updateProfile({ school: e.target.value })}
+            value={draft.school}
+            onChange={(e) => set({ school: e.target.value })}
             placeholder="e.g. Lincoln High School"
           />
+        </div>
+
+        <div className="flex items-center justify-end gap-3 border-t pl-border pt-4">
+          {dirty && (
+            <>
+              <span className="mr-auto text-xs pl-text-muted">Unsaved changes</span>
+              <button
+                type="button"
+                onClick={discard}
+                className="rounded-xl border pl-border px-4 py-2 text-sm font-semibold pl-text transition hover:pl-surface-2"
+              >
+                Discard
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            disabled={!dirty}
+            onClick={save}
+            className="rounded-xl pl-accent px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 disabled:opacity-40"
+          >
+            Update profile
+          </button>
         </div>
       </div>
 

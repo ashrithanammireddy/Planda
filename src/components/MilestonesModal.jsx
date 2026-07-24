@@ -1,7 +1,8 @@
-import { Pin, Share2, Lock } from 'lucide-react'
+import { Pin, Share2 } from 'lucide-react'
 import Modal, { ModalHeader } from './Modal'
 import { useStore } from '../store/StoreContext'
 import { shareBadge } from '../lib/shareCard'
+import BadgeMedal from './Badge'
 
 // Full milestones grid: earned badges (with tier + share) and locked ones (with
 // progress). Pin up to 3 to the profile trophy shelf.
@@ -30,12 +31,7 @@ export default function MilestonesModal({ open, onClose, badges }) {
               }`}
             >
               <div className="flex items-start justify-between gap-2">
-                <span
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl pl-surface-2 text-2xl"
-                  style={b.earned ? undefined : { filter: 'grayscale(1)' }}
-                >
-                  {b.earned ? b.emoji : <Lock size={18} className="pl-text-muted" />}
-                </span>
+                <BadgeMedal badge={b} size={52} />
                 <div className="flex gap-1">
                   <button
                     type="button"
