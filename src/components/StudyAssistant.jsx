@@ -4,7 +4,15 @@ import { useStore } from '../store/StoreContext'
 import { buildPlannerContext, askPlanda } from '../lib/ai'
 import { assistantReply } from '../lib/aiStub'
 import { parseAction } from '../lib/assistantActions'
-import { relativeDays } from '../lib/dates'
+import { relativeDays, format, parseKey } from '../lib/dates'
+
+// "tomorrow" / "today" read nicely; anything else shows the actual date.
+const dueLabel = (dateStr) => {
+  const rel = relativeDays(dateStr)
+  return rel === 'Today' || rel === 'Tomorrow'
+    ? rel.toLowerCase()
+    : `on ${format(parseKey(dateStr), 'EEE, MMM d')}`
+}
 import pandaUrl from '../assets/planda-book.png'
 
 const SUGGESTIONS = [
@@ -78,7 +86,7 @@ export default function StudyAssistant({ open, onClose }) {
           customColor: '',
         })
         const cls = store.classes.find((c) => c.id === action.classId)
-        reply = `Done ✅ I logged a ${action.type.toLowerCase()}${cls ? ` for ${cls.name}` : action.category !== 'School' ? ` for ${action.category}` : ''} due ${relativeDays(action.date).toLowerCase()}: "${action.title}". It's on your calendar and I set up study blocks leading up to it. Tap it anytime to tweak the details.`
+        reply = `Done ✅ I logged a ${action.type.toLowerCase()}${cls ? ` for ${cls.name}` : action.category !== 'School' ? ` for ${action.category}` : ''} due ${dueLabel(action.date)}: "${action.title}". It's on your calendar and I set up study blocks leading up to it. Tap it anytime to tweak the details.`
       } else {
         store.addItem({
           title: action.title,
@@ -91,7 +99,7 @@ export default function StudyAssistant({ open, onClose }) {
           checkable: true,
           timeBlock: { enabled: false, time: '09:00', durationMinutes: 30 },
         })
-        reply = `Done ✅ I added "${action.title}"${action.category !== 'School' ? ` under ${action.category}` : ''} for ${relativeDays(action.date).toLowerCase()}. Tap it on your calendar to edit.`
+        reply = `Done ✅ I added "${action.title}"${action.category !== 'School' ? ` under ${action.category}` : ''} ${dueLabel(action.date)}. Tap it on your calendar to edit.`
       }
       setMessages((m) => [...m, { role: 'assistant', text: reply }])
       return

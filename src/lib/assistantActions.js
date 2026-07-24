@@ -77,7 +77,7 @@ function extractTitle(raw, { type, subject }) {
     .trim()
   // Drop ONE leading command-object noun (e.g. "a test", "my quiz") — the thing
   // being created — but keep later mentions that are part of the real title.
-  s = s.replace(/^(a|an|the|my)?\s*(test|quiz|exam|midterm|final|homework|assignment|essay|project|paper|reading|task|to-?do)\b/i, '').trim()
+  s = s.replace(/^(a|an|the|my)?\s*(assessments?|tests?|quiz(z?es)?|exams?|midterms?|finals?|homework|assignments?|essays?|projects?|papers?|readings?|tasks?|to-?dos?)\b/i, '').trim()
   s = s.replace(/^(for|my|a|an|the)\s+/i, '').trim()
   // Trim dangling prepositions/articles left at either end after date removal.
   s = s.replace(/\s+(on|for|due|by|at|to|of|the|a|an|my)$/i, '').trim()
@@ -99,6 +99,7 @@ export function parseAction(raw, { classes = [] } = {}) {
   if (/\bquiz(z?es)?\b/.test(t)) { kind = 'assessment'; type = 'Quiz' }
   else if (/\b(test|midterm)\b/.test(t)) { kind = 'assessment'; type = 'Test' }
   else if (/\b(exam|final)\b/.test(t)) { kind = 'assessment'; type = 'Exam' }
+  else if (/\bassessment\b/.test(t)) { kind = 'assessment'; type = 'Test' }
   else if (/\b(homework|assignment|essay|project|paper|reading|hw|task|to-?do)\b/.test(t)) {
     kind = 'item'
     type = 'Task'

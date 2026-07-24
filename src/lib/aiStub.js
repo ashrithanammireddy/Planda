@@ -23,10 +23,21 @@ function nextAssessment(assessments) {
 }
 
 export function assistantReply(userText, { assessments = [], classes = [], todayTasks = [], stats = {} }) {
-  const text = userText.toLowerCase()
+  const text = userText.toLowerCase().trim()
   const next = nextAssessment(assessments)
   const cls = next && classes.find((c) => c.id === next.classId)
   const clsName = cls?.name || (next ? 'this subject' : 'your classes')
+
+  // Short conversational replies (cancel / thanks / greeting).
+  if (/^(no|nope|nvm|nevermind|never mind|cancel|stop|not now)\b/.test(text)) {
+    return 'No problem! Whenever you need me, just ask.'
+  }
+  if (/^(thanks|thank you|ty|thx|appreciate|awesome|cool|nice|ok|okay|got it)\b/.test(text)) {
+    return "Anytime! I'm here whenever you want to plan, focus, or check what's next. 🐼"
+  }
+  if (/^(hi|hey|hello|yo|sup|what'?s up)\b/.test(text)) {
+    return `Hey! Want me to plan your week, tell you what to focus on today, or log something?`
+  }
 
   // Plan my week
   if (text.includes('week')) {
