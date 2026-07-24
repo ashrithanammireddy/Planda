@@ -128,17 +128,14 @@ const ANIMALS = {
   ),
   frog: (
     <g>
-      <circle cx="22" cy="22" r="8" fill="#8bc46a" />
-      <circle cx="42" cy="22" r="8" fill="#8bc46a" />
-      <circle cx="22" cy="22" r="4" fill="#2b2b2b" />
-      <circle cx="42" cy="22" r="4" fill="#2b2b2b" />
-      <circle cx="23" cy="21" r="1.3" fill="#fff" />
-      <circle cx="43" cy="21" r="1.3" fill="#fff" />
-      <ellipse cx="32" cy="38" rx="19" ry="15" fill="#8bc46a" />
-      <path d="M20 40 Q32 50 44 40" fill="none" stroke="#4f7d38" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="29" cy="36" r="0.9" fill="#4f7d38" />
-      <circle cx="35" cy="36" r="0.9" fill="#4f7d38" />
-      <Blush y={41} dx="13" />
+      <ellipse cx="32" cy="37" rx="19" ry="16.5" fill="#8bc46a" />
+      <circle cx="25" cy="31" r="5.4" fill="#9ed17f" />
+      <circle cx="39" cy="31" r="5.4" fill="#9ed17f" />
+      <Eyes y={32} dx={6.5} r={2.7} />
+      <path d="M21 40 Q32 47 43 40" fill="none" stroke="#4f7d38" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="30" cy="37" r="0.8" fill="#4f7d38" />
+      <circle cx="34" cy="37" r="0.8" fill="#4f7d38" />
+      <Blush y={39} dx={13} />
     </g>
   ),
   owl: (
@@ -347,9 +344,9 @@ function Hat(type) {
   if (type === 'beanie') {
     return (
       <g>
-        <path d="M17 20 Q32 4 47 20 Z" fill="#3aa98a" />
+        <circle cx="32" cy="10" r="4.2" fill="#ffffff" />
+        <path d="M16 20 Q32 4 48 20 Z" fill="#3aa98a" />
         <rect x="15" y="18" width="34" height="7" rx="3.5" fill="#2f8f76" />
-        <circle cx="32" cy="6" r="3" fill="#e9f6f0" />
       </g>
     )
   }
