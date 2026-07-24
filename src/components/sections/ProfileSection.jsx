@@ -1,19 +1,34 @@
-import { useMemo } from 'react'
-import { Flame, Clock } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Flame, Clock, ChevronRight, Pin } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
+import { computeBadges, badgePointsFrom } from '../../lib/badges'
+import { computePoints, rankFor } from '../../lib/ranks'
+import MilestonesModal from '../MilestonesModal'
 
 const field = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const label = 'mb-1.5 block text-sm font-semibold pl-text'
 const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
 
 export default function ProfileSection() {
-  const { profile, updateProfile, assessments, sessions, items, focusLog } =
+  const { profile, updateProfile, settings, assessments, sessions, items, focusLog } =
     useStore()
+  const [milestonesOpen, setMilestonesOpen] = useState(false)
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
     [assessments, sessions, items, focusLog]
   )
+  const badges = useMemo(() => computeBadges(stats), [stats])
+  const points = useMemo(
+    () => computePoints({ stats, badgePoints: badgePointsFrom(badges) }),
+    [stats, badges]
+  )
+  const rankInfo = useMemo(() => rankFor(points), [points])
+  const pinned = settings.pinnedBadges || []
+  const pinnedBadges = pinned
+    .map((id) => badges.find((b) => b.id === id))
+    .filter(Boolean)
+  const earnedCount = badges.filter((b) => b.earned).length
   const hrs = Math.floor(stats.totalMinutes / 60)
   const mins = stats.totalMinutes % 60
 
@@ -42,6 +57,69 @@ export default function ProfileSection() {
           </div>
         </div>
       </div>
+
+      {/* Rank */}
+      <div className="mb-4 rounded-3xl border pl-border pl-surface p-5">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl pl-accent-soft text-2xl">
+            {rankInfo.rank.emoji}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="font-bold pl-text">{rankInfo.rank.name}</span>
+              <span className="text-sm font-semibold pl-text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {points.toLocaleString()} pts
+              </span>
+            </div>
+            <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full pl-surface-2">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${rankInfo.pct}%`, backgroundColor: 'var(--planda-accent)' }}
+              />
+            </div>
+            <div className="mt-1 text-xs pl-text-muted">
+              {rankInfo.next
+                ? `${rankInfo.toNext} pts to ${rankInfo.next.emoji} ${rankInfo.next.name}`
+                : 'Top rank reached 👑'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Milestones trophy shelf */}
+      <button
+        type="button"
+        onClick={() => setMilestonesOpen(true)}
+        className="mb-4 w-full rounded-3xl border pl-border pl-surface p-5 text-left transition hover:pl-surface-2"
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-bold pl-text">Milestones</span>
+          <span className="flex items-center gap-1 text-sm pl-text-muted">
+            {earnedCount} unlocked <ChevronRight size={16} />
+          </span>
+        </div>
+        {pinnedBadges.length > 0 ? (
+          <div className="flex gap-3">
+            {pinnedBadges.map((b) => (
+              <div
+                key={b.id}
+                className="flex flex-1 flex-col items-center gap-1 rounded-2xl pl-surface-2 p-3"
+              >
+                <span className="text-3xl">{b.emoji}</span>
+                <span className="text-center text-xs font-semibold pl-text">{b.name}</span>
+                <span className="text-[10px] pl-text-muted">{b.tierLabel}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-sm pl-text-muted">
+            <Pin size={15} />
+            {earnedCount > 0
+              ? 'Pin your favorite badges here.'
+              : 'Plan and study to unlock your first badge.'}
+          </div>
+        )}
+      </button>
 
       <div className="rounded-3xl border pl-border pl-surface p-5">
         <div className="mb-4">
@@ -91,6 +169,12 @@ export default function ProfileSection() {
       <p className="mt-4 text-center text-xs pl-text-muted">
         Your profile and data are stored privately in this browser.
       </p>
+
+      <MilestonesModal
+        open={milestonesOpen}
+        onClose={() => setMilestonesOpen(false)}
+        badges={badges}
+      />
     </div>
   )
 }

@@ -67,6 +67,7 @@ const DEFAULT_SETTINGS = {
   showCompletedTasks: true,
   assessmentEmojis: { ...DEFAULT_ASSESSMENT_EMOJIS },
   hiddenCalendars: [], // calendar ids toggled off (e.g. "class:<id>", "cat:Holidays")
+  pinnedBadges: [], // up to 3 badge ids pinned to the profile trophy shelf
 }
 
 function seedState() {
@@ -328,6 +329,16 @@ function reducer(state, action) {
     }
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.changes } }
+    case 'TOGGLE_PIN_BADGE': {
+      const pinned = state.settings.pinnedBadges || []
+      let next
+      if (pinned.includes(action.id)) {
+        next = pinned.filter((b) => b !== action.id)
+      } else {
+        next = [...pinned, action.id].slice(-3) // keep at most 3, newest wins
+      }
+      return { ...state, settings: { ...state.settings, pinnedBadges: next } }
+    }
     case 'RESET':
       return seedState()
     default:
@@ -368,6 +379,7 @@ export function StoreProvider({ children }) {
       updateSettings: (changes) =>
         dispatch({ type: 'UPDATE_SETTINGS', changes }),
       toggleCalendar: (id) => dispatch({ type: 'TOGGLE_CALENDAR', id }),
+      togglePinBadge: (id) => dispatch({ type: 'TOGGLE_PIN_BADGE', id }),
       updateProfile: (changes) =>
         dispatch({ type: 'UPDATE_PROFILE', changes }),
       logFocus: (minutes) => dispatch({ type: 'LOG_FOCUS', minutes }),

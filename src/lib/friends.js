@@ -6,10 +6,10 @@ export const POD = {
 }
 
 export const FRIENDS = [
-  { id: 'zoe', name: 'Zoe', avatar: '🦉', streak: 21, weeklyMinutes: 480, status: 'focusing' },
-  { id: 'maya', name: 'Maya', avatar: '🦊', streak: 12, weeklyMinutes: 320, status: 'focusing' },
-  { id: 'leo', name: 'Leo', avatar: '🐨', streak: 5, weeklyMinutes: 210, status: 'break' },
-  { id: 'kai', name: 'Kai', avatar: '🐢', streak: 3, weeklyMinutes: 150, status: 'offline' },
+  { id: 'zoe', name: 'Zoe', avatar: '🦉', streak: 21, weeklyMinutes: 480, points: 2680, status: 'focusing' },
+  { id: 'maya', name: 'Maya', avatar: '🦊', streak: 12, weeklyMinutes: 320, points: 1520, status: 'focusing' },
+  { id: 'leo', name: 'Leo', avatar: '🐨', streak: 5, weeklyMinutes: 210, points: 720, status: 'break' },
+  { id: 'kai', name: 'Kai', avatar: '🐢', streak: 3, weeklyMinutes: 150, points: 300, status: 'offline' },
 ]
 
 export const STATUS_LABEL = {

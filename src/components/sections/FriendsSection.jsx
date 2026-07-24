@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { Flame, Play, Send, Trophy } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
+import { computeBadges, badgePointsFrom } from '../../lib/badges'
+import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
 import FocusRoom from '../FocusRoom'
 
@@ -21,12 +23,17 @@ export default function FriendsSection() {
     [assessments, sessions, items, focusLog]
   )
 
+  const myPoints = useMemo(
+    () => computePoints({ stats, badgePoints: badgePointsFrom(computeBadges(stats)) }),
+    [stats]
+  )
   const me = {
     id: 'me',
     name: profile.name || 'You',
     avatar: profile.avatar || '🐼',
     streak: stats.streak,
     weeklyMinutes: stats.weeklyMinutes,
+    points: myPoints,
     isMe: true,
   }
 
@@ -157,15 +164,19 @@ export default function FriendsSection() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs pl-text-muted">
+                  <span className="flex items-center gap-1 font-semibold">
+                    {rankFor(p.points || 0).rank.emoji}
+                    {rankFor(p.points || 0).rank.name}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Flame size={12} /> {p.streak}
+                  </span>
                   {!p.isMe && (
                     <span className="flex items-center gap-1">
                       <span className={`h-2 w-2 rounded-full ${statusDot[p.status]}`} />
                       {STATUS_LABEL[p.status]}
                     </span>
                   )}
-                  <span className="flex items-center gap-1">
-                    <Flame size={12} /> {p.streak}
-                  </span>
                 </div>
               </div>
               <div

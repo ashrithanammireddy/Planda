@@ -9,6 +9,7 @@ export function computeStats({
 }) {
   const completedSessions = sessions.filter((s) => s.completed)
   const focusMinutes = focusLog.reduce((sum, f) => sum + (f.minutes || 0), 0)
+  const longestFocus = focusLog.reduce((m, f) => Math.max(m, f.minutes || 0), 0)
   const totalMinutes =
     completedSessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0) +
     focusMinutes
@@ -61,6 +62,7 @@ export function computeStats({
     streak,
     totalMinutes,
     focusMinutes,
+    longestFocus,
     weeklyMinutes,
     sessionsDone: completedSessions.length,
     sessionsTotal: sessions.length,
