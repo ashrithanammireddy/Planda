@@ -71,9 +71,13 @@ export default function MilestonesModal({ open, onClose, badges }) {
                   />
                 </div>
                 <div className="mt-1 text-xs pl-text-muted">
-                  {b.nextTarget
-                    ? `${b.value} / ${b.nextTarget} ${b.unit}`
-                    : `Maxed · ${b.value} ${b.unit}`}
+                  {b.bool
+                    ? b.earned
+                      ? 'Unlocked 🎉'
+                      : 'Locked'
+                    : b.nextTarget
+                      ? `${b.value} / ${b.nextTarget} ${b.unit}`
+                      : `Maxed · ${b.value} ${b.unit}`}
                 </div>
               </div>
             </div>

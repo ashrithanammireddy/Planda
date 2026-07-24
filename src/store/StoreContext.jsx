@@ -72,6 +72,7 @@ const DEFAULT_SETTINGS = {
   assessmentEmojis: { ...DEFAULT_ASSESSMENT_EMOJIS },
   hiddenCalendars: [], // calendar ids toggled off (e.g. "class:<id>", "cat:Holidays")
   pinnedBadges: [], // up to 3 badge ids pinned to the profile trophy shelf
+  weeklyGoal: 300, // your personal weekly focus-minutes goal
 }
 
 function seedState() {

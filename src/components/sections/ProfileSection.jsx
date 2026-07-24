@@ -26,7 +26,10 @@ export default function ProfileSection() {
     () => computeStats({ assessments, sessions, items, focusLog }),
     [assessments, sessions, items, focusLog]
   )
-  const badges = useMemo(() => computeBadges(stats), [stats])
+  const badges = useMemo(
+    () => computeBadges(stats, { weeklyGoal: settings.weeklyGoal }),
+    [stats, settings.weeklyGoal]
+  )
   const points = useMemo(
     () => computePoints({ stats, badgePoints: badgePointsFrom(badges) }),
     [stats, badges]

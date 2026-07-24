@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Flame, Play, Send, Trophy } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
-import { computeBadges, badgePointsFrom } from '../../lib/badges'
+import { computeBadges, badgePointsFrom, squadGoalMinutes } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
 import { useFocus } from '../../store/FocusContext'
@@ -15,9 +15,10 @@ const statusDot = {
 }
 
 export default function FriendsSection() {
-  const { profile, assessments, sessions, items, focusLog } = useStore()
+  const { profile, settings, updateSettings, assessments, sessions, items, focusLog } = useStore()
   const focus = useFocus()
   const [cheered, setCheered] = useState({})
+  const myGoal = settings.weeklyGoal || 0
 
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
@@ -25,8 +26,12 @@ export default function FriendsSection() {
   )
 
   const myPoints = useMemo(
-    () => computePoints({ stats, badgePoints: badgePointsFrom(computeBadges(stats)) }),
-    [stats]
+    () =>
+      computePoints({
+        stats,
+        badgePoints: badgePointsFrom(computeBadges(stats, { weeklyGoal: myGoal })),
+      }),
+    [stats, myGoal]
   )
   const me = {
     id: 'me',
@@ -42,10 +47,8 @@ export default function FriendsSection() {
 
   const squadMinutes =
     FRIENDS.reduce((s, f) => s + f.weeklyMinutes, 0) + me.weeklyMinutes
-  const goalPct = Math.min(
-    100,
-    Math.round((squadMinutes / POD.weeklyGoalMinutes) * 100)
-  )
+  const squadGoal = squadGoalMinutes(myGoal)
+  const goalPct = Math.min(100, Math.round((squadMinutes / squadGoal) * 100))
 
   const leaderboard = [...FRIENDS, me].sort(
     (a, b) => b.weeklyMinutes - a.weeklyMinutes
@@ -131,7 +134,41 @@ export default function FriendsSection() {
         </div>
         <div className="mt-1.5 flex justify-between text-xs pl-text-muted">
           <span>{squadMinutes} min this week</span>
-          <span>{goalPct}% of {POD.weeklyGoalMinutes} min goal</span>
+          <span>{goalPct}% of {squadGoal} min goal</span>
+        </div>
+
+        {/* Your editable weekly goal (the squad goal is everyone's combined) */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t pl-border pt-3">
+          <span className="text-sm font-semibold pl-text">Your weekly goal</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => updateSettings({ weeklyGoal: Math.max(30, myGoal - 30) })}
+              className="flex h-7 w-7 items-center justify-center rounded-full pl-surface-2 pl-text transition hover:brightness-95"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min="30"
+              step="15"
+              value={myGoal}
+              onChange={(e) => updateSettings({ weeklyGoal: Math.max(0, Number(e.target.value) || 0) })}
+              className="pl-field w-20 rounded-lg border px-2 py-1 text-center text-sm"
+              aria-label="Weekly goal minutes"
+            />
+            <button
+              type="button"
+              onClick={() => updateSettings({ weeklyGoal: myGoal + 30 })}
+              className="flex h-7 w-7 items-center justify-center rounded-full pl-surface-2 pl-text transition hover:brightness-95"
+            >
+              +
+            </button>
+            <span className="text-sm pl-text-muted">min</span>
+          </div>
+          <span className="ml-auto text-xs pl-text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            You: {stats.weeklyMinutes}/{myGoal} min
+          </span>
         </div>
       </div>
 

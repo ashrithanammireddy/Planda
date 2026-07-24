@@ -1,4 +1,7 @@
 import { dateKey, startOfDay, addDays, differenceInCalendarDays } from './dates'
+import { HOLIDAY_SETS } from './holidays'
+
+const HOLIDAY_KEYS = new Set(Object.keys(HOLIDAY_SETS))
 
 // Derives progress metrics from the store for the Progress section.
 export function computeStats({
@@ -28,17 +31,37 @@ export function computeStats({
       .reduce((sum, s) => sum + (s.durationMinutes || 0), 0) +
     focusLog.filter((f) => f.date >= weekAgo).reduce((s, f) => s + (f.minutes || 0), 0)
 
-  // Current streak: consecutive days (ending today or yesterday) with activity.
+  // School-aware streak: weekends and holidays are skipped (they neither count
+  // nor break the streak), and one missed school day is forgiven. So a Friday →
+  // Monday run stays unbroken, which is realistic for students.
   const today = startOfDay(new Date())
+  const holidayDates = new Set(
+    items.filter((i) => HOLIDAY_KEYS.has(i.category)).map((i) => i.date)
+  )
+  const skippable = (d) => {
+    const dow = d.getDay() // 0 Sun … 6 Sat
+    return dow === 0 || dow === 6 || holidayDates.has(dateKey(d))
+  }
   let streak = 0
-  // Allow the streak to still count if today has no activity yet but yesterday did.
-  let anchor = activeDays.has(dateKey(today)) ? today : addDays(today, -1)
-  if (activeDays.has(dateKey(anchor))) {
-    let cursor = anchor
-    while (activeDays.has(dateKey(cursor))) {
-      streak += 1
+  let grace = 1
+  let cursor = today
+  let isCurrentDay = true
+  for (let guard = 0; guard < 800; guard++) {
+    if (skippable(cursor)) {
       cursor = addDays(cursor, -1)
+      continue
     }
+    if (activeDays.has(dateKey(cursor))) {
+      streak += 1
+    } else if (isCurrentDay) {
+      // Today isn't over yet — don't count it, but don't break the streak.
+    } else if (grace > 0) {
+      grace -= 1 // forgive one missed school day
+    } else {
+      break
+    }
+    isCurrentDay = false
+    cursor = addDays(cursor, -1)
   }
 
   const todayKey = dateKey(today)
