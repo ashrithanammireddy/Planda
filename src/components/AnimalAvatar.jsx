@@ -325,31 +325,19 @@ function Glasses(type) {
       </g>
     )
   }
-  if (type === 'redshades') {
-    return (
-      <g>
-        <g fill="#22262b" stroke="#e63946" strokeWidth="2" strokeLinejoin="round">
-          <path d="M20 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
-          <path d="M34 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
-        </g>
-        <line x1="30" y1="30" x2="34" y2="30" stroke="#e63946" strokeWidth="2.4" />
-        <g stroke="#e63946" strokeWidth="2" strokeLinecap="round">
-          <line x1="20.5" y1="29.5" x2="15" y2="27.5" />
-          <line x1="43.5" y1="29.5" x2="49" y2="27.5" />
-        </g>
-        <line x1="22" y1="31" x2="24.5" y2="31" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
-      </g>
-    )
-  }
-  // sunglasses
+  // red-framed cool sunglasses
   return (
     <g>
-      <g fill="#2b2b2b" stroke="#2b2b2b" strokeWidth="1.4">
+      <g fill="#22262b" stroke="#e63946" strokeWidth="2" strokeLinejoin="round">
         <path d="M20 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
         <path d="M34 29 h10 a1 1 0 0 1 1 1 v3 a4 5 0 0 1 -12 0 v-3 a1 1 0 0 1 1 -1 Z" />
       </g>
-      <line x1="30" y1="30" x2="34" y2="30" stroke="#2b2b2b" strokeWidth="1.8" />
-      {arms}
+      <line x1="30" y1="30" x2="34" y2="30" stroke="#e63946" strokeWidth="2.4" />
+      <g stroke="#e63946" strokeWidth="2" strokeLinecap="round">
+        <line x1="20.5" y1="29.5" x2="15" y2="27.5" />
+        <line x1="43.5" y1="29.5" x2="49" y2="27.5" />
+      </g>
+      <line x1="22" y1="31" x2="24.5" y2="31" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
     </g>
   )
 }
@@ -377,7 +365,7 @@ function Hat(type) {
   }
   if (type === 'bow') {
     return (
-      <g transform="translate(32 11)">
+      <g transform="translate(44 26) scale(0.82)">
         <path d="M0 0 Q-11 -6 -10.5 0 Q-11 6 0 0 Z" fill="#ff7fa3" />
         <path d="M0 0 Q11 -6 10.5 0 Q11 6 0 0 Z" fill="#ff7fa3" />
         <path d="M0 0 Q-11 -6 -10.5 0 Q-11 6 0 0 Z" fill="#ff9db8" opacity="0.5" />
