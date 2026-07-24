@@ -191,10 +191,11 @@ function PlandaApp() {
     setItemOpen(true)
   }
 
+  // Clicking any calendar item opens the day's quick view (check / edit /
+  // delete). Only the Edit button in there opens the full edit popup.
   const handleSelectItem = (item) => {
-    if (item.kind === 'assessment') openEditAssessment(item.ref)
-    else if (item.kind === 'item') openEditItem(item.ref)
-    else setDetailDay(parseKey(item.ref.date))
+    const key = item.kind === 'assessment' ? item.ref.dueDate : item.ref.date
+    setDetailDay(parseKey(key))
   }
 
   useEffect(() => {

@@ -1,9 +1,39 @@
-import { Plus, Circle, CheckCircle2 } from 'lucide-react'
+import { Plus, Circle, CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import Modal, { ModalHeader } from './Modal'
 import { useStore } from '../store/StoreContext'
 import { itemsForDate } from '../lib/events'
 import { format, formatTime } from '../lib/dates'
 import { readableText, tint } from '../lib/colors'
+
+// Small Edit + Delete action buttons shown on the right of each row.
+function RowActions({ onEdit, onDelete }) {
+  return (
+    <div className="flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onEdit()
+        }}
+        aria-label="Edit"
+        className="flex h-8 w-8 items-center justify-center rounded-full pl-text-muted transition hover:pl-surface-2 hover:pl-text"
+      >
+        <Pencil size={15} />
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onDelete()
+        }}
+        aria-label="Delete"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition hover:bg-red-50 hover:text-red-500"
+      >
+        <Trash2 size={15} />
+      </button>
+    </div>
+  )
+}
 
 export default function DayDetailModal({
   open,
@@ -22,6 +52,8 @@ export default function DayDetailModal({
     toggleSession,
     toggleTask,
     toggleItem,
+    deleteItem,
+    deleteAssessment,
   } = useStore()
 
   if (!open || !day) return null
@@ -48,81 +80,87 @@ export default function DayDetailModal({
             if (item.kind === 'assessment') {
               const bg = tint(item.color, 0.4)
               return (
-                <button
+                <div
                   key={item.id}
-                  type="button"
-                  onClick={() => onEditAssessment(item.ref)}
                   style={{ backgroundColor: bg, color: readableText(bg) }}
-                  className="rounded-2xl px-4 py-3 text-left font-medium transition hover:brightness-95"
+                  className="flex items-center gap-2 rounded-2xl px-4 py-2.5"
                 >
-                  {item.emoji} {item.title}
-                  <span className="ml-2 text-xs uppercase opacity-60">
-                    {item.ref.type}
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => onEditAssessment(item.ref)}
+                    className="flex-1 text-left font-medium"
+                  >
+                    {item.emoji} {item.title}
+                    <span className="ml-2 text-xs uppercase opacity-60">{item.ref.type}</span>
+                  </button>
+                  <RowActions
+                    onEdit={() => onEditAssessment(item.ref)}
+                    onDelete={() =>
+                      window.confirm(`Delete "${item.title}" and its study plan?`) &&
+                      deleteAssessment(item.ref.id)
+                    }
+                  />
+                </div>
               )
             }
             if (item.kind === 'item') {
               const it = item.ref
               return (
-                <div key={item.id} className="rounded-2xl border pl-border p-3">
-                  <div className="flex items-start gap-3">
-                    {it.checkable && (
-                      <button
-                        type="button"
-                        onClick={() => toggleItem(it.id)}
-                        className={it.completed ? 'text-emerald-500' : 'text-slate-300'}
-                        aria-label="Toggle complete"
-                      >
-                        {it.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
-                      </button>
-                    )}
+                <div key={item.id} className="flex items-start gap-2 rounded-2xl border pl-border p-3">
+                  {it.checkable && (
                     <button
                       type="button"
-                      onClick={() => onEditItem(it)}
-                      className="flex-1 text-left"
+                      onClick={() => toggleItem(it.id)}
+                      className={it.completed ? 'text-emerald-500' : 'text-slate-300'}
+                      aria-label="Toggle complete"
                     >
-                      <div
-                        className={`font-medium pl-text ${
-                          it.completed ? 'line-through opacity-60' : ''
-                        }`}
-                      >
-                        {item.emoji} {it.title}
-                      </div>
-                      <div className="text-xs pl-text-muted">
-                        {it.category}
-                        {it.timeBlock?.enabled
-                          ? ` · ${formatTime(it.timeBlock.time, settings.timeFormat)}`
-                          : ''}
-                        {it.priority ? ` · ${it.priority} priority` : ''}
-                      </div>
-                      {it.description && (
-                        <div className="mt-1 text-sm pl-text-muted">{it.description}</div>
-                      )}
+                      {it.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
                     </button>
-                  </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onEditItem(it)}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <div
+                      className={`font-medium pl-text ${
+                        it.completed ? 'line-through opacity-60' : ''
+                      }`}
+                    >
+                      {item.emoji} {it.title}
+                    </div>
+                    <div className="text-xs pl-text-muted">
+                      {it.category}
+                      {it.timeBlock?.enabled
+                        ? ` · ${formatTime(it.timeBlock.time, settings.timeFormat)}`
+                        : ''}
+                      {it.priority ? ` · ${it.priority} priority` : ''}
+                    </div>
+                    {it.description && (
+                      <div className="mt-1 text-sm pl-text-muted">{it.description}</div>
+                    )}
+                  </button>
+                  <RowActions
+                    onEdit={() => onEditItem(it)}
+                    onDelete={() =>
+                      window.confirm(`Delete "${it.title}"?`) && deleteItem(it.id)
+                    }
+                  />
                 </div>
               )
             }
             const s = item.ref
+            const parent = assessments.find((a) => a.id === s.assessmentId)
             return (
-              <div
-                key={item.id}
-                className="rounded-2xl border pl-border p-3"
-              >
-                <div className="flex items-start gap-3">
-                  <button
-                    type="button"
-                    onClick={() => toggleSession(s.id)}
-                    className={s.completed ? 'text-emerald-500' : 'text-slate-300'}
-                  >
-                    {s.completed ? (
-                      <CheckCircle2 size={22} />
-                    ) : (
-                      <Circle size={22} />
-                    )}
-                  </button>
-                  <div className="flex-1">
+              <div key={item.id} className="flex items-start gap-2 rounded-2xl border pl-border p-3">
+                <button
+                  type="button"
+                  onClick={() => toggleSession(s.id)}
+                  className={s.completed ? 'text-emerald-500' : 'text-slate-300'}
+                >
+                  {s.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
+                </button>
+                <div className="min-w-0 flex-1">
                     <div
                       className={`font-medium pl-text ${
                         s.completed ? 'line-through opacity-60' : ''
@@ -155,8 +193,16 @@ export default function DayDetailModal({
                         ))}
                       </div>
                     )}
-                  </div>
                 </div>
+                {parent && (
+                  <RowActions
+                    onEdit={() => onEditAssessment(parent)}
+                    onDelete={() =>
+                      window.confirm(`Delete "${parent.title}" and its study plan?`) &&
+                      deleteAssessment(parent.id)
+                    }
+                  />
+                )}
               </div>
             )
           })}
