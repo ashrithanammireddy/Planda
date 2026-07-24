@@ -13,6 +13,7 @@ import {
 import { useStore } from '../store/StoreContext'
 import { categoryColor } from '../lib/constants'
 import { HOLIDAY_SETS } from '../lib/holidays'
+import Avatar from './Avatar'
 
 // Primary navigation. Account lives at the bottom-left.
 export const NAV = [
@@ -45,7 +46,7 @@ export default function Sidebar({
     fn()
   }
 
-  const { classes, items, settings, toggleCalendar } = useStore()
+  const { classes, items, settings, toggleCalendar, profile } = useStore()
   const hidden = settings.hiddenCalendars || []
   const usedCats = [...new Set(items.map((i) => i.category))].filter(Boolean)
   const holidayKeys = Object.keys(HOLIDAY_SETS)
@@ -159,7 +160,7 @@ export default function Sidebar({
                 onClick={() => pick(onProfile)}
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium pl-text transition hover:pl-surface-2"
               >
-                <span className="text-lg leading-none">{avatar || '🐼'}</span>
+                <Avatar value={avatar} glasses={profile.glasses} hat={profile.hat} size={22} />
                 Profile
               </button>
               <button
@@ -193,9 +194,7 @@ export default function Sidebar({
           }`}
         >
           <span className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full pl-surface-2 text-lg">
-              {avatar || '🐼'}
-            </span>
+            <Avatar value={avatar} glasses={profile.glasses} hat={profile.hat} size={36} />
             {!collapsed && <span className="truncate">{name || 'Account'}</span>}
           </span>
           {!collapsed && (

@@ -6,6 +6,7 @@ import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
 import { POD, FRIENDS, STATUS_LABEL, CHEERS } from '../../lib/friends'
 import FocusRoom from '../FocusRoom'
+import Avatar from '../Avatar'
 
 const statusDot = {
   focusing: 'bg-emerald-500',
@@ -31,6 +32,8 @@ export default function FriendsSection() {
     id: 'me',
     name: profile.name || 'You',
     avatar: profile.avatar || '🐼',
+    glasses: profile.glasses,
+    hat: profile.hat,
     streak: stats.streak,
     weeklyMinutes: stats.weeklyMinutes,
     points: myPoints,
@@ -79,12 +82,12 @@ export default function FriendsSection() {
             <div className="mt-3 flex items-center gap-2 text-sm pl-text-muted">
               <div className="flex -space-x-2">
                 {focusingNow.map((f) => (
-                  <span
+                  <Avatar
                     key={f.id}
-                    className="flex h-7 w-7 items-center justify-center rounded-full pl-surface text-base ring-2 ring-[var(--planda-surface)]"
-                  >
-                    {f.avatar}
-                  </span>
+                    value={f.avatar}
+                    size={28}
+                    className="ring-2 ring-[var(--planda-surface)]"
+                  />
                 ))}
               </div>
               {focusingNow.length} focusing now
@@ -109,16 +112,14 @@ export default function FriendsSection() {
             <div className="text-sm pl-text-muted">Weekly goal</div>
           </div>
           <div className="flex -space-x-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full pl-surface-2 text-lg ring-2 ring-[var(--planda-surface)]">
-              {me.avatar}
-            </span>
+            <Avatar value={me.avatar} glasses={me.glasses} hat={me.hat} size={36} className="ring-2 ring-[var(--planda-surface)]" />
             {FRIENDS.map((f) => (
-              <span
+              <Avatar
                 key={f.id}
-                className="flex h-9 w-9 items-center justify-center rounded-full pl-surface-2 text-lg ring-2 ring-[var(--planda-surface)]"
-              >
-                {f.avatar}
-              </span>
+                value={f.avatar}
+                size={36}
+                className="ring-2 ring-[var(--planda-surface)]"
+              />
             ))}
           </div>
         </div>
@@ -151,9 +152,7 @@ export default function FriendsSection() {
               <span className="w-6 text-center text-sm font-bold pl-text-muted">
                 {medal[i] || i + 1}
               </span>
-              <span className="flex h-9 w-9 items-center justify-center rounded-full pl-surface-2 text-lg">
-                {p.avatar}
-              </span>
+              <Avatar value={p.avatar} glasses={p.glasses} hat={p.hat} size={36} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 font-semibold pl-text">
                   {p.name}

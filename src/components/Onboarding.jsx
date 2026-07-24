@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { useStore } from '../store/StoreContext'
 import pandaUrl from '../assets/planda-book.png'
-
-const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
+import { AVATARS, DEFAULT_AVATAR } from '../lib/avatars'
+import AnimalAvatar from './AnimalAvatar'
 
 // Shown once after signing in: set up your local profile.
 export default function Onboarding({ onDone }) {
   const { profile, updateProfile } = useStore()
   const [name, setName] = useState(profile.name || '')
   const [school, setSchool] = useState(profile.school || '')
-  const [avatar, setAvatar] = useState(profile.avatar || '🐼')
+  const [avatar, setAvatar] = useState(profile.avatar || DEFAULT_AVATAR)
 
   const finish = () => {
     updateProfile({ name: name.trim(), school: school.trim(), avatar })
@@ -39,19 +39,21 @@ export default function Onboarding({ onDone }) {
 
         <div className="mt-5">
           <span className="mb-1.5 block text-sm font-semibold text-slate-700">Pick an avatar</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-6 place-items-center gap-2">
             {AVATARS.map((a) => (
               <button
-                key={a}
+                key={a.id}
                 type="button"
-                onClick={() => setAvatar(a)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border-2 text-xl transition"
-                style={{
-                  borderColor: avatar === a ? '#34a98a' : 'rgba(0,0,0,.12)',
-                  background: avatar === a ? 'rgba(52,169,138,.14)' : 'transparent',
-                }}
+                onClick={() => setAvatar(a.id)}
+                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+                style={
+                  avatar === a.id
+                    ? { outline: '2px solid #34a98a', outlineOffset: 2 }
+                    : undefined
+                }
+                aria-label={a.id}
               >
-                {a}
+                <AnimalAvatar id={a.id} size={44} />
               </button>
             ))}
           </div>

@@ -368,6 +368,8 @@ function PlandaApp() {
         setSection={goTo}
         onOpenAI={openAI}
         avatar={profile.avatar}
+        glasses={profile.glasses}
+        hat={profile.hat}
         iconHidden={entering}
       />
 

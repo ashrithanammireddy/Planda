@@ -15,6 +15,10 @@ import {
 import { generateStudySessions } from '../lib/studyPlan'
 import { DEFAULT_CATEGORIES } from '../lib/gradeEngine'
 import { HOLIDAY_SETS } from '../lib/holidays'
+import { AVATAR_IDS } from '../lib/avatars'
+
+const randomAvatar = () =>
+  AVATAR_IDS[Math.floor(Math.random() * AVATAR_IDS.length)]
 
 // One-time migration: earlier versions filed holidays under different
 // categories/titles, so a holiday could end up duplicated on the same day. Any
@@ -56,7 +60,7 @@ const uid = () =>
   (crypto?.randomUUID?.() ??
     `id-${Math.random().toString(36).slice(2)}${Date.now()}`)
 
-const DEFAULT_PROFILE = { name: '', school: '', avatar: '🐼' }
+const DEFAULT_PROFILE = { name: '', school: '', avatar: 'panda', glasses: 'none', hat: 'none' }
 
 const DEFAULT_SETTINGS = {
   appearance: 'Auto', // Light | Dark | Auto (Auto follows the theme color)
@@ -83,7 +87,7 @@ function seedState() {
     items: [],
     focusLog: [],
     grades: {},
-    profile: { ...DEFAULT_PROFILE },
+    profile: { ...DEFAULT_PROFILE, avatar: randomAvatar() },
     settings: { ...DEFAULT_SETTINGS },
   }
 }

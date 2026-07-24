@@ -1,9 +1,10 @@
 import { NAV } from './Sidebar'
 import bookPandaUrl from '../assets/planda-book.png'
+import Avatar from './Avatar'
 
 // Bottom tab bar for small screens (hidden at lg+). Panda in the middle opens
 // the Study Assistant; the avatar on the right opens the account area.
-export default function MobileNav({ section, setSection, onOpenAI, avatar, iconHidden }) {
+export default function MobileNav({ section, setSection, onOpenAI, avatar, glasses, hat, iconHidden }) {
   const tab = ({ id, label, icon: Icon }) => {
     const active = section === id
     return (
@@ -54,7 +55,7 @@ export default function MobileNav({ section, setSection, onOpenAI, avatar, iconH
           accountActive ? '' : 'pl-text'
         }`}
       >
-        <span className="text-xl leading-none">{avatar || '🐼'}</span>
+        <Avatar value={avatar} glasses={glasses} hat={hat} size={24} />
         Account
       </button>
     </nav>

@@ -4,11 +4,16 @@ import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
 import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
+import { AVATARS, GLASSES, HATS } from '../../lib/avatars'
+import Avatar from '../Avatar'
+import AnimalAvatar from '../AnimalAvatar'
 import MilestonesModal from '../MilestonesModal'
+
+const HAT_LABEL = { none: 'None', beanie: 'Beanie', cap: 'Cap', bow: 'Bow', party: 'Party', crown: 'Crown' }
+const GLASSES_LABEL = { none: 'None', round: 'Round', square: 'Square', sun: 'Shades' }
 
 const field = 'pl-field w-full rounded-xl border px-3.5 py-2.5 text-sm transition'
 const label = 'mb-1.5 block text-sm font-semibold pl-text'
-const AVATARS = ['🐼', '🐨', '🦊', '🐱', '🐧', '🦉', '🐢', '🌱', '⭐', '🔥']
 
 export default function ProfileSection() {
   const { profile, updateProfile, settings, assessments, sessions, items, focusLog } =
@@ -37,9 +42,12 @@ export default function ProfileSection() {
       <h1 className="mb-6 text-2xl font-bold pl-text">Profile</h1>
 
       <div className="mb-4 flex items-center gap-4 rounded-3xl border pl-border pl-surface p-5">
-        <span className="flex h-20 w-20 items-center justify-center rounded-full pl-surface-2 text-5xl leading-none">
-          {profile.avatar || '🐼'}
-        </span>
+        <Avatar
+          value={profile.avatar}
+          glasses={profile.glasses}
+          hat={profile.hat}
+          size={80}
+        />
         <div>
           <div className="text-xl font-bold pl-text">
             {profile.name || 'Your name'}
@@ -123,23 +131,66 @@ export default function ProfileSection() {
 
       <div className="rounded-3xl border pl-border pl-surface p-5">
         <div className="mb-4">
-          <span className={label}>Avatar</span>
-          <div className="flex flex-wrap gap-2">
+          <span className={label}>Animal</span>
+          <div className="grid grid-cols-6 gap-3 place-items-center sm:grid-cols-9">
             {AVATARS.map((a) => (
               <button
-                key={a}
+                key={a.id}
                 type="button"
-                onClick={() => updateProfile({ avatar: a })}
+                onClick={() => updateProfile({ avatar: a.id })}
                 style={
-                  profile.avatar === a
-                    ? { borderColor: 'var(--planda-accent)' }
+                  profile.avatar === a.id
+                    ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
                     : undefined
                 }
-                className={`flex h-11 w-11 items-center justify-center rounded-xl border text-2xl transition hover:pl-surface-2 ${
-                  profile.avatar === a ? 'pl-accent-soft' : 'pl-border'
-                }`}
+                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+                aria-label={a.id}
               >
-                {a}
+                <AnimalAvatar id={a.id} size={44} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <span className={label}>Glasses</span>
+          <div className="flex flex-wrap gap-3">
+            {GLASSES.map((g) => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => updateProfile({ glasses: g })}
+                title={GLASSES_LABEL[g]}
+                style={
+                  profile.glasses === g
+                    ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
+                    : undefined
+                }
+                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+              >
+                <AnimalAvatar id={profile.avatar} glasses={g} hat="none" size={44} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <span className={label}>Headwear</span>
+          <div className="flex flex-wrap gap-3">
+            {HATS.map((h) => (
+              <button
+                key={h}
+                type="button"
+                onClick={() => updateProfile({ hat: h })}
+                title={HAT_LABEL[h]}
+                style={
+                  profile.hat === h
+                    ? { outline: '2.5px solid var(--planda-accent)', outlineOffset: 2 }
+                    : undefined
+                }
+                className="h-11 w-11 overflow-hidden rounded-full transition hover:-translate-y-0.5"
+              >
+                <AnimalAvatar id={profile.avatar} glasses="none" hat={h} size={44} />
               </button>
             ))}
           </div>
