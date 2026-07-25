@@ -73,6 +73,7 @@ const DEFAULT_SETTINGS = {
   hiddenCalendars: [], // calendar ids toggled off (e.g. "class:<id>", "cat:Holidays")
   pinnedBadges: [], // up to 3 badge ids pinned to the profile trophy shelf
   weeklyGoal: 300, // your personal weekly focus-minutes goal
+  sampleLoaded: false, // sample data can only be added once
 }
 
 function seedState() {
@@ -252,8 +253,9 @@ function reducer(state, action) {
       return { ...state, sessions }
     }
     case 'LOAD_SAMPLE': {
-      // Just a few simple examples, ADDED to what's there (never wipes your
-      // data) and easy to delete one by one.
+      // One-time only: a few simple examples, ADDED to what's there (never wipes
+      // your data) and easy to delete one by one.
+      if (state.settings.sampleLoaded) return state
       const key = (d) =>
         `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
           d.getDate()
@@ -274,6 +276,7 @@ function reducer(state, action) {
         items: [...state.items, ...sampleItems],
         assessments,
         sessions: rebuildSessions(assessments, state.classes, state.sessions),
+        settings: { ...state.settings, sampleLoaded: true },
       }
     }
     case 'LOG_FOCUS': {

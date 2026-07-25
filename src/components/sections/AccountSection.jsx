@@ -110,16 +110,18 @@ export default function AccountSection({ onOpenSettings, onOpenImport }) {
             </button>
           }
         />
-        <Row
-          icon={<Sparkles size={18} />}
-          title="Load sample data"
-          desc="Fill Planda with example classes, assessments, and tasks to explore."
-          action={
-            <button type="button" onClick={loadSample} className={btn}>
-              Load
-            </button>
-          }
-        />
+        {!settings.sampleLoaded && (
+          <Row
+            icon={<Sparkles size={18} />}
+            title="Load sample data"
+            desc="Add a few example items to explore. You can do this once."
+            action={
+              <button type="button" onClick={loadSample} className={btn}>
+                Load
+              </button>
+            }
+          />
+        )}
         <Row
           icon={<Download size={18} />}
           title="Export data"
