@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 
 // Vector medals: a vibrant colored seal (per badge) with a clean white face and
-// a bold icon. Tier adds flair — bronze is clean, silver gets an accent ring,
+// a bold icon. Tier adds flair: bronze is clean, silver gets an accent ring,
 // gold gets a golden rim + shine + sparkles. Locked = lightly dimmed with a
 // small corner lock so the design still peeks through.
 
@@ -89,7 +89,7 @@ export default function BadgeMedal({ badge, size = 64 }) {
         )}
       </svg>
 
-      {/* icon — visible even when locked (dimmed) for a sneak peek */}
+      {/* icon, visible even when locked (dimmed) for a sneak peek */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Icon size={size * 0.36} strokeWidth={2.5} color={p.deep} style={{ opacity: earned ? 1 : 0.45 }} />
       </div>

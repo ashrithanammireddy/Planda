@@ -4,7 +4,7 @@ const SIZE = 160 // starting circle diameter (px)
 
 // Shown right after sign-in: a frosted background with the animated panda in a
 // circle. After a beat the circle flies into the "Ask Planda" icon while the
-// frosted backdrop clears — the panda circle itself stays fully visible the
+// frosted backdrop clears, the panda circle itself stays fully visible the
 // whole way, so you can see where it's going. onDone fires when it lands.
 export default function PostLoginLoader({ onDone }) {
   const [moved, setMoved] = useState(false)
@@ -46,7 +46,7 @@ export default function PostLoginLoader({ onDone }) {
 
   return (
     <div className="fixed inset-0 z-[70]">
-      {/* frosted backdrop — clears gently so the app shows through */}
+      {/* frosted backdrop, clears gently so the app shows through */}
       <div
         className="absolute inset-0"
         style={{
@@ -57,7 +57,7 @@ export default function PostLoginLoader({ onDone }) {
           transition: 'opacity 820ms ease-in-out',
         }}
       />
-      {/* the panda circle — travels to Ask Planda, stays fully opaque */}
+      {/* the panda circle, travels to Ask Planda, stays fully opaque */}
       <div
         className="fixed overflow-hidden rounded-full shadow-lg ring-2 ring-white/60"
         style={{

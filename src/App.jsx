@@ -20,6 +20,7 @@ import Login from './components/Login'
 import Onboarding from './components/Onboarding'
 import PostLoginLoader from './components/PostLoginLoader'
 import ImportModal from './components/ImportModal'
+import Tutorial from './components/Tutorial'
 import AppSkeleton from './components/Skeleton'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
@@ -41,7 +42,7 @@ const NEUTRAL_BG = '#e8eaee'
 const DARK_BG = '#14161c'
 
 function PlandaApp() {
-  const { settings, profile, updateProfile } = useStore()
+  const { settings, profile, updateProfile, updateSettings } = useStore()
 
   const [authed, setAuthed] = useState(
     () => !!localStorage.getItem('planda.authed')
@@ -129,6 +130,21 @@ function PlandaApp() {
   // Brief skeleton while webfonts settle, so first paint is smooth (no spinner).
   const [booting, setBooting] = useState(true)
   const [detailDay, setDetailDay] = useState(null)
+  const [tourOpen, setTourOpen] = useState(false)
+
+  // First-run walkthrough: show it once the app is ready (after the loader),
+  // only if it hasn't been seen. Closing it marks it seen so it won't return.
+  useEffect(() => {
+    if (authed && onboarded && !booting && !entering && !settings.tourSeen) {
+      setTourOpen(true)
+    }
+  }, [authed, onboarded, booting, entering, settings.tourSeen])
+
+  const closeTour = () => {
+    setTourOpen(false)
+    if (!settings.tourSeen) updateSettings({ tourSeen: true })
+  }
+  const startTour = () => setTourOpen(true)
 
   // Theme the whole app from the chosen background color. The color is ALWAYS
   // the real page background (never overridden); we only decide whether to use
@@ -138,12 +154,16 @@ function PlandaApp() {
     const chosen = isValidColor(settings.backgroundColor)
       ? settings.backgroundColor
       : NEUTRAL_BG
-    const dark =
+    const wantDark =
       settings.appearance === 'Dark' ||
       (settings.appearance === 'Auto' && isColorDark(chosen))
     // In dark mode the page is a consistent neutral dark; the chosen color only
     // drives the accent. In light mode the chosen color IS the page background.
-    const pageBg = dark ? DARK_BG : chosen
+    const pageBg = wantDark ? DARK_BG : chosen
+    // Decide light-vs-dark TEXT from the ACTUAL page background, not just the
+    // appearance setting, so a dark theme color (e.g. black) picked under Light
+    // still gets readable light text instead of black-on-black.
+    const dark = isColorDark(pageBg)
     const t = themeTokens(pageBg, dark)
     const accentL = dark ? 70 : 57
     const root = document.documentElement
@@ -362,8 +382,8 @@ function PlandaApp() {
 
       {section === 'calendar' && (
         <Fab
-          onAddItem={() => openNewItem()}
-          onAddAssessment={() => openNewAssessment()}
+          onAddItem={() => openNewItem(date)}
+          onAddAssessment={() => openNewAssessment(date)}
         />
       )}
 
@@ -386,9 +406,14 @@ function PlandaApp() {
           setSettingsOpen(false)
           setImportOpen(true)
         }}
+        onStartTour={() => {
+          setSettingsOpen(false)
+          startTour()
+        }}
       />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <StudyAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
+      <Tutorial open={tourOpen} onClose={closeTour} />
       <FocusRoom />
       <FocusPill />
       <DayDetailModal

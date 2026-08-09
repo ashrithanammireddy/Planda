@@ -74,6 +74,8 @@ const DEFAULT_SETTINGS = {
   pinnedBadges: [], // up to 3 badge ids pinned to the profile trophy shelf
   weeklyGoal: 300, // your personal weekly focus-minutes goal
   sampleLoaded: false, // sample data can only be added once
+  shareStats: true, // share your streak/minutes/points/badges with friends
+  tourSeen: false, // the first-run feature walkthrough has been shown
 }
 
 function seedState() {

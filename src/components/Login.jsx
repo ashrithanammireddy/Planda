@@ -119,22 +119,22 @@ export default function Login({ onDone, notice = '' }) {
       const key = email.trim().toLowerCase()
       if (emailMode === 'signin' && code === 'auth/wrong-password') {
         // Enumeration protection OFF: Firebase tells us the account exists and
-        // only the password is wrong — show a clean error, never flip.
+        // only the password is wrong, show a clean error, never flip.
         setAuthError('Incorrect password. Please try again.')
       } else if (emailMode === 'signin' && code === 'auth/user-not-found') {
         // Enumeration protection OFF: definitely a new person.
         setEmailMode('signup')
-        setInfo("Looks like you're new here — finish creating your account.")
+        setInfo("Looks like you're new here, finish creating your account.")
       } else if (emailMode === 'signin' && code === 'auth/invalid-credential') {
         // Enumeration protection ON: ambiguous. Use what we've learned.
         if (knownExisting.current.has(key)) {
           setAuthError('Incorrect password. Please try again.')
         } else {
           setEmailMode('signup')
-          setInfo("Looks like you're new here — finish creating your account.")
+          setInfo("Looks like you're new here, finish creating your account.")
         }
       } else if (emailMode === 'signup' && code === 'auth/email-already-in-use') {
-        // Definitive: they already have an account — send them back to sign in.
+        // Definitive: they already have an account, send them back to sign in.
         knownExisting.current.add(key)
         setEmailMode('signin')
         setInfo('You already have an account. Enter your password to sign in.')
@@ -153,14 +153,10 @@ export default function Login({ onDone, notice = '' }) {
     setProvider(p)
   }
   const providerNext = () => {
-    if (pStep === 1) {
-      if (validProviderEmail) setPStep(2)
-      return
-    }
-    if (providerPass.length >= 4) {
-      setProvider(null)
-      onDone('account')
-    }
+    // Demo mode: an email is enough, we never collect a real password.
+    if (!validProviderEmail) return
+    setProvider(null)
+    onDone('account')
   }
 
   // Show the log-out confirmation toast briefly, then let it fade away.
@@ -417,7 +413,7 @@ export default function Login({ onDone, notice = '' }) {
         </div>
 
         {/* Local-only shortcut so you can run it without signing in. This is
-            hidden in production builds — the real app requires an account. */}
+            hidden in production builds, the real app requires an account. */}
         {import.meta.env.DEV && (
           <button
             type="button"
@@ -442,69 +438,48 @@ export default function Login({ onDone, notice = '' }) {
             <div className="flex flex-col items-center gap-2 px-7 pt-7 text-center">
               {provider === 'google' ? <GoogleG size={26} /> : <AppleGlyph size={26} />}
               <h2 className="text-[17px] font-semibold text-slate-900">
-                {pStep === 1
-                  ? `Sign in ${provider === 'google' ? 'with Google' : 'with Apple'}`
-                  : 'Welcome'}
+                Continue {provider === 'google' ? 'with Google' : 'with Apple'}
               </h2>
-              <p className="text-sm text-slate-500">
-                {pStep === 1 ? 'to continue to Planda' : providerEmail}
-              </p>
+              <p className="text-sm text-slate-500">to continue to Planda</p>
             </div>
 
             <div className="px-7 pb-3 pt-5">
-              {pStep === 1 ? (
-                <>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                    {provider === 'google' ? 'Email or phone' : 'Apple Account'}
-                  </label>
-                  <input
-                    type="email"
-                    autoFocus
-                    value={providerEmail}
-                    onChange={(e) => setProviderEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && providerNext()}
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
-                  />
-                </>
-              ) : (
-                <>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                    Enter your password
-                  </label>
-                  <input
-                    type="password"
-                    autoFocus
-                    value={providerPass}
-                    onChange={(e) => setProviderPass(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && providerNext()}
-                    placeholder="Password"
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
-                  />
-                </>
-              )}
-              <p className="mt-2 text-[11px] leading-snug text-slate-400">
-                Demo sign-in for the app challenge. Nothing is sent anywhere and
-                no real account is used.
-              </p>
+              {/* Prominent, up-front: this is a demo and never asks for a real
+                  password, so no one types their actual Google/Apple credentials. */}
+              <div className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-700">
+                Demo sign-in for the app challenge. Just enter an email to continue,
+                no password and no real account.
+              </div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                {provider === 'google' ? 'Email' : 'Apple Account'}
+              </label>
+              <input
+                type="email"
+                autoFocus
+                value={providerEmail}
+                onChange={(e) => setProviderEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && providerNext()}
+                placeholder="you@example.com"
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/25"
+              />
             </div>
 
             <div className="flex items-center justify-between px-7 pb-6 pt-2">
               <button
                 type="button"
-                onClick={() => (pStep === 2 ? setPStep(1) : setProvider(null))}
+                onClick={() => setProvider(null)}
                 className="text-sm font-semibold text-slate-500 transition hover:text-slate-700"
               >
-                {pStep === 2 ? 'Back' : 'Cancel'}
+                Cancel
               </button>
               <button
                 type="button"
-                disabled={pStep === 1 ? !validProviderEmail : providerPass.length < 4}
+                disabled={!validProviderEmail}
                 onClick={providerNext}
                 className="rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-40 disabled:hover:translate-y-0"
                 style={{ background: provider === 'google' ? '#4285F4' : '#111' }}
               >
-                {pStep === 1 ? 'Next' : 'Sign in'}
+                Continue
               </button>
             </div>
           </div>

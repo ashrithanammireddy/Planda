@@ -51,7 +51,7 @@ function parseDate(t) {
     if (d < today) d.setFullYear(d.getFullYear() + 1)
     return mk(d)
   }
-  // numeric 7/29 (slash only — hyphens like "ch 2-6" are chapter ranges)
+  // numeric 7/29 (slash only: hyphens like "ch 2-6" are chapter ranges)
   const num = t.match(/\b(\d{1,2})\/(\d{1,2})\b/)
   if (num) {
     const d = new Date(today.getFullYear(), Number(num[1]) - 1, Number(num[2]))
@@ -75,8 +75,8 @@ function extractTitle(raw, { type, subject }) {
     .replace(/\b\d{1,2}\/\d{1,2}\b/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-  // Drop ONE leading command-object noun (e.g. "a test", "my quiz") — the thing
-  // being created — but keep later mentions that are part of the real title.
+  // Drop ONE leading command-object noun (e.g. "a test", "my quiz"), the thing
+  // being created, but keep later mentions that are part of the real title.
   s = s.replace(/^(a|an|the|my)?\s*(assessments?|tests?|quiz(z?es)?|exams?|midterms?|finals?|homework|assignments?|essays?|projects?|papers?|readings?|tasks?|to-?dos?)\b/i, '').trim()
   s = s.replace(/^(for|my|a|an|the)\s+/i, '').trim()
   // Trim dangling prepositions/articles left at either end after date removal.

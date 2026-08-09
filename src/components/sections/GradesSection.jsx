@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Trash2, Target, FlaskConical } from 'lucide-react'
+import { Plus, Trash2, Target, FlaskConical, ChevronLeft } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import {
   calcOverallGrade,
@@ -15,12 +15,22 @@ const TARGETS = [
   ['C+', 77], ['C', 73], ['C-', 70], ['D', 63],
 ]
 
+// Calm semantic grade colors that sit well against Planda's mint palette.
+function gradeColor(pct) {
+  if (pct == null) return 'var(--planda-text-muted)'
+  if (pct >= 90) return '#3fae86' // A range
+  if (pct >= 80) return '#4f9bb5' // B range
+  if (pct >= 70) return '#d3a24d' // C range
+  return '#d67f6d' // D and below
+}
+
 export default function GradesSection() {
   const { classes, grades, gradeAddItem, gradeDeleteItem, gradeUpdateItem, gradeSetWeight } =
     useStore()
 
-  const [classId, setClassId] = useState(classes[0]?.id || '')
-  const [includeWhatIf, setIncludeWhatIf] = useState(true)
+  // null = the dashboard overview; a class id = that class's detail screen.
+  const [openId, setOpenId] = useState(null)
+  const [includeWhatIf, setIncludeWhatIf] = useState(false)
   const [form, setForm] = useState({ name: '', categoryId: '', earned: '', possible: '' })
   const [whatIfNew, setWhatIfNew] = useState(false)
   const [target, setTarget] = useState('A-')
@@ -28,21 +38,19 @@ export default function GradesSection() {
   const [currentGrade, setCurrentGrade] = useState('')
 
   const clsFor = (id) => grades[id] || { categories: DEFAULT_CATEGORIES, items: [] }
-  const cls = useMemo(() => clsFor(classId), [grades, classId])
-  const cats = cls.categories
-  const catName = (id) => cats.find((c) => c.id === id)?.name || id
 
-  const overall = useMemo(
-    () => calcOverallGrade(cls, { includeHypothetical: includeWhatIf }),
-    [cls, includeWhatIf]
-  )
-
-  // GPA across all classes (uses real grades only).
+  // One grade summary per class, used by the dashboard cards and the GPA number.
   const overview = useMemo(
     () =>
       classes.map((c) => {
-        const p = calcOverallGrade(clsFor(c.id), { includeHypothetical: false }).percent
-        return { c, percent: p, letter: letterGrade(p), points: gradePoints(p) }
+        const g = calcOverallGrade(clsFor(c.id), { includeHypothetical: false })
+        return {
+          c,
+          percent: g.percent,
+          letter: letterGrade(g.percent),
+          points: gradePoints(g.percent),
+          cats: g.byCategory.filter((x) => x.percent != null),
+        }
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [classes, grades]
@@ -51,17 +59,11 @@ export default function GradesSection() {
   const gpa = graded.length
     ? graded.reduce((s, o) => s + o.points, 0) / graded.length
     : null
-
-  const targetPct = TARGETS.find(([l]) => l === target)?.[1] ?? 90
-  // Use the grade the student typed (from their portal); fall back to the
-  // grade computed from any assignments they entered.
-  const currentVal = currentGrade !== '' ? Number(currentGrade) : overall.percent
-  const need = neededOnFinal(currentVal, finalWeight, targetPct)
-  const accent = 'var(--planda-accent)'
+  const needAttention = graded.filter((o) => o.percent < 80).length
 
   if (!classes.length) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
         <h1 className="mb-2 text-2xl font-bold pl-text">Grades</h1>
         <div className="rounded-2xl border pl-border pl-surface p-8 text-center text-sm pl-text-muted">
           Add a class in Settings first, then track its grades here.
@@ -69,6 +71,96 @@ export default function GradesSection() {
       </div>
     )
   }
+
+  /* ---------------------------- Overview grid ---------------------------- */
+  if (!openId) {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-4 text-2xl font-bold pl-text">Grades</h1>
+
+        {/* GPA header (no class-average, per design) */}
+        <div className="mb-4 flex items-center justify-between rounded-3xl border pl-border pl-surface p-5">
+          <div>
+            <div
+              className="text-4xl font-extrabold leading-none pl-accent-text"
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
+              {gpa == null ? '-' : gpa.toFixed(2)}
+            </div>
+            <div className="mt-1.5 text-xs font-bold uppercase tracking-wide pl-text-muted">
+              GPA · {classes.length} {classes.length === 1 ? 'class' : 'classes'}
+            </div>
+          </div>
+          {needAttention > 0 && (
+            <div className="text-right text-xs font-semibold pl-text-muted">
+              {needAttention} to watch
+              <div className="text-[11px] font-normal">below a B</div>
+            </div>
+          )}
+        </div>
+
+        {/* Class cards */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {overview.map((o) => (
+            <button
+              key={o.c.id}
+              type="button"
+              onClick={() => setOpenId(o.c.id)}
+              className="flex flex-col overflow-hidden rounded-2xl border pl-border pl-surface text-left shadow-sm transition hover:brightness-[.98] hover:-translate-y-0.5"
+            >
+              <div className="h-1.5 w-full" style={{ backgroundColor: o.c.color }} />
+              <div className="flex flex-1 flex-col p-3.5">
+                <div className="truncate text-sm font-semibold pl-text">{o.c.name}</div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span
+                    className="text-[26px] font-extrabold leading-none"
+                    style={{ color: gradeColor(o.percent) }}
+                  >
+                    {o.letter}
+                  </span>
+                  <span
+                    className="text-xs font-semibold pl-text-muted"
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    {o.percent == null ? 'no grades' : `${o.percent.toFixed(1)}%`}
+                  </span>
+                </div>
+                {/* Always render this row so every card is the same height and
+                    the top stripes line up across the grid. */}
+                <div className="mt-auto flex gap-1 pt-2.5">
+                  {(o.cats.length ? o.cats.slice(0, 4) : [null, null, null]).map(
+                    (cat, i) => (
+                      <span
+                        key={cat ? cat.id : i}
+                        className="h-1 flex-1 rounded-full"
+                        style={{
+                          backgroundColor: cat ? gradeColor(cat.percent) : 'var(--planda-surface-2)',
+                        }}
+                        title={cat ? `${cat.name}: ${Math.round(cat.percent)}%` : undefined}
+                      />
+                    )
+                  )}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  /* ---------------------------- Class detail ---------------------------- */
+  const classId = openId
+  const cls = clsFor(classId)
+  const cats = cls.categories
+  const catName = (id) => cats.find((c) => c.id === id)?.name || id
+  const theClass = classes.find((c) => c.id === classId)
+  const overall = calcOverallGrade(cls, { includeHypothetical: includeWhatIf })
+
+  const targetPct = TARGETS.find(([l]) => l === target)?.[1] ?? 90
+  const currentVal = currentGrade !== '' ? Number(currentGrade) : overall.percent
+  const need = neededOnFinal(currentVal, finalWeight, targetPct)
+  const accent = 'var(--planda-accent)'
 
   const addItem = (e) => {
     e.preventDefault()
@@ -86,57 +178,44 @@ export default function GradesSection() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-4 text-2xl font-bold pl-text">Grades</h1>
+      {/* Back to the dashboard */}
+      <button
+        type="button"
+        onClick={() => setOpenId(null)}
+        className="mb-3 inline-flex items-center gap-1 text-sm font-semibold pl-text-muted transition hover:pl-text"
+      >
+        <ChevronLeft size={16} /> All grades
+      </button>
 
-      {/* GPA overview across classes */}
-      <div className="mb-4 rounded-3xl border pl-border pl-surface p-5">
-        <div className="flex flex-wrap items-center gap-5">
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-extrabold pl-accent-text leading-none">
-              {gpa == null ? '—' : gpa.toFixed(2)}
-            </span>
-            <span className="mt-1 text-xs font-semibold pl-text-muted">GPA</span>
-          </div>
-          <div className="flex flex-1 flex-wrap gap-2">
-            {overview.map((o) => (
-              <button
-                key={o.c.id}
-                type="button"
-                onClick={() => setClassId(o.c.id)}
-                style={
-                  o.c.id === classId
-                    ? { borderColor: 'var(--planda-accent)' }
-                    : undefined
-                }
-                className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm transition hover:pl-surface-2 ${
-                  o.c.id === classId ? 'pl-accent-soft' : 'pl-border'
-                }`}
-              >
-                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: o.c.color }} />
-                <span className="pl-text">{o.c.name}</span>
-                <span className="font-bold pl-text">{o.letter}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Selected class */}
+      {/* Class header */}
       <div className="mb-4 flex items-center gap-5 rounded-3xl border pl-border pl-surface p-5">
-        <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-2xl pl-accent-soft">
-          <span className="text-3xl font-extrabold pl-accent-text leading-none">
+        <div
+          className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-2xl"
+          style={{ backgroundColor: 'var(--planda-accent-soft)' }}
+        >
+          <span
+            className="text-3xl font-extrabold leading-none"
+            style={{ color: gradeColor(overall.percent) }}
+          >
             {letterGrade(overall.percent)}
           </span>
-          <span className="mt-1 text-sm font-semibold pl-accent-text">
-            {overall.percent == null ? '—' : `${overall.percent.toFixed(1)}%`}
+          <span
+            className="mt-1 text-sm font-semibold pl-text-muted"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
+          >
+            {overall.percent == null ? 'no grades' : `${overall.percent.toFixed(1)}%`}
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="truncate text-sm font-semibold pl-text">
-              {classes.find((c) => c.id === classId)?.name}
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="truncate text-base font-bold pl-text">
+              <span
+                className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"
+                style={{ backgroundColor: theClass?.color }}
+              />
+              {theClass?.name}
             </span>
-            <label className="flex items-center gap-1.5 text-xs pl-text-muted">
+            <label className="flex shrink-0 items-center gap-1.5 text-xs pl-text-muted">
               <input
                 type="checkbox"
                 checked={includeWhatIf}
@@ -157,10 +236,13 @@ export default function GradesSection() {
                 />
                 <span className="w-20 shrink-0 truncate text-xs pl-text-muted">{c.name}</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full pl-surface-2">
-                  <div className="h-full rounded-full" style={{ width: `${c.percent ?? 0}%`, backgroundColor: accent }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${c.percent ?? 0}%`, backgroundColor: gradeColor(c.percent) }}
+                  />
                 </div>
                 <span className="w-12 shrink-0 text-right text-xs font-semibold pl-text">
-                  {c.percent == null ? '—' : `${Math.round(c.percent)}%`}
+                  {c.percent == null ? '-' : `${Math.round(c.percent)}%`}
                 </span>
               </div>
             ))}

@@ -21,7 +21,7 @@ export function categoryColor(name) {
   return ITEM_CATEGORIES.find((c) => c.name === name)?.color || '#c4b5fd'
 }
 
-// How aggressively to study based on difficulty — multiplies the daily minutes
+// How aggressively to study based on difficulty: multiplies the daily minutes
 // and controls how many days before the due date the plan starts.
 export const DIFFICULTY_LEAD_DAYS = {
   Easy: 5,

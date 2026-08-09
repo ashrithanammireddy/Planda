@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Plus, Pencil, Trash2, Check, X, Settings, DownloadCloud,
-  Sun, Moon, Monitor,
+  Sun, Moon, Monitor, Compass,
 } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { ASSESSMENT_TYPES, CLASS_COLORS, VIEWS, THEME_PRESETS } from '../lib/constants'
@@ -35,7 +35,7 @@ function Toggle({ checked, onChange }) {
 }
 
 // General settings (everything that isn't theme). Theme lives in ThemePanel.
-export default function SettingsPanel({ open, onClose, onOpenImport }) {
+export default function SettingsPanel({ open, onClose, onOpenImport, onStartTour }) {
   const { settings, updateSettings, classes, addClass, updateClass, deleteClass } =
     useStore()
   const [newClass, setNewClass] = useState('')
@@ -325,6 +325,28 @@ export default function SettingsPanel({ open, onClose, onOpenImport }) {
                 <span className="block font-semibold pl-text">Import &amp; export</span>
                 <span className="block text-sm pl-text-muted">
                   Google Calendar, Canvas, Google Classroom, holidays, calendar export
+                </span>
+              </span>
+            </button>
+          </>
+        )}
+
+        {/* Help / tour */}
+        {onStartTour && (
+          <>
+            <span className={groupLabel}>Help</span>
+            <button
+              type="button"
+              onClick={onStartTour}
+              className="flex w-full items-center gap-3 rounded-2xl border pl-border p-4 text-left transition hover:pl-surface-2"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl pl-accent-soft pl-accent-text">
+                <Compass size={18} />
+              </span>
+              <span>
+                <span className="block font-semibold pl-text">Take the tour</span>
+                <span className="block text-sm pl-text-muted">
+                  Walk through Planda's features again
                 </span>
               </span>
             </button>

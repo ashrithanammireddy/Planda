@@ -54,7 +54,7 @@ export function computeStats({
     if (activeDays.has(dateKey(cursor))) {
       streak += 1
     } else if (isCurrentDay) {
-      // Today isn't over yet — don't count it, but don't break the streak.
+      // Today isn't over yet, don't count it, but don't break the streak.
     } else if (grace > 0) {
       grace -= 1 // forgive one missed school day
     } else {

@@ -15,8 +15,8 @@ export default function PrivacyModal({ open, onClose }) {
         <div>
           <h3 className="mb-1 font-bold">What is stored</h3>
           <p className="pl-text-muted">
-            Your planner content — classes, assignments, tasks, focus sessions,
-            grades, milestones, and profile details — is stored locally on your
+            Your planner content (classes, assignments, tasks, focus sessions,
+            grades, milestones, and profile details) is stored locally on your
             device. If you sign in, your name and email address are handled by
             the authentication provider (Google, Apple, or email sign-in) solely
             to identify your account.

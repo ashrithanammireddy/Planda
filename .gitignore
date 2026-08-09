@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local env files (Firebase keys etc.) — never commit
+# Local env files (Firebase keys etc.), never commit
 .env
 .env.local
 .env.*.local

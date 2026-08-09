@@ -98,7 +98,7 @@ export default function DayView({ date, onSelectItem }) {
         </div>
       )}
 
-      {/* Hourly agenda — full day, scrolls inside the card */}
+      {/* Hourly agenda: full day, scrolls inside the card */}
       <div className="max-h-[calc(100vh-220px)] flex-1 overflow-y-auto rounded-3xl pl-surface shadow-sm planda-scroll">
         {HOURS.map((h) => {
             const hourItems = timed.filter(

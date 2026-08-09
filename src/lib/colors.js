@@ -17,7 +17,7 @@ export function readableText(bg) {
   return luminance > 0.62 ? '#1f2433' : '#0b3d24'
 }
 
-// Mixes a color toward white by `amount` (0..1) — used for soft backgrounds.
+// Mixes a color toward white by `amount` (0..1), used for soft backgrounds.
 export function tint(hex, amount = 0.6) {
   const rgb = hexToRgb(hex)
   if (!rgb) return hex
@@ -52,7 +52,7 @@ function rgbToHsl({ r, g, b }) {
   return { h: h * 360, s: s * 100, l: l * 100 }
 }
 
-// Derives a vivid "accent" of the same hue as the chosen background color —
+// Derives a vivid "accent" of the same hue as the chosen background color,
 // used for the "today" highlight so it always matches the user's theme vibe.
 // `alpha` < 1 returns a translucent version (handy for soft rings).
 export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
@@ -62,7 +62,7 @@ export function accentColor(bg, { l = 56, alpha = 1 } = {}) {
     a < 1 ? `hsla(220, 4%, ${l}%, ${a})` : `hsl(220, 4%, ${l}%)`
   if (!rgb) return neutral(alpha)
   const { h, s } = rgbToHsl(rgb)
-  // Near-grey themes have no real hue — forcing saturation would invent a
+  // Near-grey themes have no real hue, forcing saturation would invent a
   // random tint, so keep the accent a clean neutral graphite.
   if (s < 18) return neutral(alpha)
   // Keep the accent a softer, on-tone version of the chosen color: pull the

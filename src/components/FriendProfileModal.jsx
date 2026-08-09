@@ -54,31 +54,42 @@ export default function FriendProfileModal({ friend, onClose, onCheer, onRemove 
         </div>
       </div>
 
-      {friend.badges?.length > 0 && (
-        <div className="mt-5">
-          <div className="mb-2 text-sm font-bold pl-text">Milestones</div>
-          <div className="flex flex-wrap gap-4">
-            {friend.badges.map((id) => (
-              <div key={id} className="flex w-16 flex-col items-center gap-1">
-                <BadgeMedal badge={{ id, earned: true, tier: friend.tier || 2 }} size={48} />
-                <span className="text-center text-[10px] font-medium pl-text-muted">
-                  {badgeName(id)}
-                </span>
-              </div>
-            ))}
+      {friend.sharing === false && !friend.isMe ? (
+        <p className="mt-5 rounded-2xl pl-surface-2 px-4 py-3 text-center text-sm pl-text-muted">
+          {friend.name} keeps their study stats private.
+        </p>
+      ) : (
+        friend.badges?.length > 0 && (
+          <div className="mt-5">
+            <div className="mb-2 text-sm font-bold pl-text">Milestones</div>
+            <div className="flex flex-wrap gap-4">
+              {friend.badges.map((id) => (
+                <div key={id} className="flex w-16 flex-col items-center gap-1">
+                  <BadgeMedal
+                    badge={{ id, earned: true, tier: friend.badgeTiers?.[id] || friend.tier || 2 }}
+                    size={48}
+                  />
+                  <span className="text-center text-[10px] font-medium pl-text-muted">
+                    {badgeName(id)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )
       )}
 
-      <button
-        type="button"
-        onClick={() => onCheer?.(friend.id)}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl pl-accent px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:brightness-110"
-      >
-        <Send size={16} /> Send {friend.name} a cheer
-      </button>
+      {!friend.isMe && onCheer && (
+        <button
+          type="button"
+          onClick={() => onCheer(friend.id)}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl pl-accent px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:brightness-110"
+        >
+          <Send size={16} /> Send {friend.name} a cheer
+        </button>
+      )}
 
-      {onRemove && (
+      {onRemove && !friend.isMe && (
         <button
           type="button"
           onClick={() => {

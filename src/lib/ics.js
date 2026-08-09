@@ -1,4 +1,4 @@
-// Minimal iCalendar (.ics) parser — enough to pull assignments/events out of a
+// Minimal iCalendar (.ics) parser, enough to pull assignments/events out of a
 // Canvas / Google Classroom / Google Calendar feed. No dependencies.
 
 function unescapeText(s) {

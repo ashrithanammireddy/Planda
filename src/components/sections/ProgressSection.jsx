@@ -55,11 +55,11 @@ export default function ProgressSection() {
         />
       </div>
 
-      <h2 className="mb-3 mt-8 text-lg font-bold pl-text">Exam readiness</h2>
+      <h2 className="mb-3 mt-8 text-lg font-bold pl-text">Study plan progress</h2>
       {stats.readiness.length === 0 ? (
         <div className="rounded-2xl border pl-border pl-surface p-8 text-center text-sm pl-text-muted">
-          No upcoming assessments yet. Add one and your readiness will build as you
-          complete study sessions.
+          No upcoming assessments yet. Add one and Planda will build a study plan
+          you can work through here.
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -72,18 +72,28 @@ export default function ProgressSection() {
                   {format(parseKey(assessment.dueDate), 'MMM d')}
                 </div>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full pl-surface-2">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${pct}%`, backgroundColor: 'var(--planda-accent)' }}
-                />
-              </div>
-              <div className="mt-1.5 flex justify-between text-xs pl-text-muted">
-                <span>{pct}% ready</span>
-                <span>
-                  {done}/{total} study sessions
-                </span>
-              </div>
+              {total > 0 ? (
+                <>
+                  <div className="h-2.5 w-full overflow-hidden rounded-full pl-surface-2">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${pct}%`, backgroundColor: 'var(--planda-accent)' }}
+                    />
+                  </div>
+                  <div className="mt-1.5 flex justify-between text-xs pl-text-muted">
+                    <span>{pct}% of study plan done</span>
+                    <span>
+                      {done}/{total} sessions
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="text-xs pl-text-muted">
+                  {daysLeft <= 0
+                    ? 'Due today, no study sessions were scheduled.'
+                    : 'Due too soon for a lead-up study plan.'}
+                </div>
+              )}
             </div>
           ))}
         </div>

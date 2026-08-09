@@ -4,6 +4,7 @@ import { useStore } from '../store/StoreContext'
 import { buildPlannerContext, askPlanda } from '../lib/ai'
 import { assistantReply } from '../lib/aiStub'
 import { parseAction } from '../lib/assistantActions'
+import { generateStudySessions } from '../lib/studyPlan'
 import { relativeDays, format, parseKey } from '../lib/dates'
 
 // "tomorrow" / "today" read nicely; anything else shows the actual date.
@@ -72,7 +73,7 @@ export default function StudyAssistant({ open, onClose }) {
     if (action) {
       let reply
       if (action.needDate) {
-        reply = `Sure — when is that ${action.type.toLowerCase()} due? (e.g. "next Tuesday" or "Oct 3")`
+        reply = `Sure, when is that ${action.type.toLowerCase()} due? (e.g. "next Tuesday" or "Oct 3")`
       } else if (action.kind === 'assessment') {
         store.addAssessment({
           classId: action.classId,
@@ -86,7 +87,32 @@ export default function StudyAssistant({ open, onClose }) {
           customColor: '',
         })
         const cls = store.classes.find((c) => c.id === action.classId)
-        reply = `Done ✅ I logged a ${action.type.toLowerCase()}${cls ? ` for ${cls.name}` : action.category !== 'School' ? ` for ${action.category}` : ''} due ${dueLabel(action.date)}: "${action.title}". It's on your calendar and I set up study blocks leading up to it. Tap it anytime to tweak the details.`
+        // Report the REAL number of study blocks that get generated, so the
+        // reply never claims a lead-up plan that wasn't actually created.
+        const planned = generateStudySessions(
+          {
+            id: 'preview',
+            dueDate: action.date,
+            difficulty: 'Medium',
+            classId: action.classId,
+            dailyStudyMinutes: 30,
+            title: action.title,
+            topics: [],
+          },
+          { classes: store.classes }
+        ).length
+        const where = cls
+          ? ` for ${cls.name}`
+          : action.category !== 'School'
+            ? ` for ${action.category}`
+            : ''
+        const planLine =
+          planned === 0
+            ? " It's due too soon for a lead-up study plan, but you can add your own study blocks anytime."
+            : planned === 1
+              ? ' I added a study block the day before so you can review.'
+              : ` I spread ${planned} study sessions across the days leading up to it.`
+        reply = `Done ✅ I logged a ${action.type.toLowerCase()}${where} due ${dueLabel(action.date)}: "${action.title}". It's on your calendar.${planLine} Tap it anytime to tweak the details.`
       } else {
         store.addItem({
           title: action.title,

@@ -251,7 +251,7 @@ export default function ImportModal({ open, onClose }) {
 
         <div className="h-px pl-surface-2" />
 
-        {/* Holidays — check the ones you want on your calendar */}
+        {/* Holidays: check the ones you want on your calendar */}
         <section>
           <h3 className="mb-1 text-sm font-bold pl-text">Holidays &amp; breaks</h3>
           <p className="mb-3 text-xs pl-text-muted">

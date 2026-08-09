@@ -34,11 +34,11 @@ export function assistantReply(userText, { assessments = [], classes = [], today
       .slice(0, 4)
       .map((a) => {
         const c = classes.find((cc) => cc.id === a.classId)
-        return `• ${a.title}${c ? ` (${c.name})` : ''} — due ${relativeDays(a.dueDate).toLowerCase()}`
+        return `• ${a.title}${c ? ` (${c.name})` : ''}, due ${relativeDays(a.dueDate).toLowerCase()}`
       })
       .join('\n')
     return `Here's a plan for your week${stats.streak ? ` (nice ${stats.streak}-day streak!)` : ''}:\n\n${
-      list || '• No assessments yet — add a few with the + button and I\'ll schedule around them.'
+      list || '• No assessments yet, add a few with the + button and I\'ll schedule around them.'
     }\n\nI'd spread ~${stats.weeklyMinutes ? Math.max(30, Math.round((300 - stats.weeklyMinutes) / 5)) : 45} focus min/day across these, hardest-first, and keep the day before each due date light for review. Want me to drop study blocks on your calendar?`
   }
 
@@ -46,7 +46,7 @@ export function assistantReply(userText, { assessments = [], classes = [], today
   if (text.includes('today') || text.includes('focus on') || text.includes('right now')) {
     const tasks = todayTasks.slice(0, 4).map((t) => `• ${t.title}`).join('\n')
     if (!tasks && !next) {
-      return "Your plate's clear today — no tasks due and no assessments coming up. Great time to get ahead: add anything on your mind with the + button, or start a quick focus session."
+      return "Your plate's clear today: no tasks due and no assessments coming up. Great time to get ahead: add anything on your mind with the + button, or start a quick focus session."
     }
     return `Here's where I'd start today:\n\n${tasks || '• (no tasks logged for today)'}${
       next ? `\n\nThen chip away at your ${clsName} ${next.type.toLowerCase()} (${relativeDays(next.dueDate).toLowerCase()}).` : ''

@@ -44,8 +44,8 @@ export default function Fab({ onAddItem, onAddAssessment }) {
       <div className="fixed bottom-24 right-5 z-40 flex flex-col items-end gap-3 lg:bottom-10 lg:right-8">
         {open && (
           <>
-            {action('Add Item', CheckSquare, onAddItem, '0ms')}
-            {action('Assessment', BookOpen, onAddAssessment, '40ms')}
+            {action('Task / Homework', CheckSquare, onAddItem, '0ms')}
+            {action('Test / Quiz', BookOpen, onAddAssessment, '40ms')}
           </>
         )}
         <button

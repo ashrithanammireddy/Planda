@@ -70,26 +70,43 @@ export function SocialProvider({ children }) {
     () => computeStats({ assessments, sessions, items, focusLog }),
     [assessments, sessions, items, focusLog]
   )
-  const points = useMemo(
-    () =>
-      computePoints({
-        stats,
-        badgePoints: badgePointsFrom(computeBadges(stats, { weeklyGoal: settings.weeklyGoal })),
-      }),
-    [stats, settings.weeklyGoal]
+  const badges = useMemo(
+    () => computeBadges(stats, { weeklyGoal: settings.weeklyGoal, friends }),
+    [stats, settings.weeklyGoal, friends]
   )
+  const points = useMemo(
+    () => computePoints({ stats, badgePoints: badgePointsFrom(badges) }),
+    [stats, badges]
+  )
+  const shareStats = settings.shareStats !== false
+  // Earned badge ids + their tier, so a friend's card can render your medals.
+  const earnedBadges = useMemo(
+    () => badges.filter((b) => b.earned).map((b) => b.id),
+    [badges]
+  )
+  const badgeTiers = useMemo(
+    () => Object.fromEntries(badges.filter((b) => b.earned).map((b) => [b.id, b.tier])),
+    [badges]
+  )
+  const badgeKey = earnedBadges.join(',')
+
   useEffect(() => {
     if (!uid || !myCode) return // wait until the profile doc + code exist
+    // Identity always syncs; study data only when sharing is on.
     syncProfile(uid, {
       name: profile.name || 'You',
       avatar: profile.avatar,
       glasses: profile.glasses || 'none',
       hat: profile.hat || 'none',
-      streak: stats.streak,
-      weeklyMinutes: stats.weeklyMinutes,
-      points,
+      sharing: shareStats,
+      goal: settings.weeklyGoal || 0,
+      streak: shareStats ? stats.streak : 0,
+      weeklyMinutes: shareStats ? stats.weeklyMinutes : 0,
+      points: shareStats ? points : 0,
+      badges: shareStats ? earnedBadges : [],
+      badgeTiers: shareStats ? badgeTiers : {},
     }).catch(() => {})
-  }, [uid, myCode, profile.name, profile.avatar, profile.glasses, profile.hat, stats.streak, stats.weeklyMinutes, points])
+  }, [uid, myCode, profile.name, profile.avatar, profile.glasses, profile.hat, shareStats, settings.weeklyGoal, stats.streak, stats.weeklyMinutes, points, badgeKey])
 
   const value = {
     enabled: firebaseEnabled,

@@ -248,8 +248,14 @@ export default function AssessmentModal({ open, onClose, editing, initialDate })
             <button
               type="button"
               onClick={() => {
-                deleteAssessment(editing.id)
-                onClose()
+                if (
+                  window.confirm(
+                    `Delete "${editing.title || 'this'}" and its study plan? This cannot be undone.`
+                  )
+                ) {
+                  deleteAssessment(editing.id)
+                  onClose()
+                }
               }}
               className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
             >

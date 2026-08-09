@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Flame, Play, Send, Trophy, Copy, UserPlus, Check } from 'lucide-react'
+import { Flame, Play, Send, Trophy, Copy, UserPlus, Check, Lock } from 'lucide-react'
 import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
 import { computeBadges, badgePointsFrom } from '../../lib/badges'
@@ -26,6 +26,7 @@ export default function FriendsSection() {
   const [addMsg, setAddMsg] = useState('')
   const [copied, setCopied] = useState(false)
   const myGoal = settings.weeklyGoal || 0
+  const shareStats = settings.shareStats !== false
 
   // Real friends once the cloud profile loads; otherwise the simulated squad
   // (also the graceful fallback if Firestore isn't enabled yet).
@@ -37,13 +38,14 @@ export default function FriendsSection() {
     [assessments, sessions, items, focusLog]
   )
 
+  const myBadges = useMemo(
+    () => computeBadges(stats, { weeklyGoal: myGoal, friends: friendList }),
+    [stats, myGoal, friendList]
+  )
+  const myEarned = useMemo(() => myBadges.filter((b) => b.earned), [myBadges])
   const myPoints = useMemo(
-    () =>
-      computePoints({
-        stats,
-        badgePoints: badgePointsFrom(computeBadges(stats, { weeklyGoal: myGoal })),
-      }),
-    [stats, myGoal]
+    () => computePoints({ stats, badgePoints: badgePointsFrom(myBadges) }),
+    [stats, myBadges]
   )
   const me = {
     id: 'me',
@@ -54,6 +56,9 @@ export default function FriendsSection() {
     streak: stats.streak,
     weeklyMinutes: stats.weeklyMinutes,
     points: myPoints,
+    badges: myEarned.map((b) => b.id),
+    badgeTiers: Object.fromEntries(myEarned.map((b) => [b.id, b.tier])),
+    sharing: true,
     isMe: true,
   }
 
@@ -119,7 +124,7 @@ export default function FriendsSection() {
         Follow-through is easier together.
         {usingReal
           ? ' Share your code to add friends and cheer each other on.'
-          : ' Sign in to add real friends — the squad below is a demo for now.'}
+          : ' Sign in to add real friends, the squad below is a demo for now.'}
       </p>
 
       {/* Diagnostic line: signed in but the cloud profile hasn't loaded. */}
@@ -131,7 +136,7 @@ export default function FriendsSection() {
         </p>
       )}
 
-      {/* Focus Room hero — a light surface (lifted above the page background). */}
+      {/* Focus Room hero: a light surface (lifted above the page background). */}
       <div className="mb-4 overflow-hidden rounded-3xl border pl-border pl-surface p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -240,10 +245,10 @@ export default function FriendsSection() {
           {leaderboard.map((p, i) => (
             <div
               key={p.id}
-              onClick={() => !p.isMe && setSelectedFriend(p)}
-              role={p.isMe ? undefined : 'button'}
-              className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition ${
-                p.isMe ? 'pl-accent-soft' : 'cursor-pointer hover:pl-surface-2'
+              onClick={() => setSelectedFriend(p)}
+              role="button"
+              className={`flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:brightness-95 ${
+                p.isMe ? 'pl-accent-soft' : 'hover:pl-surface-2'
               }`}
             >
               <span className="w-6 text-center text-sm font-bold pl-text-muted">
@@ -260,18 +265,26 @@ export default function FriendsSection() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs pl-text-muted">
-                  <span className="flex items-center gap-1 font-semibold">
-                    {rankFor(p.points || 0).rank.emoji}
-                    {rankFor(p.points || 0).rank.name}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Flame size={12} /> {p.streak}
-                  </span>
-                  {!p.isMe && p.status && (
-                    <span className="flex items-center gap-1">
-                      <span className={`h-2 w-2 rounded-full ${statusDot[p.status]}`} />
-                      {STATUS_LABEL[p.status]}
+                  {p.sharing === false && !p.isMe ? (
+                    <span className="flex items-center gap-1 font-medium">
+                      <Lock size={12} /> Stats private
                     </span>
+                  ) : (
+                    <>
+                      <span className="flex items-center gap-1 font-semibold">
+                        {rankFor(p.points || 0).rank.emoji}
+                        {rankFor(p.points || 0).rank.name}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Flame size={12} /> {p.streak}
+                      </span>
+                      {!p.isMe && p.status && (
+                        <span className="flex items-center gap-1">
+                          <span className={`h-2 w-2 rounded-full ${statusDot[p.status]}`} />
+                          {STATUS_LABEL[p.status]}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -279,7 +292,7 @@ export default function FriendsSection() {
                 className="text-sm font-bold pl-text"
                 style={{ fontVariantNumeric: 'tabular-nums' }}
               >
-                {p.weeklyMinutes}m
+                {p.sharing === false && !p.isMe ? '-' : `${p.weeklyMinutes}m`}
               </div>
               {!p.isMe &&
                 (cheered[p.id] ? (
@@ -304,7 +317,41 @@ export default function FriendsSection() {
         </div>
       </div>
 
-      {/* Your code + add a friend — kept subtle, at the bottom. */}
+      {/* Privacy: choose whether friends see your study data. */}
+      {usingReal && (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border pl-border pl-surface px-4 py-3">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl pl-surface-2 pl-text-muted">
+              <Lock size={16} />
+            </span>
+            <div>
+              <div className="text-sm font-semibold pl-text">Keep my stats private</div>
+              <div className="text-xs pl-text-muted">
+                {shareStats
+                  ? 'Friends can see your streak, minutes, points, and badges.'
+                  : 'Friends see your name and avatar only - your stats stay private.'}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={!shareStats}
+            onClick={() => updateSettings({ shareStats: !shareStats })}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+              !shareStats ? 'pl-accent' : 'pl-surface-2'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+                !shareStats ? 'left-[22px]' : 'left-0.5'
+              }`}
+            />
+          </button>
+        </div>
+      )}
+
+      {/* Your code + add a friend, kept subtle, at the bottom. */}
       {usingReal && (
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border pl-border pl-surface px-4 py-3 text-sm">
           <span className="pl-text-muted">Your code</span>

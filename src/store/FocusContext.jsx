@@ -17,7 +17,7 @@ export function FocusProvider({ children }) {
   const [done, setDone] = useState(false)
   const tick = useRef(null)
 
-  // Count down. The updater stays pure (just decrements) — completion side
+  // Count down. The updater stays pure (just decrements), completion side
   // effects live in the effect below so they run exactly once.
   useEffect(() => {
     if (!running) return

@@ -65,7 +65,7 @@ export async function signOutFirebase() {
 }
 
 // Permanently delete the signed-in account. If the session is too old, Firebase
-// requires a recent login — we sign out in that case so the caller can still
+// requires a recent login, we sign out in that case so the caller can still
 // clear local data and prompt a fresh sign-in.
 export async function deleteAccountFirebase() {
   if (!auth?.currentUser) return

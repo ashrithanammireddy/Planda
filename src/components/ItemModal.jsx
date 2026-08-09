@@ -232,8 +232,10 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
             <button
               type="button"
               onClick={() => {
-                deleteItem(editing.id)
-                onClose()
+                if (window.confirm(`Delete "${editing.title || 'this'}"? This cannot be undone.`)) {
+                  deleteItem(editing.id)
+                  onClose()
+                }
               }}
               className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
             >

@@ -46,19 +46,19 @@ export function buildPlannerContext(store) {
 }
 
 // Routing priority for Ask Planda:
-//  1. VITE_AI_ENDPOINT  — deployed serverless proxy (holds the key, verifies the
+//  1. VITE_AI_ENDPOINT: deployed serverless proxy (holds the key, verifies the
 //     user). This is the production path once the app is deployed.
-//  2. VITE_GEMINI_API_KEY — calls Google Gemini's free tier directly from the
+//  2. VITE_GEMINI_API_KEY: calls Google Gemini's free tier directly from the
 //     browser. LOCAL/DEMO ONLY: the key is bundled into the client, so only use
 //     this while running on your own machine (never ship a public build with it).
-//  3. otherwise — the offline rule-based brain (no network, no key).
+//  3. otherwise: the offline rule-based brain (no network, no key).
 const AI_ENDPOINT = import.meta.env.VITE_AI_ENDPOINT
 const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY
 const GEMINI_MODEL = 'gemini-2.0-flash'
 
 const PERSONA =
   'You are Planda, a warm, encouraging study assistant (a friendly panda) inside a student planner app. ' +
-  'Keep replies short and practical — a few sentences or a tight list. Use the student\'s planner context to ' +
+  'Keep replies short and practical: a few sentences or a tight list. Use the student\'s planner context to ' +
   'personalize advice, but never invent assignments, grades, or dates that are not in the context. When asked ' +
   'to plan, give concrete, doable steps. Be supportive, never preachy.'
 
@@ -88,7 +88,7 @@ async function callGemini({ message, context, history }) {
   const data = await res.json()
   return (
     data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-    "I'm not sure how to answer that yet — try rephrasing?"
+    "I'm not sure how to answer that yet, try rephrasing?"
   )
 }
 
@@ -110,7 +110,7 @@ export async function askPlanda({ message, context, history = [], authToken, loc
     try {
       return await callGemini({ message, context, history })
     } catch (err) {
-      // Never break the chat — fall back to the offline brain, but log why so
+      // Never break the chat, fall back to the offline brain, but log why so
       // we can diagnose the real-AI path.
       console.warn('[Planda] Gemini call failed, using offline brain:', err?.message || err)
       return localBrain(message)

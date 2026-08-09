@@ -4,6 +4,7 @@ import { useStore } from '../../store/StoreContext'
 import { computeStats } from '../../lib/stats'
 import { computeBadges, badgePointsFrom } from '../../lib/badges'
 import { computePoints, rankFor } from '../../lib/ranks'
+import { useSocial } from '../../store/SocialContext'
 import { AVATARS, GLASSES, HATS } from '../../lib/avatars'
 import Avatar from '../Avatar'
 import AnimalAvatar, { AccessoryIcon } from '../AnimalAvatar'
@@ -22,13 +23,18 @@ export default function ProfileSection() {
     useStore()
   const [milestonesOpen, setMilestonesOpen] = useState(false)
   const [ranksOpen, setRanksOpen] = useState(false)
+  const social = useSocial()
+  // Judge squad badges against your real friends once signed in; otherwise fall
+  // back to the demo squad (matches the Friends screen).
+  const usingReal = social.enabled && social.signedIn && !!social.myCode
+  const friends = usingReal ? social.friends : undefined
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
     [assessments, sessions, items, focusLog]
   )
   const badges = useMemo(
-    () => computeBadges(stats, { weeklyGoal: settings.weeklyGoal }),
-    [stats, settings.weeklyGoal]
+    () => computeBadges(stats, { weeklyGoal: settings.weeklyGoal, friends }),
+    [stats, settings.weeklyGoal, friends]
   )
   const points = useMemo(
     () => computePoints({ stats, badgePoints: badgePointsFrom(badges) }),
@@ -43,7 +49,7 @@ export default function ProfileSection() {
   const hrs = Math.floor(stats.totalMinutes / 60)
   const mins = stats.totalMinutes % 60
 
-  // Edits are a draft — nothing is saved until "Update profile" is clicked.
+  // Edits are a draft: nothing is saved until "Update profile" is clicked.
   const [draft, setDraft] = useState({
     name: profile.name || '',
     school: profile.school || '',
@@ -108,7 +114,7 @@ export default function ProfileSection() {
         </div>
       </div>
 
-      {/* Rank — tap to see the whole ladder */}
+      {/* Rank: tap to see the whole ladder */}
       <button
         type="button"
         onClick={() => setRanksOpen(true)}
@@ -290,7 +296,9 @@ export default function ProfileSection() {
       </div>
 
       <p className="mt-4 text-center text-xs pl-text-muted">
-        Your profile and data are stored privately in this browser.
+        {usingReal
+          ? 'Your planner stays on this device. When signed in, your name, avatar, and the stats you choose to share sync so friends can see them.'
+          : 'Your planner and data are stored on this device.'}
       </p>
 
       <MilestonesModal

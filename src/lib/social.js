@@ -68,11 +68,15 @@ export async function addFriendByCode(uid, rawCode) {
   const friend = res.docs[0]
   if (friend.id === uid) return { error: "That's your own code!" }
   await updateDoc(doc(db, 'users', uid), { friends: arrayUnion(friend.id) })
+  // Mutual: add myself to their friends list too, so friending goes both ways.
+  await updateDoc(doc(db, 'users', friend.id), { friends: arrayUnion(uid) }).catch(() => {})
   return { ok: true, friend: { id: friend.id, ...friend.data() } }
 }
 
 export async function removeFriend(uid, friendId) {
   await updateDoc(doc(db, 'users', uid), { friends: arrayRemove(friendId) })
+  // Mutual: remove myself from their list too.
+  await updateDoc(doc(db, 'users', friendId), { friends: arrayRemove(uid) }).catch(() => {})
 }
 
 // Live subscription to my doc; refetches friends' public docs when it changes.

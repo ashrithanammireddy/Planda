@@ -38,7 +38,7 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
       : toggleItem(item.ref.id)
 
   return (
-    <div className="grid h-full grid-cols-7 gap-3">
+    <div className="grid grid-cols-1 gap-3 lg:h-full lg:grid-cols-7">
       {days.map((day, i) => {
         const isToday = isSameDay(day, today)
         const items = itemsForDate(day, {
@@ -52,8 +52,8 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
         const doneCount = checkables.filter((it) => it.completed).length
 
         return (
-          <div key={day.toISOString()} className="flex min-h-0 flex-col">
-            <div className="mb-2 text-center">
+          <div key={day.toISOString()} className="flex min-h-0 flex-col lg:h-full">
+            <div className="mb-2 flex items-center gap-2 lg:block lg:text-center">
               <div className="text-xs font-semibold tracking-wide pl-text-muted">
                 {labels[i]}
               </div>
@@ -70,7 +70,7 @@ export default function WeekView({ date, onSelectItem, onSelectDay }) {
             <div
               onClick={() => onSelectDay(day)}
               style={isToday ? { borderColor: accentBorder } : undefined}
-              className={`flex min-h-0 flex-1 cursor-pointer flex-col gap-1.5 overflow-y-auto rounded-2xl border p-2 planda-scroll ${
+              className={`flex min-h-[52px] cursor-pointer flex-col gap-1.5 rounded-2xl border p-2 planda-scroll lg:min-h-0 lg:flex-1 lg:overflow-y-auto ${
                 isToday ? 'pl-surface' : 'pl-border pl-surface hover:border-black/10'
               }`}
             >

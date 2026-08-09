@@ -78,7 +78,8 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
               >
                 {format(day, 'd')}
               </span>
-              <div className="flex flex-col gap-1 overflow-hidden">
+              {/* Desktop: full event pills. */}
+              <div className="hidden flex-col gap-1 overflow-hidden sm:flex">
                 {items.slice(0, MAX_PILLS).map((item) => (
                   <EventPill
                     key={item.id}
@@ -93,6 +94,18 @@ export default function MonthView({ date, onSelectItem, onSelectDay }) {
                   </span>
                 )}
               </div>
+              {/* Mobile: compact colored dots (cells are too narrow for text). */}
+              {items.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1 sm:hidden">
+                  {items.slice(0, 6).map((item) => (
+                    <span
+                      key={item.id}
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: item.color || accent }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )
         })}

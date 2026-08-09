@@ -46,30 +46,34 @@ export const BADGES = [
     id: 'share', name: 'Pulling Weight', emoji: '🤝',
     desc: 'Study more than your share of the squad goal.',
     bool: true,
-    check: (s) => (s.weeklyMinutes || 0) >= squadFairShare(),
+    check: (s, c) => {
+      const friends = c.friends || FRIENDS
+      const fairShare = squadGoalMinutes(c.weeklyGoal || 0, friends) / (friends.length + 1)
+      return fairShare > 0 && (s.weeklyMinutes || 0) >= fairShare
+    },
   },
   {
     id: 'mvp', name: 'Squad MVP', emoji: '🏅',
     desc: 'Top the weekly leaderboard.',
     bool: true,
-    check: (s) => (s.weeklyMinutes || 0) > 0 && (s.weeklyMinutes || 0) >= topFriendMinutes(),
+    check: (s, c) => {
+      const friends = c.friends || FRIENDS
+      const top = friends.reduce((m, f) => Math.max(m, f.weeklyMinutes || 0), 0)
+      // Only a real squad earns MVP; solo (no friends) can't top a leaderboard.
+      return friends.length > 0 && (s.weeklyMinutes || 0) > 0 && (s.weeklyMinutes || 0) >= top
+    },
   },
 ]
 
-// Squad helpers (front-end: my goal comes from context, friends are simulated).
-function topFriendMinutes() {
-  return FRIENDS.reduce((m, f) => Math.max(m, f.weeklyMinutes || 0), 0)
-}
-export function squadGoalMinutes(myGoal = 0) {
-  return myGoal + FRIENDS.reduce((s, f) => s + (f.goal || 0), 0)
-}
-let _fairShareGoal = 0
-function squadFairShare() {
-  return squadGoalMinutes(_fairShareGoal) / (FRIENDS.length + 1)
+// Combined weekly goal of you + your squad. Friends default to the demo squad
+// when a real list isn't passed (signed-out preview).
+export function squadGoalMinutes(myGoal = 0, friends = FRIENDS) {
+  return myGoal + friends.reduce((s, f) => s + (f.goal || 0), 0)
 }
 
+// ctx: { weeklyGoal, friends } where friends is the REAL leaderboard (each with
+// weeklyMinutes / goal) so the squad badges reflect actual standings.
 export function computeBadges(stats, ctx = {}) {
-  _fairShareGoal = ctx.weeklyGoal || 0
   return BADGES.map((b) => {
     if (b.bool) {
       const earned = !!b.check(stats, ctx)

@@ -22,7 +22,7 @@ const LETTERS = [
 ]
 
 export function letterGrade(percent) {
-  if (percent == null || Number.isNaN(percent)) return '—'
+  if (percent == null || Number.isNaN(percent)) return '-'
   for (const [min, letter] of LETTERS) if (percent >= min) return letter
   return 'F'
 }
