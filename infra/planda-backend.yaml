@@ -1,0 +1,449 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Planda backend – Cognito User Pool, DynamoDB users table, AppSync API
+
+Parameters:
+  AppName:
+    Type: String
+    Default: planda
+  GoogleClientId:
+    Type: String
+    Default: ""
+    Description: Optional – Google OAuth client ID for federated sign-in
+  GoogleClientSecret:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Optional – Google OAuth client secret
+
+Conditions:
+  HasGoogle: !Not [!Equals [!Ref GoogleClientId, ""]]
+
+Resources:
+
+  # ── Cognito ────────────────────────────────────────────────────────────────
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "${AppName}-users"
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireUppercase: false
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      DeletionProtection: INACTIVE
+
+  # Google IdP (created only when credentials are supplied)
+  GoogleIdP:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Condition: HasGoogle
+    Properties:
+      UserPoolId: !Ref UserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: "email profile openid"
+      AttributeMapping:
+        email: email
+        name: name
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub "${AppName}-web"
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      # Token validity
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: days
+        IdToken: days
+        RefreshToken: days
+      # Auth flows – SRP for email/pass, allow refresh
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      # Prevent user-existence errors leaking during sign-in
+      PreventUserExistenceErrors: ENABLED
+      SupportedIdentityProviders:
+        !If
+          - HasGoogle
+          - [COGNITO, Google]
+          - [COGNITO]
+      # Hosted UI callback URLs (update with real domain once CloudFront is set)
+      CallbackURLs:
+        - http://localhost:5173
+        - !Sub "https://d1i1jwj5ohdhy5.cloudfront.net"
+      LogoutURLs:
+        - http://localhost:5173
+        - !Sub "https://d1i1jwj5ohdhy5.cloudfront.net"
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [email, openid, profile]
+      AllowedOAuthFlowsUserPoolClient: true
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub "${AppName}-auth-${AWS::AccountId}"
+      UserPoolId: !Ref UserPool
+
+  # ── DynamoDB ───────────────────────────────────────────────────────────────
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AppName}-users"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: uid
+          AttributeType: S
+        - AttributeName: code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: uid
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: code-index
+          KeySchema:
+            - AttributeName: code
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # ── AppSync ────────────────────────────────────────────────────────────────
+
+  AppSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AppName}-appsync-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: appsync.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt UsersTable.Arn
+                  - !Sub "${UsersTable.Arn}/index/*"
+
+  GraphQLApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub "${AppName}-api"
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      UserPoolConfig:
+        UserPoolId: !Ref UserPool
+        AwsRegion: !Ref AWS::Region
+        DefaultAction: ALLOW
+      AdditionalAuthenticationProviders:
+        - AuthenticationType: API_KEY
+      XrayEnabled: false
+
+  GraphQLApiKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Description: Public read key (for unauthenticated profile lookups)
+      Expires: 1817770075   # 364 days from stack creation (max allowed)
+
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Definition: |
+        type User {
+          uid: ID!
+          name: String
+          avatar: String
+          glasses: String
+          hat: String
+          code: String
+          friends: [String]
+          streak: Int
+          weeklyMinutes: Int
+          points: Int
+          badges: [String]
+          badgeTiers: AWSJSON
+          sharing: Boolean
+          goal: Int
+          createdAt: AWSDateTime
+          updatedAt: AWSDateTime
+        }
+
+        input UpdateUserInput {
+          name: String
+          avatar: String
+          glasses: String
+          hat: String
+          sharing: Boolean
+          goal: Int
+          streak: Int
+          weeklyMinutes: Int
+          points: Int
+          badges: [String]
+          badgeTiers: AWSJSON
+        }
+
+        type Query {
+          getUser(uid: ID!): User
+          getUserByCode(code: String!): User
+        }
+
+        type Mutation {
+          createUser(uid: ID!, name: String, avatar: String, glasses: String, hat: String): User
+          updateUser(uid: ID!, input: UpdateUserInput!): User
+          addFriend(uid: ID!, friendUid: ID!): User
+          removeFriend(uid: ID!, friendUid: ID!): User
+        }
+
+        type Subscription {
+          onUserUpdated(uid: ID!): User
+            @aws_subscribe(mutations: ["updateUser", "addFriend", "removeFriend"])
+        }
+
+        schema {
+          query: Query
+          mutation: Mutation
+          subscription: Subscription
+        }
+
+  # ── AppSync Data Source ────────────────────────────────────────────────────
+
+  UsersDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Name: UsersTable
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncRole.Arn
+      DynamoDBConfig:
+        TableName: !Ref UsersTable
+        AwsRegion: !Ref AWS::Region
+
+  # ── Resolvers (JS / pipeline not needed; use unit VTL) ────────────────────
+
+  GetUserResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Query
+      FieldName: getUser
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "GetItem",
+          "key": { "uid": $util.dynamodb.toDynamoDBJson($ctx.args.uid) }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+  GetUserByCodeResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Query
+      FieldName: getUserByCode
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Query",
+          "index": "code-index",
+          "query": {
+            "expression": "#code = :code",
+            "expressionNames": { "#code": "code" },
+            "expressionValues": { ":code": $util.dynamodb.toDynamoDBJson($ctx.args.code) }
+          },
+          "limit": 1
+        }
+      ResponseMappingTemplate: |
+        #if($ctx.result.items.isEmpty())
+          null
+        #else
+          $util.toJson($ctx.result.items[0])
+        #end
+
+  CreateUserResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: createUser
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        #set($now = $util.time.nowISO8601())
+        #set($code = $util.autoId().substring(0,6).toUpperCase())
+        {
+          "version": "2017-02-28",
+          "operation": "PutItem",
+          "condition": { "expression": "attribute_not_exists(uid)" },
+          "key": { "uid": $util.dynamodb.toDynamoDBJson($ctx.args.uid) },
+          "attributeValues": {
+            "name":      $util.dynamodb.toDynamoDBJson($util.defaultIfNullOrBlank($ctx.args.name, "You")),
+            "avatar":    $util.dynamodb.toDynamoDBJson($util.defaultIfNullOrBlank($ctx.args.avatar, "panda")),
+            "glasses":   $util.dynamodb.toDynamoDBJson($util.defaultIfNullOrBlank($ctx.args.glasses, "none")),
+            "hat":       $util.dynamodb.toDynamoDBJson($util.defaultIfNullOrBlank($ctx.args.hat, "none")),
+            "code":      $util.dynamodb.toDynamoDBJson($code),
+            "friends":   { "L": [] },
+            "sharing":   { "BOOL": true },
+            "goal":      { "N": "0" },
+            "streak":    { "N": "0" },
+            "weeklyMinutes": { "N": "0" },
+            "points":    { "N": "0" },
+            "badges":    { "L": [] },
+            "badgeTiers": { "S": "{}" },
+            "createdAt": $util.dynamodb.toDynamoDBJson($now),
+            "updatedAt": $util.dynamodb.toDynamoDBJson($now)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+  UpdateUserResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: updateUser
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        #set($now = $util.time.nowISO8601())
+        #set($expNames  = {})
+        #set($expValues = {})
+        #set($sets = [])
+        #foreach($entry in $ctx.args.input.entrySet())
+          #set($k = "#attr_${foreach.index}")
+          #set($v = ":val_${foreach.index}")
+          $util.qr($expNames.put($k, $entry.key))
+          $util.qr($expValues.put($v, $util.dynamodb.toDynamoDB($entry.value)))
+          $util.qr($sets.add("$k = $v"))
+        #end
+        $util.qr($expNames.put("#updatedAt", "updatedAt"))
+        $util.qr($expValues.put(":updatedAt", $util.dynamodb.toDynamoDB($now)))
+        $util.qr($sets.add("#updatedAt = :updatedAt"))
+        {
+          "version": "2017-02-28",
+          "operation": "UpdateItem",
+          "key": { "uid": $util.dynamodb.toDynamoDBJson($ctx.args.uid) },
+          "update": {
+            "expression": "SET ${sets.join(', ')}",
+            "expressionNames":  $util.toJson($expNames),
+            "expressionValues": $util.toJson($expValues)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+  AddFriendResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: addFriend
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "UpdateItem",
+          "key": { "uid": $util.dynamodb.toDynamoDBJson($ctx.args.uid) },
+          "update": {
+            "expression": "SET #updatedAt = :now ADD friends :fid",
+            "expressionNames": { "#updatedAt": "updatedAt" },
+            "expressionValues": {
+              ":fid": { "SS": ["${ctx.args.friendUid}"] },
+              ":now": $util.dynamodb.toDynamoDBJson($util.time.nowISO8601())
+            }
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+  RemoveFriendResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: removeFriend
+      DataSourceName: !GetAtt UsersDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "UpdateItem",
+          "key": { "uid": $util.dynamodb.toDynamoDBJson($ctx.args.uid) },
+          "update": {
+            "expression": "SET #updatedAt = :now DELETE friends :fid",
+            "expressionNames": { "#updatedAt": "updatedAt" },
+            "expressionValues": {
+              ":fid": { "SS": ["${ctx.args.friendUid}"] },
+              ":now": $util.dynamodb.toDynamoDBJson($util.time.nowISO8601())
+            }
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+# ── Outputs ──────────────────────────────────────────────────────────────────
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+    Export: { Name: !Sub "${AppName}-UserPoolId" }
+
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+    Export: { Name: !Sub "${AppName}-UserPoolClientId" }
+
+  CognitoDomain:
+    Value: !Sub "${AppName}-auth-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
+
+  GraphQLApiUrl:
+    Value: !GetAtt GraphQLApi.GraphQLUrl
+    Export: { Name: !Sub "${AppName}-GraphQLUrl" }
+
+  GraphQLApiId:
+    Value: !GetAtt GraphQLApi.ApiId
+
+  GraphQLApiKey:
+    Value: !GetAtt GraphQLApiKey.ApiKey
+
+  DynamoDBTable:
+    Value: !Ref UsersTable

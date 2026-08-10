@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# AWS infra outputs (contains AppSync API key)
+infra/outputs.json
