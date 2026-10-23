@@ -28,10 +28,13 @@ export default function FriendsSection() {
   const myGoal = settings.weeklyGoal || 0
   const shareStats = settings.shareStats !== false
 
-  // Real friends once the cloud profile loads; otherwise the simulated squad
-  // (also the graceful fallback if Firestore isn't enabled yet).
-  const usingReal = social.enabled && social.signedIn && !!social.myCode
-  const friendList = usingReal ? social.friends : FRIENDS
+  // Three states: a real signed-in account shows its real friends (even if it
+  // has none yet); a signed-out visitor sees a clearly-labeled demo squad; a
+  // just-signed-in account still loading shows neither (never fake friends).
+  const signedIn = social.enabled && social.signedIn
+  const usingReal = signedIn && !!social.myCode
+  const showDemo = !signedIn
+  const friendList = usingReal ? social.friends : showDemo ? FRIENDS : []
 
   const stats = useMemo(
     () => computeStats({ assessments, sessions, items, focusLog }),
@@ -124,15 +127,16 @@ export default function FriendsSection() {
         Follow-through is easier together.
         {usingReal
           ? ' Share your code to add friends and cheer each other on.'
-          : ' Sign in to add real friends, the squad below is a demo for now.'}
+          : showDemo
+            ? ' Sign in to add real friends - the squad below is just a preview.'
+            : ' Setting up your friends space…'}
       </p>
 
-      {/* Diagnostic line: signed in but the cloud profile hasn't loaded. */}
-      {social.enabled && social.signedIn && !social.myCode && (
-        <p className="mb-4 text-xs font-medium text-amber-600">
-          {social.error
-            ? `Friends sync error: ${social.error}`
-            : 'Connecting to your friends…'}
+      {/* Signed in but the cloud profile is still loading - stay calm, no raw
+          error text in front of the user. */}
+      {signedIn && !social.myCode && (
+        <p className="mb-4 text-xs font-medium pl-text-muted">
+          Connecting to your friends…
         </p>
       )}
 
@@ -241,6 +245,12 @@ export default function FriendsSection() {
           <Trophy size={18} className="pl-accent-text" />
           <h2 className="font-bold pl-text">This week's leaderboard</h2>
         </div>
+        {usingReal && friendList.length === 0 && (
+          <div className="mb-3 rounded-2xl pl-surface-2 px-4 py-3 text-sm pl-text-muted">
+            No friends yet. Share your code below to study together and fill up
+            the leaderboard.
+          </div>
+        )}
         <div className="flex flex-col">
           {leaderboard.map((p, i) => (
             <div
