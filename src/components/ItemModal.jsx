@@ -15,6 +15,7 @@ function emptyForm(initialDate) {
     description: '',
     date: dateKey(initialDate || new Date()),
     category: 'Personal',
+    classId: '',
     priority: 'Medium',
     type: 'Task',
     customColor: '',
@@ -43,7 +44,7 @@ function Toggle({ checked, onChange }) {
 }
 
 export default function ItemModal({ open, onClose, editing, initialDate }) {
-  const { addItem, updateItem, deleteItem } = useStore()
+  const { addItem, updateItem, deleteItem, classes } = useStore()
   const [form, setForm] = useState(emptyForm(initialDate))
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
         description: editing.description || '',
         date: editing.date,
         category: editing.category || 'Personal',
+        classId: editing.classId || '',
         priority: editing.priority || 'Medium',
         type: editing.type || 'Task',
         customColor: editing.customColor || '',
@@ -72,6 +74,11 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }))
   const setBlock = (key, value) =>
     setForm((f) => ({ ...f, timeBlock: { ...f.timeBlock, [key]: value } }))
+  // Assigning a class colors the item to match that class.
+  const setClass = (id) => {
+    const c = classes.find((x) => x.id === id)
+    setForm((f) => ({ ...f, classId: id, customColor: c ? c.color : '' }))
+  }
 
   const submit = (e) => {
     e.preventDefault()
@@ -139,6 +146,23 @@ export default function ItemModal({ open, onClose, editing, initialDate }) {
             </select>
           </div>
         </div>
+
+        {form.category === 'School' && classes.length > 0 && (
+          <div>
+            <label className={label}>Class</label>
+            <select
+              className={field}
+              value={form.classId}
+              onChange={(e) => setClass(e.target.value)}
+            >
+              <option value="">No class</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs pl-text-muted">Links this task to a class and uses its color.</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
