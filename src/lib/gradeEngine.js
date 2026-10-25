@@ -27,9 +27,9 @@ export function letterGrade(percent) {
   return 'F'
 }
 
-// Unweighted 4.0 GPA points from a percent.
+// Unweighted 4.0 GPA points from a percent. An A- (90%+) counts as a full 4.0.
 const GPA_POINTS = [
-  [93, 4.0], [90, 3.7], [87, 3.3], [83, 3.0], [80, 2.7],
+  [90, 4.0], [87, 3.3], [83, 3.0], [80, 2.7],
   [77, 2.3], [73, 2.0], [70, 1.7], [67, 1.3], [63, 1.0], [60, 0.7], [0, 0.0],
 ]
 export function gradePoints(percent) {
