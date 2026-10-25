@@ -92,8 +92,8 @@ function extractTitle(raw, { type, subject }) {
 // Returns { kind, type, date, classId, category, title } | { needDate, ... } | null
 export function parseAction(raw, { classes = [] } = {}) {
   const t = raw.toLowerCase()
-  if (!/\b(add|log|create|schedule|put|set|make|new|remind)\b/.test(t)) return null
 
+  // What kind of thing is this? (no type keyword -> not an add-command)
   let kind = null
   let type = null
   if (/\bquiz(z?es)?\b/.test(t)) { kind = 'assessment'; type = 'Quiz' }
@@ -104,6 +104,15 @@ export function parseAction(raw, { classes = [] } = {}) {
     kind = 'item'
     type = 'Task'
   } else return null
+
+  const date = parseDate(t)
+  // Act when there's an explicit command verb (add/log/…), OR it reads as a
+  // plain "<type> <date>" statement that clearly isn't a question
+  // (e.g. "chem test in 10 days", "bio quiz friday"). Questions like
+  // "how should I study for my chem test" fall through to a normal answer.
+  const hasCommand = /\b(add|log|create|schedule|put|set|make|new|remind)\b/.test(t)
+  const isQuestion = /\?|\b(how|what|whats|when|why|which|who|should|could|would|can|cant|do|does|did|is|are|am|explain|help|review|practice|tips?|focus|study for|quiz me)\b/.test(t)
+  if (!hasCommand && (isQuestion || !date)) return null
 
   // Which class / subject?
   let classId = ''
@@ -121,7 +130,6 @@ export function parseAction(raw, { classes = [] } = {}) {
     if (subject) category = cap(subject === 'cs' ? 'Computer Science' : subject)
   }
 
-  const date = parseDate(t)
   const title = extractTitle(raw, { type, subject })
   if (!date) return { needDate: true, kind, type, classId, category, title }
   return { kind, type, date, classId, category, title }
