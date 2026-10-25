@@ -3,6 +3,7 @@ import { X, Play, Pause, Check, Trash2, Minimize2 } from 'lucide-react'
 import { useStore } from '../store/StoreContext'
 import { useFocus } from '../store/FocusContext'
 import { FRIENDS } from '../lib/friends'
+import { useSocial } from '../store/SocialContext'
 import PandaLogo from './PandaLogo'
 import Avatar from './Avatar'
 
@@ -21,7 +22,13 @@ export default function FocusRoom() {
   const [setMin, setSetMin] = useState(25)
   const [setCls, setSetCls] = useState('')
 
-  const roomFriends = FRIENDS.filter((f) => f.status === 'focusing').slice(0, 3)
+  const social = useSocial()
+  const signedIn = social.enabled && social.signedIn
+  const usingReal = signedIn && !!social.myCode
+  // A signed-in account uses its real friends (never the demo squad); the demo
+  // squad only appears for the signed-out preview.
+  const sourceFriends = usingReal ? social.friends : signedIn ? [] : FRIENDS
+  const roomFriends = sourceFriends.filter((f) => f.status === 'focusing').slice(0, 3)
 
   if (!open) return null
 
@@ -57,7 +64,9 @@ export default function FocusRoom() {
             ? 'Session complete'
             : active && activeClass
               ? activeClass.name
-              : `Studying with ${roster || 'the squad'}`}
+              : roster
+                ? `Studying with ${roster}`
+                : 'Focus session'}
         </div>
 
         {/* Timer ring with the panda in the middle */}
