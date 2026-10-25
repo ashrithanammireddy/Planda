@@ -219,7 +219,11 @@ export default function FocusRoom() {
               />
             ))}
           </div>
-          <span className="text-xs pl-text-muted">{roomFriends.length + 1} studying now</span>
+          <span className="text-xs pl-text-muted">
+            {roomFriends.length === 0
+              ? 'Just you studying now'
+              : `You + ${roomFriends.length} studying now`}
+          </span>
         </div>
       </div>
     </div>
