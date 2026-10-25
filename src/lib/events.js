@@ -53,7 +53,7 @@ export function itemsForDate(
       id: it.id,
       kind: 'item',
       title: it.title,
-      emoji: it.type === 'Event' ? '📌' : '',
+      emoji: '',
       color: it.customColor || categoryColor(it.category),
       time: timed,
       completed: it.checkable ? it.completed : false,
