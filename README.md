@@ -1,65 +1,60 @@
-# 📅 Planda
+# Planda 🐼
 
-An AI-powered study planner that keeps you organized, focused, and stress-free.
-Add your tests, quizzes, and exams, and Planda automatically lays out daily
-study sessions leading up to each due date, all on a clean, customizable
-calendar.
+A study planner that turns your deadlines into an actual study plan, and makes studying social.
 
-> A faithful, fully local recreation of the Planda app. No backend required,
-> everything persists to your browser's `localStorage`.
+**Live app: [heyplanda.com](https://heyplanda.com)**
+
+Add your tests, quizzes, and assignments, and Planda automatically builds study sessions on your calendar in the days leading up to each one, so you prepare a little each day instead of cramming. It also keeps you motivated with friends, shared goals, a grade calculator, and a focus timer.
 
 ## ✨ Features
 
-- **Four calendar views**: Day, Week, Month, and Year, with quick navigation
-  and a "Today" jump.
-- **Assessments**: create tests, quizzes, exams, or projects with a class, due
-  date, difficulty, daily study minutes, topics, notes, and a custom color.
-- **Auto-generated study plans**: study sessions are spread across the days
-  before an assessment, scaled by its difficulty, and rotate through your topics.
-- **Upcoming Assessments panel**: see what's next with day-countdowns.
-- **AI Study Helper**: a built-in (offline, rule-based) study assistant that
-  reads your real assessments and suggests plans, practice questions, and
-  topic reviews.
-- **Settings & Theme**: light / dark / auto appearance, custom background
-  color, default view, 12/24-hour time, week-start day, show/hide completed
-  tasks, class management (with colors), and per-type assessment emojis.
-- **Task tracking**: tick off study sessions and topic tasks; progress shows in
-  the week view.
+- **Automatic study scheduling:** add a test with a due date and difficulty, and Planda spreads study sessions across the days before it.
+- **Ask Planda:** a natural-language assistant. Type *"chemistry test in 10 days"* and it logs the test and builds the study plan (rule-based, works offline).
+- **Calendar:** day, week, month, and year views, with color-coded classes, tasks, and events.
+- **Grade calculator:** track weighted grades, run "what-if" scenarios, and calculate what you need on a final to reach a target grade.
+- **Study with friends:** add friends by code or invite link, share a weekly squad goal, and compete on a live leaderboard.
+- **Gamification:** badges, ranks, and school-aware streaks that don't break on weekends or holidays.
+- **Focus Room:** a study timer you can attach to a class and keep running while you work.
+- **Personalization:** light and dark themes, theme colors, and 18 hand-drawn animal avatars.
 
 ## 🛠️ Tech Stack
 
-- [React 19](https://react.dev/) + [Vite](https://vite.dev/)
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [date-fns](https://date-fns.org/) for date math
-- [lucide-react](https://lucide.dev/) icons
-- State via React Context + `localStorage` (no server)
+- **React 19 + Vite**, **Tailwind CSS v4**
+- **Firebase** (Authentication + Cloud Firestore) for accounts and the live friends/leaderboard
+- **AWS** (S3 + CloudFront) for hosting
+- `date-fns`, `lucide-react`
+- Planner data persists in the browser; public profiles sync via Firestore
 
-## 🚀 Getting Started
+## 🚀 Run it locally
 
 ```bash
+git clone https://github.com/ashrithanammireddy/planda.git
+cd planda
 npm install
-npm run dev      # start the dev server (http://localhost:5173)
-npm run build    # production build → dist/
-npm run preview  # preview the production build
+npm run dev      # http://localhost:5173
 ```
 
-## 📂 Project Structure
+The app runs out of the box with local data. To enable sign-in and the friends/leaderboard features, create a `.env` file with your own [Firebase](https://firebase.google.com/) project config:
+
+```
+VITE_FIREBASE_API_KEY=your-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+Build for production with `npm run build` (outputs to `dist/`).
+
+## 📂 Project structure
 
 ```
 src/
-  components/   # Header, calendar views, modals, panels, FAB
-  lib/          # date helpers, study-plan generator, AI stub, colors, constants
-  store/        # Context store with localStorage persistence
-  App.jsx       # app shell + view routing + modal wiring
+  components/   calendar views, modals, panels, Ask Planda, Focus Room, avatars
+  lib/          study-plan generator, natural-language parser, grade engine, dates, colors
+  store/        React Context stores (planner data + social)
+  App.jsx       app shell, routing, and modal wiring
 ```
 
-## 🧠 The "AI"
+## 👋 About
 
-The Study Assistant is intentionally **stubbed**: a local, rule-based generator
-in [`src/lib/aiStub.js`](src/lib/aiStub.js). It inspects your assessments and
-returns helpful canned responses, so the app works with zero API keys and no
-cost. To wire in a real model, swap `assistantReply()` for an API call.
-
----
-
-Built as a recreation exercise. Study data lives only in your browser.
+Planda was created by **Ashritha Nammireddy**, a high school student, for the 2026 Congressional App Challenge. The panda logo and the handwritten "planda" wordmark are original artwork I drew by hand. I designed the product and its scheduling logic, and used AI-assisted coding to help implement and refine the app.
